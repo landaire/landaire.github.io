@@ -4,23 +4,22 @@ description = "Adventures in reinventing the wheel. Also: I hate thread-local st
 summary = "Adventures in reinventing the wheel. Also: I hate thread-local storage."
 template = "toc_page.html"
 toc = true
-date = "2024-08-12"
+date = "2024-08-13"
 
 [extra]
 #image = "/img/wows-obfuscation/header.png"
 #image_width =  250
 #image_height = 250
-hidden = true
 pretext = """
 *If you're already familiar with PE loading, absolutely nothing new is presented in this blog post but you might learn something like I did. Full source code can be found [on our GitHub](https://github.com/exploits-forsale/solstice). [Jump to the end](#fin) to see the fruits of our labor.*
 """
 +++
 
-Emma ([@carrot_c4k3](https://twitter.com/carrot_c4k3)) is a good friend of mine. We met in 2007 from the Xbox 360 scene and have remained friends ever since.
+Emma ([@carrot_c4k3](https://twitter.com/carrot_c4k3)) is a good friend of mine. We met in 2007 from the Xbox 360 scene and have remained friends ever since. She recently participated in pwn2own in the Windows LPE category and ended up using a great bug for LPE.
 
-Emma recently participated in pwn2own in the Windows LPE category and ended up using a great bug for LPE. The bug far exceeded the category though: this vulnerability was also a _sandbox escape_, i.e. it's in an NT syscall which is reachable from the UWP sandbox. A couple months ago she got a wild idea: why not try to port the exploit over to the Xbox One? (Modern Xboxes, not to be confused with the OG Xbox)
+The bug far exceeded the category though: this vulnerability was also a _sandbox escape_, i.e. it's in an NT syscall which is reachable from the UWP sandbox. A couple months ago she got a wild idea: why not try to port the exploit over to the Xbox One? (Modern Xboxes, not to be confused with the OG Xbox)
 
-## Brief Primer on Xbox One's Security
+## Brief Primer on the Xbox One's Security
 
 Since I'll be talking about this in the context of the Xbox, it's worthwhile to spend a moment discussing the Xbox One's security model. There's [a very great and in-depth overview of the Xbox One's security model on YouTube](https://www.youtube.com/watch?v=U7VwtOrwceo) presented by Tony Chen who is one of the folks who designed it. I highly recommend watching it if you're interested, but I'll do my best at giving a crash course:
 
@@ -70,7 +69,7 @@ Unrelated to her pwn2own entry, Emma found a vulnerability/feature in an applica
 
 [Through this vulnerability](https://gist.github.com/carrot-c4k3/10fdb4f3d11ca568f5452bbaefdc20dd) Emma was able to read/write arbitrary memory and run shellcode. So we have arbitrary code execution in SystemOS, but now the problem: writing shellcode is a pain, so how can we run arbitrary *executables* easily?
 
-We have the ability to read/write arbitrary memory and change page permissions which is enough to write a portable executable (PE/.exe) loader. Emma asked if I would write one since it would simplify the exploit development pipeline while she worked on porting her exploit over and it'll be useful for homebrew later on too. Easy enough right?
+We have the ability to read/write arbitrary memory and change page permissions which is enough to write a portable executable (PE/.exe) loader. Emma asked if I would write one since it would simplify the exploit development pipeline while she worked on porting her LPE exploit over and it'll be useful for homebrew later on too. Easy enough right?
 
 **Wrong.**
 
@@ -80,7 +79,7 @@ The specific technique of PE loading outlined here is referred to as "Reflective
 
 Avoiding `LoadLibrary()` and `CreateProcess()` is very important for us since those will check for code integrity and any code we write will not be properly signed.
 
-I took a look at the work involved and decided I wanted to write my own loader for a few reasons:
+I took a look at the work involved and decided I wanted to write my own loader for multiple reasons:
 
 1. I despise dealing with C/C++ build systems.
 
@@ -90,7 +89,9 @@ I took a look at the work involved and decided I wanted to write my own loader f
 
 4. I don't give a shit about EDR evasion or any #redteam stuff like that.
 
-5. It seemed simple enough at the time to just rewrite it in Rust, so I did.
+5. We originally had some very, very strict size constraints that we found a workaround for, but we want to be able to control the loader size as much as possible.
+
+6. It seemed simple enough at the time to just rewrite it in Rust, so I did.
 
 For my project's base I combined two open-source Rust projects:
 
@@ -201,7 +202,7 @@ Then [parse the PE's export table](https://github.com/exploits-forsale/solstice/
 
 [Although it's been talked about before](https://github.com/BenjaminSoelberg/ReflectivePELoader?tab=readme-ov-file), I'll give a brief overview of how a basic loader works:
 
-1. Parse the PE headers and `VirtualAlloc()` some memory for the "cloned" PE with all the fixups applied. You'll try to `VirtualAlloc()` at the PE's preferred load address, but if you don't get it fall back to a random address. This is your _load address_. From here you calculate the delta between the preferred and actual load address and this will be used for fixing relocations.
+1. Parse the PE headers and `VirtualAlloc()` some memory for the "cloned" PE with all the fixups applied. You'll try to `VirtualAlloc()` at the PE's preferred load address, but if you don't get it fall back to a random address. This is your _load address_. From here you calculate the delta between the preferred and actual load address and this will be used for fixing relocations. (Note: copying the PE just to change its fields isn't strictly necessary but simplifies some things)
 
 2. [Iterate each PE section and copy it over to the newly `VirtualAlloc`'d region](https://github.com/exploits-forsale/solstice/blob/6c47b5a0cd155d629845412974e7580fa9dff840/crates/solstice_loader/src/pelib.rs#L211-L254). The virtual addresses here are _relative_ virtual addresses, so you just take each section's VirtualAddress, add it to the load address, and copy the section from its old location to the new address.
 
@@ -577,7 +578,9 @@ pub fn teb() -> *mut TEB {
     teb
 }
 
-/// Patches the module list to change the old image name to the new image name.
+/// Patches the module list to change the hijacked module's DLL base and entrypoint.
+///
+/// TODO: Patch image name.
 ///
 /// This is useful to ensure that a program that depends on `GetModuleHandle*`
 /// doesn't fail simply because its module is not found
@@ -600,70 +603,74 @@ pub unsafe fn patch_ldr_data(
         // -1 because this is the second field in the LDR_DATA_TABLE_ENTRY struct.
         // the first one is also a LIST_ENTRY
         let module_info = (next.offset(-1)) as *mut LDR_DATA_TABLE_ENTRY;
-        if (*module_info).DllBase == current_module {
-            (*module_info).DllBase = new_base_address;
-            // EntryPoint
-            (*module_info).Reserved3[0] = entrypoint as *mut c_void;
-            // SizeOfImage
-            (*module_info).Reserved3[1] = module_size as *mut c_void;
+        if (*module_info).DllBase != current_module {
+            next = (*next).Flink;
+            continue;
+        }
 
-            if !this_tls_data.is_null() {
-                let ntdll_addr = get_module_handle_fn("ntdll.dll\0".as_ptr() as *const _);
-                if let Some(ntdll_text) = get_module_section(ntdll_addr as *mut _, b".text") {
-                    // Get the TLS entry for the current module and remove it from the list
-                    for window in ntdll_text.windows(LDRP_RELEASE_TLS_ENTRY_SIGNATURE_BYTES.len()) {
-                        if window == LDRP_RELEASE_TLS_ENTRY_SIGNATURE_BYTES {
-                            // Get this window's pointer. It will land us in the middle of this function though
-                            let mut ptr = window.as_ptr();
-                            // Walk backwards until we find the prologue. Pray this function retains padding
-                            loop {
-                                if *ptr.offset(-1) == 0xcc && *ptr.offset(-2) == 0xcc {
-                                    break;
-                                }
-                                ptr = ptr.offset(-1);
-                            }
+        (*module_info).DllBase = new_base_address;
+        // EntryPoint
+        (*module_info).Reserved3[0] = entrypoint as *mut c_void;
+        // SizeOfImage
+        (*module_info).Reserved3[1] = module_size as *mut c_void;
 
-                            // Get this window's pointer and move backwards to find the start of the fn
-                            #[allow(non_snake_case)]
-                            let LdrpReleaseTlsEntry: LdrpReleaseTlsEntryFn =
-                                core::mem::transmute(ptr);
-
-                            LdrpReleaseTlsEntry(module_info, core::ptr::null_mut());
-
-                            break;
-                        }
-                    }
-
-                    for window in ntdll_text.windows(LDRP_HANDLE_TLS_DATA_SIGNATURE_BYTES.len()) {
-                        if window == LDRP_HANDLE_TLS_DATA_SIGNATURE_BYTES {
-                            // Get this window's pointer. It will land us in the middle of this function though
-                            let mut ptr = window.as_ptr();
-                            // Walk backwards until we find the prologue. Pray this function retains padding
-                            loop {
-                                if *ptr.offset(-1) == 0xcc && *ptr.offset(-2) == 0xcc {
-                                    break;
-                                }
-                                ptr = ptr.offset(-1);
-                            }
-
-                            #[allow(non_snake_case)]
-                            let LdrpHandleTlsData: LdrpHandleTlsDataFn = core::mem::transmute(ptr);
-
-                            LdrpHandleTlsData(module_info);
-
-                            break;
-                        }
-                    }
-                }
-            }
+        if this_tls_data.is_null() {
             break;
         }
-        next = (*next).Flink;
+
+        let ntdll_addr = get_module_handle_fn("ntdll.dll\0".as_ptr() as *const _);
+        let ntdll_text = get_module_section(ntdll_addr as *mut _, b".text");
+        if ntdll_text.is_none() {
+            break;
+        }
+
+        let ntdll_text = ntdll_text.unwrap();
+        // Get the TLS entry for the current module and remove it from the list
+        if let Some(window) = ntdll_text
+            .windows(LDRP_RELEASE_TLS_ENTRY_SIGNATURE_BYTES.len())
+            .find(|&window| window == LDRP_RELEASE_TLS_ENTRY_SIGNATURE_BYTES)
+        {
+            // Get this window's pointer. It will land us in the middle of this function though
+            let mut ptr = window.as_ptr();
+            // Walk backwards until we find the prologue. Pray this function retains padding
+            loop {
+                if *ptr.offset(-1) == 0xcc && *ptr.offset(-2) == 0xcc {
+                    break;
+                }
+                ptr = ptr.offset(-1);
+            }
+
+            #[allow(non_snake_case)]
+            let LdrpReleaseTlsEntry: LdrpReleaseTlsEntryFn = core::mem::transmute(ptr);
+
+            LdrpReleaseTlsEntry(module_info, core::ptr::null_mut());
+        }
+
+        if let Some(window) = ntdll_text
+            .windows(LDRP_HANDLE_TLS_DATA_SIGNATURE_BYTES.len())
+            .find(|&window| window == LDRP_HANDLE_TLS_DATA_SIGNATURE_BYTES)
+        {
+            // Get this window's pointer. It will land us in the middle of this function though
+            let mut ptr = window.as_ptr();
+            // Walk backwards until we find the prologue. Pray this function retains padding
+            loop {
+                if *ptr.offset(-1) == 0xcc && *ptr.offset(-2) == 0xcc {
+                    break;
+                }
+                ptr = ptr.offset(-1);
+            }
+
+            #[allow(non_snake_case)]
+            let LdrpHandleTlsData: LdrpHandleTlsDataFn = core::mem::transmute(ptr);
+
+            LdrpHandleTlsData(module_info);
+        }
+        break;
     }
 }
 ```
 
-### Patching Command-Line Args 
+### Patching Command-Line Args
 
 This has been done by other PE loaders, but I wanted to call this out as well: while the PEB contains the image name and process arugments, so does `kernelbase.dll`! Why? For `GetCommandLineW` and `GetCommandLineA` of course.
 
@@ -765,14 +772,6 @@ pub unsafe fn suspend_threads(kernel32_ptr: PVOID, kernelbase_ptr: PVOID) {
 }
 ```
 
-### Subtle Differences on Xbox
-
-I'll top this section off with some random subtle differences I noticed about Xbox:
-
-- The process environment block (PEB) is marked as readonly, but was not on my PC (latest Windows 11 as of writing this post). Pretty simple fix, just mark the PEB as writable before changing it... but stil interesting.
-
-- `kernel32.dll` does not exist. Instead, some of its functionality is split between `kernelbase.dll` (which exists on Windows of course) and `kernel32legacy.dll`. If you would have found the function in _only_ `kernel32.dll` before, it probably now exists in `kernel32legacy.dll`.
-
 ## TODO
 
 There are still some remaining items for the loader:
@@ -785,13 +784,14 @@ There are still some remaining items for the loader:
 
 This was a fun exercise that taught me a lot about how Windows binaries are loaded. I'd like to thank carrot_c4k3, tuxuser, and 0e9ca321209eca529d6988c276e4e4ed for their help/support.
 
-With this work, we're now able to do cool things on Xbox :\)
+With this work, we're now able to do cool things on Xbox!
 
+For example, using the PE loader we can launch the main GameScript exploit, launch Emma's Windows exploit binary to elevate privileges, spawn a new process as suspended, inject our shellcode/PE loader, and execute a custom SSH/SFTP daemon which uses tokio for async. I think I accomplished my goal of loading complex applications :\)
 
 {{ video(path="/img/pe-loader/xbox_hacks.mp4") }}
 
 *The top terminal session is the payload server running on my PC, while the bottom netcat session is the output from the exploit and SSH daemon running on my Xbox.*
 
-[![Collateral Damage Executed Achievement](/img/pe-loader/collat_achievement.webp)](/img/pe-loader/collat_achievement.webp)
+tuxuser even managed to get toasts working!
 
-*Shoutout tuxuser for figuring out how to fire the toast.*
+[![Collateral Damage Executed Achievement](/img/pe-loader/collat_achievement.webp)](/img/pe-loader/collat_achievement.webp)
