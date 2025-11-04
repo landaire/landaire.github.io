@@ -6,12 +6,13 @@ toc = true
 date = "2025-10-30"
 
 [extra]
+hidden = true
 draft = true
 +++
 
-[Splinter Cell (2002)](https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell_\(video_game\)) was one of the first games I had on the original Xbox, probably sometime in 2003, and to this day remains one of my favorite games of all time. It was developed by Ubisoft using Unreal Engine 2 which was licensed from Epic Games.
+[Splinter Cell (2002)](<https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell_(video_game)>) was one of the first games I had on the original Xbox, probably sometime in 2003, and to this day remains one of my favorite games of all time. It was developed by Ubisoft using Unreal Engine 2 which was licensed from Epic Games.
 
-Videogames were how I got into programming/hacking, and I still enjoy data mining and exploring cut content from games. While recently looking into cut content for Splinter Cell, I was kind of surprised that there isn't really much information on the topic aside from [a review copy](https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_\(Sep_13,_2002_prototype\)) of the game which contained two levels cut from the Xbox version.
+Videogames were how I got into programming/hacking, and I still enjoy data mining and exploring cut content from games. While recently looking into cut content for Splinter Cell, I was kind of surprised that there isn't really much information on the topic aside from [a review copy](<https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_(Sep_13,_2002_prototype)>) of the game which contained two levels cut from the Xbox version.
 
 Naturally, I decided to _legally backup my personal disc copy of the game_ and get got to digging on the files.
 
@@ -233,7 +234,7 @@ FileEntry {
 <snip>
 ```
 
-At first glance the files seem to be laid out linearly, aligned to a register-width boundary. Except, notice that last file's offset... `0x9600F0`. This is way outside of the range of my `0x648eee`-length file, and this file list contains 3,582 files! Not 54 as expected from the count of UMod magics! The latter could be explained by not every file in this container being UMod, but the offsets are *extremely* wrong.
+At first glance the files seem to be laid out linearly, aligned to a register-width boundary. Except, notice that last file's offset... `0x9600F0`. This is way outside of the range of my `0x648eee`-length file, and this file list contains 3,582 files! Not 54 as expected from the count of UMod magics! The latter could be explained by not every file in this container being UMod, but the offsets are _extremely_ wrong.
 
 ### File Reading
 
@@ -250,7 +251,6 @@ This is not super relevant to the blog post which is why it's in this little col
 _Note: Click images to see in higher res_.
 
 [![Compressed read function](/img/splinter-cell/compressed_read_fn.png)](/img/splinter-cell/compressed_read_fn.png)
-
 
 [![Compressed read function high-level IL](/img/splinter-cell/compressed_fn_hlil.png)](/img/splinter-cell/compressed_fn_hlil.png)
 
@@ -280,7 +280,6 @@ The reason for the `Seek()` being a no-op is likely because the underlying file 
 
 So in order to read these files, you have to assume that the offsets don't exist and you cannot seek forward/backward. Easy enough.
 
-
 ### Load Order Matters
 
 We still have a problem that has not been addressed: why does the file table have a large count of files with bad offsets?
@@ -303,7 +302,6 @@ This gets parsed as:
 - `GameEngine` <- the key from the table to read
 
 If I look in `UW.ini` included with the game, this table is defined as:
-
 
 ```ini
 [Engine.Engine]
