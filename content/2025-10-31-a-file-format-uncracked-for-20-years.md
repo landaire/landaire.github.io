@@ -5,18 +5,18 @@ summary = "\"I’ve had enough reasonable file formats fired at me in my time to
 template = "toc_page.html"
 toc = true
 date = "2025-10-30"
+draft = true
 
 [extra]
 image = "/img/splinter-cell/banner.png"
 image_width = 360
 image_height = 240
 hidden = true
-draft = true
 +++
 
-[Splinter Cell (2002)](<https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell_(video_game)>) was one of the first games I had on the original Xbox and to this day remains one of my favorite games of all time. It was developed by Ubisoft using Unreal Engine 2 which was licensed from a small indie dev called Epic Games, who continues today to use and license its game engine technology for contemporary indie games such as _Fortnite_ and _Halo: Campaign Evolved_.
+[Splinter Cell (2002)](<https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell_(video_game)>) was one of the first games I had on the original Xbox and still remains one of my favorite games of all time. The game was developed by Ubisoft using Unreal Engine 2 -- licensed from a small indie dev called Epic Games who continues to use and license its game engine technology for contemporary indie games such as _Fortnite_ and _Halo: Campaign Evolved_.
 
-Video games were how I got into programming/hacking and I still enjoy data mining and exploring cut content from the games play. Recently I randomly decided to look online for cut content from Splinter Cell, I was kind of surprised that there isn't really much information on the topic aside from [a review copy](<https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_(Sep_13,_2002_prototype)>) of the game which contained two levels cut from the Xbox version.
+Video games were how I got into programming/hacking and I still enjoy data mining and exploring cut content from the few games play I play nowadays. Recently I randomly decided to look online for cut content from Splinter Cell and I was kind of surprised on the lack of datamined info. There isn't really much information on the topic aside from [an OG Xbox review copy](<https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_(Sep_13,_2002_prototype)>) of the game which contained two levels cut from the retail Xbox version.
 
 Naturally, I decided to _legally backup my personal disc copy of the game_ and got to digging into the files.
 
@@ -69,8 +69,8 @@ Examining the `common.lin` file in a hex editor, a few things become immediately
 └────────┴─────────────────────────┴─────────────────────────┴────────┴────────┘
 ```
 
-- Data between `0x0..0x4` and `0x4..0x8` are low-value little-endian 32-bit integers (`0x00000004` and `0x0000000C`)
-- At offset `0x8` is what appears to be a zlib-compressed chunk of data (whenever I see a bunch of `x`-like characters in the ascii view, or the `79 9c` sequence, I immediately think zlib).
+- Data between `0x0..0x4` and `0x4..0x8` are low-value little-endian 32-bit integers: `0x00000004` and `0x0000000C`.
+- At offset `0x8` is what appears to be a zlib-compressed chunk of data -- noted by the distinctive 'x' in the ASCII view and `0x78 0x9c`.
 - There's another sequence of this at offset `0x14`, which happens to be `0xC` bytes past the offset of the zlib data (`0x8`), and another at `0x28`.
 
 Presumably the format here is `{decompressed_data_len, compressed_data_len, zlib_block[compressed_data_len]}` repeated.
