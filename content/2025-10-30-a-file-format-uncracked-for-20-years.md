@@ -18,7 +18,7 @@ I got into programming/hacking through video games and I still enjoy data mining
 
 Naturally, I decided to _legally backup my personal disc copy of the game_ and got to digging into the files.
 
-My initial core objective was to examine the format of the game data and sniff out if there's any indicators of cut content such as textures, models, interesting strings -- whatever. Some nice finds would be debug menus, voice lines, weapon concepts, or levels that are unreachable through normal game progression.
+My initial objective was to examine the format of the game data and sniff out if there's any indicators of cut content such as textures, models, interesting strings -- whatever. Some nice finds would be debug menus, voice lines, weapon concepts, or levels that are unreachable through normal game progression.
 
 The game's (truncated) file tree looks like this:
 
@@ -68,7 +68,7 @@ Examining the `common.lin` file in a hex editor, a few things become immediately
 ```
 
 - Data between `0x0..0x4` and `0x4..0x8` are little-endian 32-bit integers: `0x00000004` and `0x0000000C`.
-- At offset `0x8` is what appears to be a zlib-compressed chunk of data -- noted by the distinctive 'x' in the ASCII view and `0x78 0x9c`.
+- At offset `0x8` is what appears to be a zlib-compressed chunk of data -- denoted by the 'x' in the ASCII view and `0x78 0x9c` in the hex view.
 - There's another sequence of this at offset `0x14`, which happens to be `0xC` bytes past the offset of the zlib data (`0x8`), and another at `0x28`.
 
 Presumably the format here is `{decompressed_data_len, compressed_data_len, zlib_block[compressed_data_len]}` repeated.
@@ -139,7 +139,7 @@ Just to save some blog space on my trial and error process here, I'm going to dr
 
 The last two posts in particular had structure info that was helpful in figuring out the packed int format (think UTF-8 and its variable-length encoding) and a couple unknown vars.
 
-What I gathered from all of these posts was that over time, nobody's really been able to figure out this format's quirks sufficiently to unpack the data. Everyone seems to think that some kind of VFS is created and the data gets mapped at a specific address and then read. Which may be true for some titles or consoles, but is not for this one.
+What I gathered from all of these posts was that over time, nobody's really been able to figure out this format's quirks sufficiently to unpack the data. Everyone seems to think that some kind of VFS is created and the data gets mapped at a specific address and then read. Which may be true for some titles or consoles, but is not really the case for this one.
 
 **My objective has now changed:** I now want to reverse engineer this file format and be able to dump individual files from this filesystem. Then I can achieve my core goal of looking for cut content. Then I can maybe play the game.
 
@@ -478,7 +478,7 @@ Up to this point we know:
 3. The sizes (at least in the file table, and I soon realized in the export data) are incorrect.
 4. We know `GameEngine` is the first object requested by the C++ side of the game and is export index `0xEFB` in the `Engine` package. It may not be the first object actually _parsed_, but it's the first object requested.
 
-Now, to achieve my goal of dumping these files I attempted to simply sum the size of these exports... but trying a combination of that calculated size + any of the `{end_of_export_table, start_of_file}` offsets landed me in weird places with other Linker files in-between.
+Now, to achieve my goal of dumping these files I attempted to simply sum the size of these exports to figure out the end offset of the file... but trying a combination of that calculated size + any of the `{end_of_export_table, start_of_file}` offsets landed me in weird places with other Linker files in-between.
 
 By referencing [Unreal-Library](https://github.com/EliotVU/Unreal-Library) to help fill in some of the blanks, I observed the following high-level parsing logic in the game engine:
 
@@ -545,6 +545,8 @@ I believe this can result in export data that is interleaved, unfortunately. For
 And now if you imagine that there's a _second_ object which also extends from `Engine` loaded after `GameEngine`, then their common the super class `Engine` has already been parsed and its information is already in-memory. i.e. if you serialize two objects of the same exact type, the first object might have all the data for its parent classes interleaved with _its own_ export data and the second object only contains its own property data.
 
 Unfortunately, this means that to read these files statically (even for just static recompilation) you need to have full knowledge of how each C++-implemented type is parsed in order to parse all exports and their properties. Additionally, reading one export may trigger resolving of imports in your own Linker object, which in turn trigger deserialization of exports in another Linker object.
+
+This results in the export data's size not necessarily being _wrong_ per se, but not super usable without actually doing full parsing. If other exports are deserialized in the middle of deserializing an export, they will seek around and restore the original position. When the export is done deserializing it subtracts the post-deserialization `position` of the file reader from the saved pre-deserialization `position` and asserts that it equals the export's expected length. It's misleading though as can't simply read `SerialSize` bytes from its offset.
 
 _Note: I'm not 100% confident in the data being interleaved vs just sequential. Through observing seek/read operations for various exports, I do see seeks going to a wildly different offset in the middle of deserializing an export, then another export deserializing, then seeking back to the original export and continuing to deserialize it again This is a PITA to debug though_.
 
