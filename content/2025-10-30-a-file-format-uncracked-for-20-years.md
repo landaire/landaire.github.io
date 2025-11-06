@@ -4,23 +4,21 @@ description = "\"I’ve had enough reasonable file formats fired at me in my tim
 summary = "\"I’ve had enough reasonable file formats fired at me in my time to tell you that wasn’t one\" - Sam Fisher"
 template = "toc_page.html"
 toc = true
-date = "2025-10-30"
-draft = true
+date = "2025-11-06"
 
 [extra]
 image = "/img/splinter-cell/banner.png"
 image_width = 360
 image_height = 240
-hidden = true
 +++
 
-[Splinter Cell (2002)](<https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell_(video_game)>) was one of the first games I had on the original Xbox and still remains one of my favorite games of all time. The game was developed by Ubisoft using Unreal Engine 2 -- licensed from a small indie dev called Epic Games who continues to use and license its game engine technology for contemporary indie games such as _Fortnite_ and _Halo: Campaign Evolved_.
+[Splinter Cell (2002)](<https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell_(video_game)>) was one of the first games I had on the original Xbox and still remains one of my favorite games of all time. The game was developed by Ubisoft using Unreal Engine 2 -- licensed from a small indie dev called Epic Games who continues to use and license its game engine technology for contemporary small-budget indie games such as _Fortnite_ and _Halo: Campaign Evolved_.
 
-Video games were how I got into programming/hacking and I still enjoy data mining and exploring cut content from the few games play I play nowadays. Recently I randomly decided to look online for cut content from Splinter Cell and I was kind of surprised on the lack of datamined info. There isn't really much information on the topic aside from [an OG Xbox review copy](<https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_(Sep_13,_2002_prototype)>) of the game which contained two levels cut from the retail Xbox version.
+I got into programming/hacking through video games and I still enjoy data mining/exploring cut content from the few games I play nowadays. I recently randomly decided to look online for cut content from Splinter Cell and I was kind of surprised on the lack of datamined info. There isn't really much information on the topic aside from [an OG Xbox review copy](<https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_(Sep_13,_2002_prototype)>) of the game which contained two levels cut from the retail Xbox version and some other minor differences.
 
 Naturally, I decided to _legally backup my personal disc copy of the game_ and got to digging into the files.
 
-At this point my core objective was to examine the format of the game data and sniff out if there's any indicators of cut content such as textures, models, interesting strings -- whatever. Some nice finds would be debug menus, voice lines, weapon concepts, or levels that are unreachable through normal game progression.
+My initial core objective was to examine the format of the game data and sniff out if there's any indicators of cut content such as textures, models, interesting strings -- whatever. Some nice finds would be debug menus, voice lines, weapon concepts, or levels that are unreachable through normal game progression.
 
 The game's (truncated) file tree looks like this:
 
@@ -53,7 +51,7 @@ The game's (truncated) file tree looks like this:
 
 `.xbe` files are Xbox Executables, `.bik` are [Bink Video](https://www.radgametools.com/bnkmain.htm) files, and `.tga` are images... but `.lin` is new to me.
 
-In Splinter Cell the maps have separate parts to them. So in the training mission `001_Training`, you likely have `0_0_2_Training.lin` for the first part and `0_0_3_Training.lin` for the second part which gets loaded when an in-map loading sequence occurs.
+In Splinter Cell the maps are divided into separate parts. So in the training mission `001_Training`, you likely have `0_0_2_Training.lin` for the first part and `0_0_3_Training.lin` for the second which gets loaded via an in-game loading sequence after advancing to some zone in the map.
 
 I instantly thought that `common.lin` might contain data common to both of these parts as a way to reduce file size. The Halo games for instance have a `shared.map` containing assets which are shared across most maps, and load data at a fixed address so that the file can be trivially transmuted from a binary blob to its in-memory data structures.
 
@@ -69,7 +67,7 @@ Examining the `common.lin` file in a hex editor, a few things become immediately
 └────────┴─────────────────────────┴─────────────────────────┴────────┴────────┘
 ```
 
-- Data between `0x0..0x4` and `0x4..0x8` are low-value little-endian 32-bit integers: `0x00000004` and `0x0000000C`.
+- Data between `0x0..0x4` and `0x4..0x8` are little-endian 32-bit integers: `0x00000004` and `0x0000000C`.
 - At offset `0x8` is what appears to be a zlib-compressed chunk of data -- noted by the distinctive 'x' in the ASCII view and `0x78 0x9c`.
 - There's another sequence of this at offset `0x14`, which happens to be `0xC` bytes past the offset of the zlib data (`0x8`), and another at `0x28`.
 
@@ -81,9 +79,9 @@ I wrote a quick tool to decompress the archive and without a hitch ended up with
 
 ```
 uncompressed_data_size: 0x648EEE
-texture_cache_size (? - later used when calling D3DDevice_CreateTexture2): 0x1B0000
-vertex_buffer_size (? - ditto, D3DDevice_CreateVertexBuffer2): 0x6740
-index_buffer_size (? - ditto, XGSetIndexBufferHeader): 0xD38
+texture_cache_size? - later used when calling D3DDevice_CreateTexture2: 0x1B0000
+vertex_buffer_size? - ditto, D3DDevice_CreateVertexBuffer2: 0x6740
+index_buffer_size? - ditto, XGSetIndexBufferHeader: 0xD38
 ```
 
 And this is what the main data section's first 0x100 bytes look like:
@@ -141,7 +139,7 @@ Just to save some blog space on my trial and error process here, I'm going to dr
 
 The last two posts in particular had structure info that was helpful in figuring out the packed int format (think UTF-8 and its variable-length encoding) and a couple unknown vars.
 
-What I gathered from all of these posts was that over time, nobody's really been able to figure out this format's quirks sufficiently to unpack the data. Everyone seems to think that some kind of VFS is created and the data gets mapped at a specific offset and then read. Which may be true for some titles or consoles, but is not for this one.
+What I gathered from all of these posts was that over time, nobody's really been able to figure out this format's quirks sufficiently to unpack the data. Everyone seems to think that some kind of VFS is created and the data gets mapped at a specific address and then read. Which may be true for some titles or consoles, but is not for this one.
 
 **My objective has now changed:** I now want to reverse engineer this file format and be able to dump individual files from this filesystem. Then I can achieve my core goal of looking for cut content. Then I can maybe play the game.
 
@@ -181,11 +179,11 @@ struct FileEntry {
 }
 ```
 
-Then immediately following the `FileEntry` table are 54 Unreal Engine Package files (identified via their `0x9E2A83C1` magic -- these are also referred to as **Linker** files) in sequence that presumably map to the files in the file table.
+Then immediately following the `FileEntry` table are 54 Unreal Engine Package files in sequence (identified via their `0x9E2A83C1` magic -- these are also referred to as **Linker** files) that presumably map to the files in the file table.
 
 The map-specific files like `menu.lin` and `0_0_2_Training.lin` do not have the file table, but they do have the first 3 fields (and a non-null string like "menu\x0" for the name field) then a sequence of Linker files.
 
-But the problems with parsing this data start with the file table.
+But the difficulty with parsing this data starts with the file table.
 
 ## Problems
 
@@ -269,9 +267,9 @@ This function basically checks the requested read size against how much data it 
 
 Identifying this function was pretty important for my reverse engineering process. I could now set breakpoints on the code which copies data to the output buffer and see who's calling this function when data is read from offsets I care about.
 
-I stepped through this code, set memory read breakpoints on data I didn't yet understand, and noted something interesting early on!
+I stepped through this code, set Memory Read breakpoints on data I didn't yet understand, and noted something interesting early on!
 
-Those "addresses" from the header (`0x139e585c`)? Those are actually passed to what I can only guess is a `Seek` routine which updates the `position` property of the file reader, then makes an indirect call to another function which **literally does nothing**.
+Those "addresses" from the header (`0x139e585c`)? Those are actually passed to what I can only guess is a `Seek` routine which updates the `position` property of the file reader, which then makes an indirect call to another function that **literally does nothing**.
 
 The entire content of the function is:
 
@@ -281,15 +279,15 @@ retn    4
 
 That's it.
 
-Then the reads just continue from their last position? Since the function is an indirect call, I can only assume that I was looking at some composed C++ object where the outer class object updates its own `position` in `Seek()` and then calls its underlying file reader's `Seek()`... which is a no-op?
+Then the reads just... continue from their last position? Since the function is an indirect call, I can only assume that I was looking at some composed C++ object where the outer class object updates its own `position` in `Seek()` and then calls its underlying file reader's `Seek()`... which is a no-op?
 
-After setting memory read breakpoints on it the object's `position` field, I noticed it's only ever used in their file reader equivalent of `FTell()`. It doesn't affect where data is actually being read from at all.
+After setting Memory Read breakpoints on the object's `position` field, I noticed it's only ever used in their file reader equivalent of `FTell()`. It doesn't affect where data is actually being read from at all.
 
-The reason for the `Seek()` being a no-op is likely because the underlying file reader is reading directly from the compressed buffer. Since you cannot reasonably map an uncompressed data offset to a compressed offset the format must be designed to ignore seeks and just read data linearly and not even require seeking.
+The reason for the `Seek()` being a no-op is likely because the underlying file reader is reading directly from the compressed buffer, which reads in `0x4000`-byte chunks. Since you cannot reasonably map an uncompressed data offset to a compressed offset the format must be designed to ignore seeks and just read data linearly.
 
 ...the `.lin` extension makes a lot more sense.
 
-In order to read these files, you have to assume that you cannot seek forward/backward. Easy enough.
+💡 In order to read these files, you have to assume that you cannot seek forward/backward. Easy enough.
 
 ### Load Order Matters
 
@@ -299,15 +297,14 @@ I continued to use breakpoints inside of the file read function to trace where i
 
 [![StaticLoadObject implementation](/img/splinter-cell/static_load_object.png)](/img/splinter-cell/static_load_object.png)
 
-This function calls `ResolveName` which I was able to log the arguments to via a debugger breakpoint script:
+This function calls `ResolveName` which I was able to log the arguments to via a debugger breakpoint script, which told me the `InName` was `ini:Engine.Engine.GameEngine`:
 
 [![ResolveName implementation](/img/splinter-cell/resolve_name.png)](/img/splinter-cell/resolve_name.png)
 
-Through the debugger I was able to see that the argument passed to this function is `ini:Engine.Engine.GameEngine`.
+This `ini:Engine.Engine.GameEngine` name gets parsed as:
 
-This gets parsed as:
-
-- `ini:Engine.Engine` <- the INI table to read from
+- `ini:` <- resolve the name from the game's INI files
+- `Engine.Engine` <- the INI table to read from
 - `GameEngine` <- the key from the table to read
 
 If I look in `UW.ini` included with the game, this table is defined as:
@@ -334,7 +331,7 @@ Editor3DRenderDevice=D3DDrv.D3DRenderDevice
 
 So the resulting value returned from this function is `Engine.GameEngine`, which matches what this function resolves.
 
-This is then used to resolve the **package** `Engine` and its **exported object** `GameEngine`. The game binary looks for the file `Engine` in its available sources (partial matching strategy), including what's read from the LIN file table, and maps that to `System\Engine.u`. My tool that reads the file table confirms that this is declared in the LIN file:
+This is then used to resolve the **package** `Engine` and its **exported object** `GameEngine`. The game binary looks for the file `Engine` in its available sources (partial matching strategy), which includes searching against the LIN file table, and then resolves that name as `System\Engine.u`. My tool that reads the file table confirms that this is declared in the LIN file:
 
 ```rust
 FileEntry {
@@ -357,7 +354,11 @@ Except the file start offset + len don't make sense. If I assume the `Engine.u` 
 
 I'll save some time and just say that I did not identify the wrong file. The lengths just don't matter, and for all intents and purposes are wrong. The reader in the game engine must just read the data in-order using its self-description in its own header?
 
-The Unreal Engine Package/Linker file format has been [well documented](https://eliotvu.com/page/unreal-package-file-format) and does include some sizes in its header. I mapped this to the following Rust struct:
+The Unreal Engine Package/Linker file format has been [well documented](https://eliotvu.com/page/unreal-package-file-format) and does include some sizes in its header. The packages contain about what you'd expect of some object-oriented programming (OOP) script/data format.
+
+It has _exported_ objects which are named instances of some OOP type and has properties and data. Or the object can be a class/struct definition. The exports may rely on types exported from other packages which are declared as _imports_. Both of these have names or string data associated with them which are defined in the _name_ table.
+
+I mapped the existing documentation to the following Rust struct:
 
 ```rust
 pub struct PackageHeader<'i> {
@@ -414,11 +415,9 @@ PackageHeader {
 }
 ```
 
-Now with my tool updated to read these tables -- assuming that they immediately follow this header and each other -- I have imports that look like:
+Now with my tool updated to read these tables -- parsing by assuming that they immediately follow this header and each other -- I have imports that look like:
 
 ```rust
-Imports:
-
 Package Core.Core
 Import { class_package: 4, class_name: B64, package_index: 0, object_name: 4, object: None }
 
@@ -441,7 +440,6 @@ Class Actor
     object_flags: 0x40F0004,
     serial_size: 0x3A8,
     serial_offset: 0xF719,
-    data: None,
 }
 
 Class Pawn
@@ -453,7 +451,6 @@ Class Pawn
     object_flags: 0x40F0004,
     serial_size: 0x281,
     serial_offset: 0xFAC1,
-    data: None,
 }
 
 ...
@@ -467,7 +464,6 @@ Class GameEngine
     object_flags: 0x40F0004,
     serial_size: 0x5B,
     serial_offset: 0xC50DB,
-    data: None,
 }
 ```
 
@@ -480,11 +476,11 @@ Up to this point we know:
 1. You cannot seek in the file reader.
 2. The offsets do not map cleanly to the on-disk representation and aren't really used other than for position tracking.
 3. The sizes (at least in the file table, and I soon realized in the export data) are incorrect.
-4. We know `GameEngine` is the first object requested by the C++ side of the game and is export index `0xEFB` in the `Engine` package.
+4. We know `GameEngine` is the first object requested by the C++ side of the game and is export index `0xEFB` in the `Engine` package. It may not be the first object actually _parsed_, but it's the first object requested.
 
-Now, to achieve my goal of dumping these files I attempted to simply sum the size of these exports... but trying a combination of that calculated size + any of the `{end_of_export_table, start_of_file}` offsets landed me in weird places with other Unreal Engine Package files inbetween.
+Now, to achieve my goal of dumping these files I attempted to simply sum the size of these exports... but trying a combination of that calculated size + any of the `{end_of_export_table, start_of_file}` offsets landed me in weird places with other Linker files in-between.
 
-By referencing [Unreal-Library](https://github.com/EliotVU/Unreal-Library) to help fill in some of the blanks while tracing the game engine flow the following high-level parsing logic can be observed:
+By referencing [Unreal-Library](https://github.com/EliotVU/Unreal-Library) to help fill in some of the blanks, I observed the following high-level parsing logic in the game engine:
 
 1. An exported object is requested by the game. If it isn't loaded already, the export is lazy loaded.
 2. Lazy loading requires resolving the `super` type's object. For some things this is the `Class` or `Struct` base types, for other things this is a different parent class which will eventually have `Class` as its parent type.
@@ -498,7 +494,7 @@ To give a concrete example, imagine that `GameEngine` has the following class hi
 
 `GameEngine -> Engine -> Subsystem -> Class`
 
-And since `GameEngine` is the very first object ever parsed, nothing has been loaded yet. Requesting to load `GameEngine` from the `Engine.u` package will trigger the following sequence of events:
+Also imagine that `GameEngine` is the very first object ever parsed -- nothing else has been loaded yet. Requesting to load `GameEngine` from the `Engine.u` package will trigger the following sequence of events:
 
 1. `Engine.u` header read/parse (since no package has been created yet)
 2. Lookup `Engine`'s `GameEngine` export. It's not yet parsed, so we need to construct this object by constructing/deserializing it.
@@ -512,7 +508,7 @@ And since `GameEngine` is the very first object ever parsed, nothing has been lo
 10. `Engine.GameEngine` property deserialization...
 11. We can now return the fully constructed `Engine.GameEngine`.
 
-This _can_ result in export data that is interleaved, unfortunately. For the above scenario the data may be on disk like the following diagram. **Note:** for space/simplicity I've omitted `Core.Class`, as well as the potential for the _properties themselves_ to trigger deserializing of other exports.
+I believe this can result in export data that is interleaved, unfortunately. For the above scenario the data may be on disk like the following diagram. **Note:** for space/simplicity I've omitted `Core.Class`, as well as the potential for the _properties themselves_ to trigger deserializing of other exports.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -540,7 +536,7 @@ This _can_ result in export data that is interleaved, unfortunately. For the abo
 │  │ │ Engine (Super Class) Export Data │    │     │       │  │
 │  │ └──────────────────────────────────┘    │     │       │  │
 │  │                               ┌─────────┴─────┴───────┴──┤
-│┌─┴────────────────────────┐      │    GameEngine Export     │
+│┌─┴────────────────────────┐      │    GameEngine Object     │
 ││ GameEngine Object Start  │      │        Properties        │
 │└──────────────────────────┘      └──────────────────────────┤
 └─────────────────────────────────────────────────────────────┘
@@ -549,6 +545,8 @@ This _can_ result in export data that is interleaved, unfortunately. For the abo
 And now if you imagine that there's a _second_ object which also extends from `Engine` loaded after `GameEngine`, then their common the super class `Engine` has already been parsed and its information is already in-memory. i.e. if you serialize two objects of the same exact type, the first object might have all the data for its parent classes interleaved with _its own_ export data and the second object only contains its own property data.
 
 Unfortunately, this means that to read these files statically (even for just static recompilation) you need to have full knowledge of how each C++-implemented type is parsed in order to parse all exports and their properties. Additionally, reading one export may trigger resolving of imports in your own Linker object, which in turn trigger deserialization of exports in another Linker object.
+
+_Note: I'm not 100% confident in the data being interleaved vs just sequential. Through observing seek/read operations for various exports, I do see seeks going to a wildly different offset in the middle of deserializing an export, then another export deserializing, then seeking back to the original export and continuing to deserialize it again This is a PITA to debug though_.
 
 ### Why??????
 
@@ -560,13 +558,13 @@ I imagine there's a very good reason for packaging data this way. It's best to c
 
 The `.lin` format mitigates these issues with:
 
-1. Compressing data means you save space on the disc. Note, I'm also conveniently ignoring the fact that `common.lin` is duplicated in each map's directory and is the same for every map which negates part of this.
+1. Compressing data means you save space on the disc... If you conveniently ignore the fact that `common.lin` is duplicated in each map's directory and is the same for every map I tested, which kinda negates part of this.
 2. Streaming data in from the file instead of decompressing the whole thing at once saves on overall memory pressure during the data loading phase.
-3. Laying out the file in a byte-for-byte exact read order increases I/O speeds by not having to seek around the physical media, and ensures that you don't need to magic to translate an uncompressed offset to a compressed one in a performant manner.
+3. Laying out the file in a byte-for-byte exact read order increases I/O speeds by not having to seek around the physical media, and ensures that you don't need magic to translate an uncompressed offset to a compressed one in a performant manner.
 
 ## Logging Load Order for Static Recompilation
 
-I really, really wanted to avoid doing any runtime dumping that requires playing the game in an emulator or physical console. It doesn't scale well to other games that may have a similar format and is generally less flexible. But doing runtime observations are extremely useful in making sense of the format, so I went ahead and added some logging to get an idea of the _file_ read order from the compressed archive when booting the game:
+I really, really wanted to avoid doing any runtime dumping that requires playing the game in an emulator or physical console. It doesn't scale well to other games and is generally less flexible. But doing runtime observations are extremely useful in making sense of the format, so I went ahead and added some logging to get an idea of the file read order from the compressed archive when booting the game:
 
 ```
 ..\System\Engine.u
@@ -683,9 +681,9 @@ I really, really wanted to avoid doing any runtime dumping that requires playing
 ```
 
 {% collapse(preview="File Dumping Script") %}
-I set a breakpoint in the prologue of a function with the string "`LinkerExists`" that I later determined to be the constructor for an object called `ULinkerLoad`. One of the arguments is the file name:
+I set a breakpoint in the prologue of a function with the string "`LinkerExists`" that I later determined to be the constructor for an object called `ULinkerLoad`. One of the arguments is the file name for this object.
 
-Whent triggered, the breakpoint executes the following IDA Python script which reads the filename pointer, then the filename, outputs it to the IDA console, and continues execution:
+When triggered, the breakpoint executes the following IDA Python script which reads the filename pointer, then the filename, outputs it to the IDA console, and continues execution:
 
 ```python
 import ida_idd, ida_kernwin, ctypes
@@ -701,7 +699,7 @@ ida_kernwin.msg("ULinkerLoad: " + s.decode('utf-16-le')+"\n")
 
 {% end %}
 
-In the above file load order I annotated file #55 which is `..\Maps\menu\menu.unr`. The `common.lin` file has 54 Unreal Engine Package files, and #55 happens to be the map which is loading and has its own dedicated `.lin` file: `menu.lin`. This hints that the `common.lin` archive genuinely contains only 54 files and anything else is read from level-specific archives.
+In the above file load order I annotated file #55 which is `..\Maps\menu\menu.unr`. The `common.lin` file has 54 Linker files and #55 in the above listing happens to be the map which is loading and has its own dedicated `.lin` file. This is a strong indicator that the `common.lin` archive genuinely contains only 54 files and anything else is read from level-specific archives.
 
 I also set a breakpoint in the function which deserializes exports (called `Preload`) and did some logging of which export is read and when a stream seek occurred:
 
@@ -761,21 +759,23 @@ There is really no discernable pattern to the loads at all. The file/export load
 
 I think an acceptable compromise to doing this statically would be requiring dumping the file/export load order from the game... but more work is needed to prove the viability of this approach.
 
-I adjusted my program to read my logged lines into a queue of exports to be parsed, using the **completed** reads (lines starting with `Read complete` rather than `Export offset`). This quickly proved to be non-viable with my very barebones tool since I assumed I could just make a read with a length of the Export structure's `SerialSize`, but I was not reading the correct amount of data before reaching the next Unreal Package.
+I adjusted my program to read my logged lines into a queue of exports to be parsed, using the **completed** reads (lines starting with `Read complete` rather than `Export offset`). It then attempted to find the matching export in the export table across any package, and read its size. Repeat until the next Linker object is encountered, parse that, add it to the list, and repeat.
+
+This quickly proved to be non-viable with my very barebones program. I woudl hit a point where I failed to find a matching export for the line logged, presumably because I was not reading the correct amount of data required to reach the next Unreal Package where that export was declared.
 
 This was either a bug, or maybe some of the types attempt to seek+read without triggering a `Preload()`. At any rate, I had now invested a week or longer on the static approach with no data successfully dumped yet.
 
 ## Dumping at Runtime
 
-At some point during the above research, I discovered the [EnhancedSC](https://github.com/Joshhhuaaa/EnhancedSC) project -- a community patch for Splinter Cell 1 on PC which fixes bugs, adds gameplay improvements, and has folks who certailny know the game engine better than me. I joined their Discord and asked if anyone knew about this format and they said that it's been a dead end for anyone who's bothered.
+At some point during the above research, I discovered the [EnhancedSC](https://github.com/Joshhhuaaa/EnhancedSC) project -- a community patch for Splinter Cell 1 on PC which fixes bugs, adds gameplay improvements, and has folks who certainly know the game engine better than me. I joined their Discord and asked if anyone knew about this format and they said that it's been a dead end for anyone who's bothered.
 
 They were quite interested though in any progress achieved as they want to port some content from the Xbox versions of the games to PC. Through this community I got some great help with various theories, ideas, and introduced to tooling like [UE-Explorer](https://github.com/UE-Explorer/UE-Explorer).
 
-After spending about a week on static recompilation, I didn't want to spend even more time investing in getting things dumped only to discover that the files were wildly different than expected, wouldn't work on PC, or wouldn't work with UE Explorer. I needed to dump _something_.
+After spending about a week on static recompilation I didn't want to spend even more time investing in getting things dumped only to hit a hard wall. For example discovering that the files were wildly different than expected, wouldn't work on PC, or wouldn't work with UE Explorer. I needed to dump _something_.
 
-The game can obviously read the data fine. The thought came into my head that perhaps I could just dump the data into some crappy format after its read that makes piecing it back together easy.
+The game can obviously read the data fine. The thought came to me that perhaps I could just dump the data into some crappy format after it's read that makes piecing it back together easy.
 
-While reverse engineering/debugging, there was one function that was peculiar to me. I identified the `ULinkerLoad` function mentioned earlier by searching for the Unreal Package file magic (highlighted below), and found the following function:
+While doing static analysis I came across a function that was very peculiar to me. I identified the `ULinkerLoad` function mentioned earlier by searching for the Unreal Package file magic (highlighted below), and found the following function:
 
 [![LinkerLoad HLIL](/img/splinter-cell/linker_load.png)](/img/splinter-cell/linker_load.png)
 
@@ -783,13 +783,13 @@ As expected, the file magic is checked against what's read from disk. But there'
 
 [![SerializeLinker HLIL](/img/splinter-cell/linker_save.png)](/img/splinter-cell/linker_save.png)
 
-And what is the purpose of this code? As it turns out, savegames are _also_ Unreal Packages in the same format!
+And what is the purpose of this code? As it turns out, user game saves are just Unreal Objects serialized in the same format -- sans compression and other oddities that go along with it!
 
 [![SaveObject HLIL](/img/splinter-cell/save_fn.png)](/img/splinter-cell/save_fn.png)
 
 ### Patching OG Xbox Binaries
 
-In order to do interesting things, we need to run our own code alongside the game. Debugger scripts are simply too slow and unreliable, so we need something running in the emulator or on a physical device.
+In order to do interesting things, we need to run our own code alongside the game. Debugger scripts are simply too slow and unreliable, so we need something running in the emulator or on a physical device. It'd also be cool if I could write a QEMU plugin for the emulator... but that's another rabbit hole.
 
 Injecting code into a game on Windows or Unix is easy. You can `CreateRemoteThread()` or DLL hijack on Windows, and on Unix use `LD_PRELOAD`. On Xbox 360 you can "inject" persistent DLLs. On original Xbox, you have one process with (as far as I know), no DLLs.
 
@@ -800,7 +800,7 @@ This could probably be a blog post on its own since modern information is pretty
 
 Both of these tools allow you to add a new section to an executable and basically create a code cave that you can use for placing additional code or data. When the system loads the image, it maps that newly added section with the appropriate permissions. You then need to patch some place in the original executable so that your code runs.
 
-Using XboxImageExploder and XePatcher, [I was able to write a patch](https://github.com/landaire/SplinterCellDumpPatch/blob/main/SplinterCellFileDumper.asm) which calls the serialization routine on an object after it gets loaded into memory.
+Using XboxImageExploder and XePatcher [I was able to write a patch](https://github.com/landaire/SplinterCellDumpPatch/blob/main/SplinterCellFileDumper.asm) which calls the serialization routine on an object after it gets loaded into memory.
 
 **tl;dr** of the patch:
 
@@ -1100,37 +1100,88 @@ _Hack_DumpFile:
 
 ```
 
+_Why assembly?_ Sunk cost and not wanting to figure out tooling required to compile C to shell code targeting this platform. The functions could be written in C. The detour hooks must remain assembly.
+
 ## Results
 
-We can now read the output files in UE Explorer, and even load the Xbox main menu and the in-engine cinematic from the first level to be run on PC... albeit with some bugged lighting and textures. Anything past that first level cinematic, including the interactive bit of the level itself, has failed to load.
+We can now read the output files in UE Explorer, and even run the Xbox main menu and the in-engine cinematic from the first level on PC... albeit with some bugged lighting and textures. Anything past that first level cinematic, including the interactive bit of the level itself, has failed to load.
 
-The above patch, dumping at `LoadMap()` end, resulted in the most reliable file dumping out of my many experiments. At the end of this function it seems nearly all data is read and ready to go, but there are a couple of objects read after this point. Dumping after all object reads are complete though actually seems to make things worse -- maybe because some object properties have changed in-memory from their default values?
+The above patch, dumping at `LoadMap()` end, resulted in the most reliable file dumping out of my many experiments. At the end of this function it seems nearly all data is read and ready to go, but there are definitely a couple of objects deserialized after this point. Dumping after all object reads are complete though actually seems to make things worse -- maybe because some object properties have changed in-memory from their default values?
 
-First level cinematic:
+Loading an Xbox file in UE Explorer:
+
+[![Engine.Engine package in UE Explorer](/img/splinter-cell/ue_explorer.png)](/img/splinter-cell/ue_explorer.png)
+
+First level cinematic which should have a dimly-lit hallway with shadows:
 
 [![Training Mission Load](/img/splinter-cell/level_load.webp)](/img/splinter-cell/level_load.webp)
 
-Swapping only a single texture:
+Swapping a texture had some problems:
 
 [![Bugged Textures](/img/splinter-cell/corrupt_textures.png)](/img/splinter-cell/corrupt_textures.png)
 
-In fact, the textures are just straight up incomplete data which as of right now I think is a round-tripping issue where the texture explicitly prevents itself from being re-serialized.
+In fact, the textures were just straight up incomplete data. Since literally every texture object had a small size I figured that between the time the object was deserialized and the point I dumped it the original texture data must have been transformed to the target format and the original free'd.
 
-And there is are two major caveats to this approach:
+To confirm my assumption, I set a breakpoint in the function which kicks off object deserialization so that it would break immediately before:
 
-1. Since exports are lazy loaded, you can only dump what's used in a level. The main menu uses some functionality from `Engine` and `Core`, but not all of it. So if I load the main menu map and dump all the linkers when it's finished loading, I will only have a partial representation of `Engine` and `Core`.
+{% collapse(preview="Targeted Export Breakpoint Code") %}
 
-2. Anything unreferenced or unused which might by happenstance be in the archive cannot be easily recovered since you don't know where its data starts. e.g. the main menu has some brushes which are in the export table but appear to be unused, so nothing ever triggers their appropriate load.
+I set a breakpoint in the `Preload()` routine immediately before object deserialization with the following script.
+
+```python
+import ida_dbg, ida_idd, ida_kernwin, ctypes, time
+
+export_addr=ida_dbg.get_reg_val("ebp")
+
+serial_offset = int.from_bytes(ida_idd.dbg_read_memory(export_addr + 24, 4), "little")
+
+class_index = int.from_bytes(ida_idd.dbg_read_memory(export_addr, 4), "little")
+super_index = int.from_bytes(ida_idd.dbg_read_memory(export_addr + 4, 4), "little")
+package_index = int.from_bytes(ida_idd.dbg_read_memory(export_addr + 8, 4), "little")
+object_name = int.from_bytes(ida_idd.dbg_read_memory(export_addr + 12, 4), "little")
+object_flags = int.from_bytes(ida_idd.dbg_read_memory(export_addr + 16, 4), "little")
+serial_size = int.from_bytes(ida_idd.dbg_read_memory(export_addr + 20, 4), "little")
+serial_offset = int.from_bytes(ida_idd.dbg_read_memory(export_addr + 24, 4), "little")
+
+edx=ida_dbg.get_reg_val("edx")
+
+properties = [class_index, super_index, package_index, object_name, object_flags, serial_size, serial_offset]
+
+ida_kernwin.msg("Export offset: " + ",".join(hex(n) for n in properties) +"\n")
+
+# Break only when the object offset matches my target
+return serial_offset == 0x11f65f
+```
+
+{% end %}
+
+Then I set a breakpoint in the data read function and examined where the texture data from disk was being copied to. I had to do some stepping through to figure out where this destination pointer originated, then located immediately next to _that_ pointer is the dynamic array's length and capacity. Set a Memory Write breakpoint on the length field and wait for it to go to zero. Wherever it happened, that was the code and the `realloc` immediately following had to simply get nop'd out to prevent the texture data from being evicted.
+
+After adjusting my patch and dumping data again I noted that the texture file's size changed dramatically and I now had some nice textures to look at:
+
+[![CIA Flag Texture](/img/splinter-cell/cia_flag_texture.png)](/img/splinter-cell/cia_flag_texture.png)
+
+[![HUD Texture](/img/splinter-cell/hud_texture.png)](/img/splinter-cell/hud_texture.png)
+
+## General Issues With Dumping
+
+Since exports are lazy loaded, you can only dump what's used in a level. The main menu uses some functionality from `Engine` and `Core`, but not all of it. So if I load the main menu map and dump all the linkers when it's finished loading, I will only have a partial representation of `Engine` and `Core`.
+
+In the same vein, anything unreferenced or unused which might by happenstance be in the archive cannot be easily recovered without intelligent brute forcing since you don't know where its data starts. e.g. the main menu has some brushes which are in the export table but appear to be unused, so nothing ever triggers their appropriate load.
 
 ## Next Steps
 
-While we've had some small wins and I feel I've accomplished a lot, I'm not going to be satisfied until I can cleanly dump anything I want from the game. A major milestone would be to get the training mission on Xbox completely working on PC.
+While we've had some wins with dumping data and I feel I've accomplished a lot, I'm not going to be satisfied until I can cleanly dump anything I want from the game. A major milestone would be to get the training mission on Xbox completely working on PC. I'm going to try to make some strides here and if I hit a wall, I'll at least try to dump some data from the review copy of the game.
 
-I think this format can still be read statically, but I'm hoping for now that someone from the community can use the work presented in this blog post to get it working in Unreal-Library. This is a much more general approach which only requires a single debugger breakpoint script to dump export loads on a per-game basis rather than a binary patch. If this interests you, [check out the issue I filed in the project repo](https://github.com/EliotVU/Unreal-Library/issues/125).
+This format can certainly be read statically _with_ load-order knowledge from the game engine. I'm hoping for now that someone from the community can use the work presented in this blog post to get it working in Unreal-Library.
 
-### Thanks
+Static recompilation would be a much more general approach which I hope only requires two debugger breakpoint scripts to dump package filenames and export loads on a per-game basis rather than a binary patch. We already have this for SC1. The difficulty would be in contributing to UELib (or some other project) so that it can match the game's exact I/O behavior and deserialize multiple packages simultaneously using the load-order data. If this interests you, [check out the issue I filed in the project repo](https://github.com/EliotVU/Unreal-Library/issues/125).
+
+If you have questions, feel free to reach out to me on Twitter: [@landaire](https://x.com/landaire).
+
+## Thanks
 
 - Grimdoomer for getting me up to speed with writing OG Xbox patches and for listening to my rants about this format.
-- To the EnhancedSC for helping inspect my dumped files and for investing in my success.
+- To the EnhancedSC developer community for helping inspect my dumped files and for investing in what success we've had so far.
 - EliotVU for developing the great UE Explorer and UELib.
 - The folks who documented their own findings on this format before me. Every little bit of information helps.
