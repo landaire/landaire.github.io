@@ -14,7 +14,7 @@ image_height = 240
 
 [Splinter Cell (2002)](<https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell_(video_game)>) was one of the first games I had on the original Xbox and still remains one of my favorite games of all time. The game was developed by Ubisoft using Unreal Engine 2 -- licensed from a small indie dev called Epic Games who continues to use and license its game engine technology for contemporary small-budget indie games such as _Fortnite_ and _Halo: Campaign Evolved_.
 
-I got into programming/hacking through video games and I still enjoy data mining/exploring cut content from the few games I play nowadays. I recently randomly decided to look online for cut content from Splinter Cell and I was kind of surprised on the lack of datamined info. There isn't really much information on the topic aside from [an OG Xbox review copy](<https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_(Sep_13,_2002_prototype)>) of the game which contained two levels cut from the retail Xbox version and some other minor differences.
+I got into programming/hacking through video games and I still enjoy data mining/exploring cut content from the few games I play nowadays. I recently randomly decided to look online for cut content from Splinter Cell and I was kind of surprised by the lack of datamined info. There isn't really much information on the topic aside from [an OG Xbox review copy](<https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_(Sep_13,_2002_prototype)>) of the game which contained two levels cut from the retail Xbox version and some other minor differences.
 
 Naturally, I decided to _legally backup my personal disc copy of the game_ and got to digging into the files.
 
