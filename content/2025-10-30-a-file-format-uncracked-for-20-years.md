@@ -763,7 +763,7 @@ I think an acceptable compromise to doing this statically would be requiring dum
 
 I adjusted my program to read my logged lines into a queue of exports to be parsed, using the **completed** reads (lines starting with `Read complete` rather than `Export offset`). It then attempted to find the matching export in the export table across any package, and read its size. Repeat until the next Linker object is encountered, parse that, add it to the list, and repeat.
 
-This quickly proved to be non-viable with my very barebones program. I woudl hit a point where I failed to find a matching export for the line logged, presumably because I was not reading the correct amount of data required to reach the next Unreal Package where that export was declared.
+This quickly proved to be non-viable with my very barebones program. I would hit a point where I failed to find a matching export for the line logged, presumably because I was not reading the correct amount of data required to reach the next Unreal Package where that export was declared.
 
 This was either a bug, or maybe some of the types attempt to seek+read without triggering a `Preload()`. At any rate, I had now invested a week or longer on the static approach with no data successfully dumped yet.
 
