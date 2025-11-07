@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A File Format Uncracked for 20 Years | lander&#x27;s posts</title>
+  <meta name="title" content="A File Format Uncracked for 20 Years" />
+<meta name="twitter:title" content="A File Format Uncracked for 20 Years" />
+<meta name="og:twitter:title" content="A File Format Uncracked for 20 Years" />
+<meta name="description"
+    content="&quot;I’ve had enough reasonable file formats fired at me in my time to tell you that wasn’t one&quot; - Sam Fisher" />
+<meta name="og:description"
+    content="&quot;I’ve had enough reasonable file formats fired at me in my time to tell you that wasn’t one&quot; - Sam Fisher" />
+<meta name="twitter:description"
+    content="&quot;I’ve had enough reasonable file formats fired at me in my time to tell you that wasn’t one&quot; - Sam Fisher" />
+
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content=" 2025-11-06T00:00:00+00:00">
+
+
+<meta name="twitter:card" content="summary_large_image">
+<meta property=" twitter:image" content="https://landaire.net/img/splinter-cell/banner.png" />
+<meta property="og:image" content="https://landaire.net/img/splinter-cell/banner.png" />
+<meta property="og:image:height" content="240" />
+<meta property="og:image:width" content="360" />
+<meta name="twitter:card" content="summary">
+
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  <link rel="alternate" type="application/atom+xml" title="lander&#x27;s posts" href="https://landaire.net/atom.xml">
+      
+  <style>@font-face {
+font-family: 'BerkeleyMono';
+src: url('/font/BerkeleyMono-Regular.woff2') format('woff2'),
+url('/font/BerkeleyMono-Regular.woff') format('woff');
+}
+
+/* Expando */
+.wrap-collabsible {
+margin-bottom: 1.2rem 0;
+}
+
+input[type='checkbox'] {
+display: none;
+}
+
+.lbl-toggle {
+display: block;
+
+font-weight: bold;
+font-family: monospace;
+font-size: 1.2rem;
+text-transform: uppercase;
+text-align: center;
+
+padding: 1rem;
+
+color: #ccc;
+background: #226999;/*#5B99C2;*/
+
+cursor: pointer;
+
+border-radius: 7px;
+transition: all 0.25s ease-out;
+}
+
+.lbl-toggle:hover {
+color: #0B2033;/*#1A4870;*/
+}
+
+.lbl-toggle::before {
+content: ' ';
+display: inline-block;
+
+border-top: 5px solid transparent;
+border-bottom: 5px solid transparent;
+border-left: 5px solid currentColor;
+vertical-align: middle;
+margin-right: .7rem;
+transform: translateY(-2px);
+
+transition: transform .2s ease-out;
+}
+
+.toggle:checked + .lbl-toggle::before {
+transform: rotate(90deg) translateX(-3px);
+}
+
+.collapsible-content {
+max-height: 0px;
+overflow: hidden;
+transition: max-height .25s ease-in-out;
+}
+
+.toggle:checked + .lbl-toggle + .collapsible-content {
+max-height: 1000vh;
+}
+
+.toggle:checked + .lbl-toggle {
+border-bottom-right-radius: 0;
+border-bottom-left-radius: 0;
+}
+
+.collapsible-content .content-inner {
+background: rgba(26, 72, 112, .2);
+border-bottom: 1px solid rgb(31, 49, 111, .45);
+border-bottom-left-radius: 7px;
+border-bottom-right-radius: 7px;
+padding: .5rem 1rem;
+}
+
+
+body {
+font-family: Verdana, sans-serif;
+margin: auto;
+padding: 20px;
+max-width: 900px;
+text-align: left;
+background-color: #fff;
+word-wrap: break-word;
+overflow-wrap: break-word;
+line-height: 1.5;
+color: #444;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+color: #222;
+}
+
+a {
+color: #3273dc;
+}
+
+.title {
+text-decoration: none;
+border: 0;
+}
+
+.title span {
+font-weight: 400;
+}
+
+nav a {
+margin-right: 10px;
+}
+
+textarea {
+width: 100%;
+font-size: 1rem;
+}
+
+input {
+font-size: 1rem;
+}
+
+main,article {
+line-height: 1.6;
+}
+
+table {
+width: 100%;
+}
+
+img {
+max-width: 100%;
+}
+
+main img {
+display:block;
+margin-left:auto;
+margin-right:auto;
+}
+
+code {
+padding: 2px 5px;
+background-color: #f2f2f2;
+}
+
+pre code {
+color: #222;
+display: block;
+padding: 20px;
+/*white-space: pre-wrap;*/
+font-size: 0.875rem;
+overflow-x: auto;
+}
+
+div.highlight pre {
+background-color: initial;
+color: initial;
+}
+
+div.highlight code {
+background-color: unset;
+color: unset;
+}
+
+blockquote {
+border-left: 1px solid #999;
+color: #222;
+padding-left: 20px;
+font-style: italic;
+}
+
+footer {
+padding: 25px;
+text-align: center;
+}
+
+.helptext {
+color: #222;
+font-size: small;
+}
+
+.errorlist {
+color: #eba613;
+font-size: small;
+}
+
+/* blog posts */
+ul.blog-posts {
+list-style-type: none;
+padding: unset;
+}
+
+ul.blog-posts li {
+display: flex;
+}
+
+ul.blog-posts li span {
+flex: 0 0 130px;
+}
+
+ul.blog-posts li a:visited {
+color: #8b6fcb;
+}
+
+@media (prefers-color-scheme: dark) {
+body {
+background-color: #333;
+color: #ddd;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+color: #eee;
+}
+
+a {
+color: #8cc2dd;
+}
+
+code {
+background-color: #222;
+}
+
+pre code {
+color: /*#ffb000;*/ #ddd;
+}
+
+blockquote {
+color: #ccc;
+}
+
+textarea,
+input {
+background-color: #252525;
+color: #ddd;
+}
+
+.helptext {
+color: #aaa;
+}
+}
+
+.header-block-inline {
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.header-block img {
+margin: auto;
+display: block;
+}
+
+.header-img {
+margin-right: 1rem ;
+}
+
+/*
+@media (min-width: 1200px) {
+pre {
+width: 1080px;
+position: relative;
+left: calc(-540px + 50%);
+}
+}
+
+*/
+
+pre {
+text-align: center;
+background-color: transparent !important;
+}
+
+pre code {
+/*display: inline-block;*/
+text-align: left;
+}
+
+
+/*
+pre code {
+width: 120em;
+position: relative;
+left: calc(-60em + 50%);
+}
+*/
+
+pre, pre * {
+font-family: 'BerkeleyMono', monospace;
+font-variant-ligatures: none;
+}
+
+pre {
+max-height: 100vh;
+overflow: -moz-scrollbars-vertical;
+overflow-y: scroll;
+overflow-x: auto;
+}
+
+
+/*.zola-anchor {
+  color: inherit;
+  opacity: 0;
+  margin-left: 0.4em;
+  transition: opacity 0.2s;
+}*/
+
+.zola-anchor {
+  text-decoration: none;
+  color: var(--accent-color, #0077cc);
+}
+</style>
+  </head>
+<body>
+  <header>
+  <a href="https:&#x2F;&#x2F;landaire.net" class="title">
+    <h2>lander&#x27;s posts</h2>
+  </a>
+  <nav>
+    
+
+  </nav>
+</header>
+
+
+<div class="header-block">
+  
+  <a href="&#x2F;img&#x2F;splinter-cell&#x2F;banner.png" class="header-img"><img src="https:&#x2F;&#x2F;landaire.net&#x2F;processed_images&#x2F;banner.c9874fccf7528554.png" /></a>
+  
+
+  <hgroup>
+    <h1>A File Format Uncracked for 20 Years</h1>
+    <p><em>&quot;I’ve had enough reasonable file formats fired at me in my time to tell you that wasn’t one&quot; - Sam Fisher</em></p>
+  </hgroup>
+
+</div>
+<p>
+  <i>
+    <time datetime=' 2025-11-06T00:00:00+00:00' pubdate>06 Nov, 2025</time>
+  </i>
+</p>
+<hr>
+<main>
+  
+  <p><a href="https://en.wikipedia.org/wiki/Tom_Clancy%27s_Splinter_Cell_(video_game)">Splinter Cell (2002)</a> was one of the first games I had on the original Xbox and still remains one of my favorite games of all time. The game was developed by Ubisoft using Unreal Engine 2 -- licensed from a small indie dev called Epic Games who continues to use and license its game engine technology for contemporary small-budget indie games such as <em>Fortnite</em> and <em>Halo: Campaign Evolved</em>.</p>
+<p>I got into programming/hacking through video games and I still enjoy data mining/exploring cut content from the few games I play nowadays. I recently randomly decided to look online for cut content from Splinter Cell and I was kind of surprised by the lack of datamined info. There isn't really much information on the topic aside from <a href="https://hiddenpalace.org/Tom_Clancy%27s_Splinter_Cell_(Sep_13,_2002_prototype)">an OG Xbox review copy</a> of the game which contained two levels cut from the retail Xbox version and some other minor differences.</p>
+<p>Naturally, I decided to <em>legally backup my personal disc copy of the game</em> and got to digging into the files.</p>
+<p>My initial objective was to examine the format of the game data and sniff out if there's any indicators of cut content such as textures, models, interesting strings -- whatever. Some nice finds would be debug menus, voice lines, weapon concepts, or levels that are unreachable through normal game progression.</p>
+<p>The game's (truncated) file tree looks like this:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>.
+</span><span>├── contentimage.xbx
+</span><span>├── dashupdate.xbe
+</span><span>├── default.xbe
+</span><span>├── downloader.xbe
+</span><span>├── dynamicxbox.umd
+</span><span>├── LMaps
+</span><span>│   ├── 000_menu
+</span><span>│   │   ├── common.lin
+</span><span>│   │   └── menu.lin
+</span><span>│   ├── 001_Training
+</span><span>│   │   ├── 0_0_2_Training.bik
+</span><span>│   │   ├── 0_0_2_Training.lin
+</span><span>│   │   ├── 0_0_2_Training_progress.tga
+</span><span>│   │   ├── 0_0_2_Training_start.tga
+</span><span>│   │   ├── 0_0_3_Training.lin
+</span><span>│   │   ├── 0_0_3_Training_complete.tga
+</span><span>│   │   ├── 0_0_3_Training_progress.tga
+</span><span>│   │   ├── common.lin
+</span><span>│   │   └── French
+</span><span>│   │       ├── 0_0_2_Training_progress.tga
+</span><span>│   │       ├── 0_0_2_Training_start.tga
+</span><span>│   │       ├── 0_0_3_Training_complete.tga
+</span><span>│   │       └── 0_0_3_Training_progress.tga
+</span></code></pre>
+<p><code>.xbe</code> files are Xbox Executables, <code>.bik</code> are <a href="https://www.radgametools.com/bnkmain.htm">Bink Video</a> files, and <code>.tga</code> are images... but <code>.lin</code> is new to me.</p>
+<p>In Splinter Cell the maps are divided into separate parts. So in the training mission <code>001_Training</code>, you likely have <code>0_0_2_Training.lin</code> for the first part and <code>0_0_3_Training.lin</code> for the second which gets loaded via an in-game loading sequence after advancing to some zone in the map.</p>
+<p>I instantly thought that <code>common.lin</code> might contain data common to both of these parts as a way to reduce file size. The Halo games for instance have a <code>shared.map</code> containing assets which are shared across most maps, and load data at a fixed address so that the file can be trivially transmuted from a binary blob to its in-memory data structures.</p>
+<p>Examining the <code>common.lin</code> file in a hex editor, a few things become immediately apparent:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>┌────────┬─────────────────────────┬─────────────────────────┬────────┬────────┐
+</span><span>│00000000│ 04 00 00 00 0c 00 00 00 ┊ 78 9c 7b d7 97 c2 00 00 │........┊x.{.....│
+</span><span>│00000010│ 06 2e 01 e1 04 00 00 00 ┊ 0c 00 00 00 78 9c 63 60 │........┊....x.c`│
+</span><span>│00000020│ 90 66 00 00 00 3a 00 1c ┊ 04 00 00 00 0c 00 00 00 │.f...:..┊........│
+</span><span>│00000030│ 78 9c 73 48 67 60 00 00 ┊ 02 39 00 a8 04 00 00 00 │x.sHg`..┊.9......│
+</span><span>│00000040│ 0c 00 00 00 78 9c b3 e0 ┊ 65 60 00 00 01 0b 00 46 │....x...┊e`.....F│
+</span><span>└────────┴─────────────────────────┴─────────────────────────┴────────┴────────┘
+</span></code></pre>
+<ul>
+<li>Data between <code>0x0..0x4</code> and <code>0x4..0x8</code> are little-endian 32-bit integers: <code>0x00000004</code> and <code>0x0000000C</code>.</li>
+<li>At offset <code>0x8</code> is what appears to be a zlib-compressed chunk of data -- denoted by the 'x' in the ASCII view and <code>0x78 0x9c</code> in the hex view.</li>
+<li>There's another sequence of this at offset <code>0x14</code>, which happens to be <code>0xC</code> bytes past the offset of the zlib data (<code>0x8</code>), and another at <code>0x28</code>.</li>
+</ul>
+<p>Presumably the format here is <code>{decompressed_data_len, compressed_data_len, zlib_block[compressed_data_len]}</code> repeated.</p>
+<p>So far so good.</p>
+<p>I wrote a quick tool to decompress the archive and without a hitch ended up with a 64k file containing 4 <code>u32</code>s prefixing it. Since these 4 are in their own dedicated zlib-compressed chunks I consider to be separate from the main data. I later reverse engineered and identified how they are used:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>uncompressed_data_size: 0x648EEE
+</span><span>texture_cache_size? - later used when calling D3DDevice_CreateTexture2: 0x1B0000
+</span><span>vertex_buffer_size? - ditto, D3DDevice_CreateVertexBuffer2: 0x6740
+</span><span>index_buffer_size? - ditto, XGSetIndexBufferHeader: 0xD38
+</span></code></pre>
+<p>And this is what the main data section's first 0x100 bytes look like:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>┌────────┬─────────────────────────┬─────────────────────────┬────────┬────────┐
+</span><span>│00000000│ 5c 58 9e 13 00 a3 c5 e3 ┊ 9f b4 92 9b 13 5c 58 9e │\X......┊.....\X.│
+</span><span>│00000010│ 13 01 00 00 00 04 2a d6 ┊ fe 7e 37 13 4d 61 70 73 │......*.┊.~7.Maps│
+</span><span>│00000020│ 5c 6d 65 6e 75 5c 6d 65 ┊ 6e 75 2e 75 6e 72 00 00 │\menu\me┊nu.unr..│
+</span><span>│00000030│ 00 00 00 ee de 00 00 00 ┊ 00 00 00 16 4d 61 70 73 │........┊....Maps│
+</span><span>│00000040│ 5c 31 5f 31 5f 30 54 62 ┊ 69 6c 69 73 69 2e 75 6e │\1_1_0Tb┊ilisi.un│
+</span><span>│00000050│ 72 00 f0 de 00 00 6d c9 ┊ 17 00 00 00 00 00 16 4d │r.....m.┊.......M│
+</span><span>│00000060│ 61 70 73 5c 31 5f 31 5f ┊ 31 54 62 69 6c 69 73 69 │aps\1_1_┊1Tbilisi│
+</span><span>│00000070│ 2e 75 6e 72 00 60 a8 18 ┊ 00 98 34 21 00 00 00 00 │.unr.`..┊..4!....│
+</span><span>│00000080│ 00 16 4d 61 70 73 5c 31 ┊ 5f 31 5f 32 54 62 69 6c │..Maps\1┊_1_2Tbil│
+</span><span>│00000090│ 69 73 69 2e 75 6e 72 00 ┊ 00 dd 39 00 89 63 19 00 │isi.unr.┊..9..c..│
+</span><span>│000000a0│ 00 00 00 00 18 4d 61 70 ┊ 73 5c 30 5f 30 5f 32 5f │.....Map┊s\0_0_2_│
+</span><span>│000000b0│ 54 72 61 69 6e 69 6e 67 ┊ 2e 75 6e 72 00 90 40 53 │Training┊.unr..@S│
+</span><span>│000000c0│ 00 0f 9f 0c 00 00 00 00 ┊ 00 18 4d 61 70 73 5c 30 │........┊..Maps\0│
+</span><span>│000000d0│ 5f 30 5f 33 5f 54 72 61 ┊ 69 6e 69 6e 67 2e 75 6e │_0_3_Tra┊ining.un│
+</span><span>│000000e0│ 72 00 a0 df 5f 00 48 86 ┊ 11 00 00 00 00 00 1e 4d │r..._.H.┊.......M│
+</span><span>│000000f0│ 61 70 73 5c 31 5f 32 5f ┊ 31 44 65 66 65 6e 73 65 │aps\1_2_┊1Defense│
+</span><span>└────────┴─────────────────────────┴─────────────────────────┴────────┴────────┘
+</span></code></pre>
+<p>And at what appears to be the end of the file table:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>┌────────┬─────────────────────────┬─────────────────────────┬────────┬────────┐
+</span><span>│0002c580│ 79 6e 63 68 5c 69 6e 74 ┊ 5c 55 73 61 53 6f 6c 64 │ynch\int┊\UsaSold│
+</span><span>│0002c590│ 69 65 72 5c 55 53 4f 55 ┊ 4e 43 5f 33 2e 62 69 6e │ier\USOU┊NC_3.bin│
+</span><span>│0002c5a0│ 00 40 8d 9b 13 74 05 00 ┊ 00 00 00 00 00 c1 83 2a │.@...t..┊.......*│
+</span><span>│0002c5b0│ 9e 64 00 11 00 01 00 00 ┊ 00 10 0e 00 00 88 00 00 │.d......┊........│
+</span><span>│0002c5c0│ 00 fa 0f 00 00 f3 7a 11 ┊ 00 4e 00 00 00 3e 78 11 │......z.┊.N...&gt;x.│
+</span><span>│0002c5d0│ 00 de ad f0 0f 42 01 9c ┊ 90 92 8f 96 93 9e 8b 96 │.....B..┊........│
+</span><span>│0002c5e0│ 90 91 9a 9c 97 9a 93 90 ┊ 91 df af bc ba bc b7 ba │........┊........│
+</span><span>│0002c5f0│ b3 b0 b1 df a6 c5 a3 ba ┊ bc b7 ba b3 b0 b1 a3 ac │........┊........│
+</span><span>│0002c600│ a6 ac ab ba b2 a3 df ce ┊ cf d0 cd c9 d0 cf cd df │........┊........│
+</span><span>│0002c610│ cd ce c5 cf cd c5 ce cb ┊ ff 00 00 00 00 00 00 00 │........┊........│
+</span><span>│0002c620│ 00 00 00 00 00 00 00 00 ┊ 00 01 00 00 00 fa 0f 00 │........┊........│
+</span><span>│0002c630│ 00 10 0e 00 00 05 4e 6f ┊ 6e 65 00 10 04 07 04 06 │......No┊ne......│
+</span><span>│0002c640│ 43 6f 6c 6f 72 00 10 04 ┊ 07 04 0d 49 6e 74 65 72 │Color...┊...Inter│
+</span><span>│0002c650│ 6e 61 6c 54 69 6d 65 00 ┊ 10 00 07 00 07 45 6e 67 │nalTime.┊.....Eng│
+</span><span>│0002c660│ 69 6e 65 00 10 00 07 04 ┊ 05 43 6f 72 65 00 10 00 │ine.....┊.Core...│
+</span><span>│0002c670│ 07 04 07 53 79 73 74 65 ┊ 6d 00 10 00 07 04 06 55 │...Syste┊m......U│
+</span><span>└────────┴─────────────────────────┴─────────────────────────┴────────┴────────┘
+</span></code></pre>
+<p>Just to save some blog space on my trial and error process here, I'm going to drop some of the resources I found which discuss this format:</p>
+<ul>
+<li><a href="https://oldunreal.com/phpBB3/viewtopic.php?t=4885">https://oldunreal.com/phpBB3/viewtopic.php?t=4885</a></li>
+<li><a href="https://zenhax.com/viewtopic.php@t=1049.html">https://zenhax.com/viewtopic.php@t=1049.html</a></li>
+<li><a href="https://reshax.com/topic/1421-ubisoft-unreal-engine-2-open-season-2006-video-game-umd-also-lin-xbox-xbox-360-pc-and-liv-latter-being-exclusive-to-xbox-360/">https://reshax.com/topic/1421-ubisoft-unreal-engine-2-open-season-2006-video-game-umd-also-lin-xbox-xbox-360-pc-and-liv-latter-being-exclusive-to-xbox-360/</a></li>
+<li><a href="https://www.unrealarchive.org/wikis/unreal-wiki/Legacy:UMOD/File_Format.html">https://www.unrealarchive.org/wikis/unreal-wiki/Legacy:UMOD/File_Format.html</a></li>
+</ul>
+<p>The last two posts in particular had structure info that was helpful in figuring out the packed int format (think UTF-8 and its variable-length encoding) and a couple unknown vars.</p>
+<p>What I gathered from all of these posts was that over time, nobody's really been able to figure out this format's quirks sufficiently to unpack the data. Everyone seems to think that some kind of VFS is created and the data gets mapped at a specific address and then read. Which may be true for some titles or consoles, but is not really the case for this one.</p>
+<p><strong>My objective has now changed:</strong> I now want to reverse engineer this file format and be able to dump individual files from this filesystem. Then I can achieve my core goal of looking for cut content. Then I can maybe play the game.</p>
+<h2 id="tl-dr-of-the-general-lin-structure"><a class="zola-anchor" href="#tl-dr-of-the-general-lin-structure" aria-label="Anchor link for: tl-dr-of-the-general-lin-structure"
+    >#</a
+>
+tl;dr of the general <code>.lin</code> structure</h2>
+<p><code>common.lin</code> has a different layout from the other <code>.lin</code> files that looks roughly like:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">/* ==== Standard Data ==== */
+</span><span>
+</span><span style="color:#65737e;">// These three, from research + reverse engineering, should not be considered
+</span><span style="color:#65737e;">// as part of the &quot;whole&quot; file
+</span><span style="color:#b48ead;">u32</span><span>             maybe_load_address; </span><span style="color:#65737e;">// 5C 58 9E 13 (0x139e585c) in common.lin
+</span><span>compressed_int  name_length;        </span><span style="color:#65737e;">// 0 in common.lin
+</span><span style="color:#b48ead;">char</span><span>            name[name_length];
+</span><span>
+</span><span style="color:#65737e;">/* ==== common.lin-specific file header ==== */
+</span><span>
+</span><span style="color:#b48ead;">u32</span><span>             magic;              </span><span style="color:#65737e;">// 0x9fe3c5a3 in little endian, i.e. A3 C5 E3 9F
+</span><span>
+</span><span style="color:#b48ead;">u32</span><span>             unk_address;        </span><span style="color:#65737e;">// B4 92 9B 13, (0x139b92b4) suspiciously similar to maybe_load_address.
+</span><span>                                    </span><span style="color:#65737e;">// unk_address - load_address gives you the start of the file
+</span><span>                                    </span><span style="color:#65737e;">// table, relative to the magic?
+</span><span style="color:#b48ead;">u32</span><span>             load_address2;      </span><span style="color:#65737e;">// 5C 58 9E 13 same as maybe_load_address
+</span><span>
+</span><span style="color:#b48ead;">u8</span><span>              unknown[</span><span style="color:#d08770;">8</span><span>];         </span><span style="color:#65737e;">// 01 00 00 00 04 2A D6 FE
+</span><span>compressed_int  file_entry_count;
+</span><span>
+</span><span>FileEntry       file_entries[file_entry_count];
+</span><span>
+</span><span style="color:#b48ead;">struct </span><span>FileEntry {
+</span><span>    compressed_int  name_len;
+</span><span>    char            name[name_len];
+</span><span>    u32             offset;
+</span><span>    u32             len;
+</span><span>    u32             unk;
+</span><span>}
+</span></code></pre>
+<p>Then immediately following the <code>FileEntry</code> table are 54 Unreal Engine Package files in sequence (identified via their <code>0x9E2A83C1</code> magic -- these are also referred to as <strong>Linker</strong> files) that presumably map to the files in the file table.</p>
+<p>The map-specific files like <code>menu.lin</code> and <code>0_0_2_Training.lin</code> do not have the file table, but they do have the first 3 fields (and a non-null string like "menu\x0" for the name field) then a sequence of Linker files.</p>
+<p>But the difficulty with parsing this data starts with the file table.</p>
+<h2 id="problems"><a class="zola-anchor" href="#problems" aria-label="Anchor link for: problems"
+    >#</a
+>
+Problems</h2>
+<h3 id="file-table"><a class="zola-anchor" href="#file-table" aria-label="Anchor link for: file-table"
+    >#</a
+>
+File Table</h3>
+<p>The file table is a very simple format that I'm able to parse with my program:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>FileEntry {
+</span><span>    name: Maps\\menu\\menu.unr,
+</span><span>    offset: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0xDEEE</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span><span>FileEntry {
+</span><span>    name: Maps\\1_1_0Tbilisi.unr,
+</span><span>    offset: </span><span style="color:#d08770;">0xDEF0</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0x17C96D</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span><span>FileEntry {
+</span><span>    name: Maps\\1_1_1Tbilisi.unr,
+</span><span>    offset: </span><span style="color:#d08770;">0x18A860</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0x213498</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span><span>FileEntry {
+</span><span>    name: Maps\\1_1_2Tbilisi.unr,
+</span><span>    offset: </span><span style="color:#d08770;">0x39DD00</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0x196389</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span><span>FileEntry {
+</span><span>    name: Maps\\0_0_2_Training.unr,
+</span><span>    offset: </span><span style="color:#d08770;">0x534090</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0xC9F0F</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span><span>FileEntry {
+</span><span>    name: Maps\\0_0_3_Training.unr,
+</span><span>    offset: </span><span style="color:#d08770;">0x5FDFA0</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0x118648</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span><span>FileEntry {
+</span><span>    name: Maps\\1_2_1DefenseMinistry.unr,
+</span><span>    offset: </span><span style="color:#d08770;">0x7165F0</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0x249AF6</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span><span>FileEntry {
+</span><span>    name: Maps\\1_2_2DefenseMinistry.unr,
+</span><span>    offset: </span><span style="color:#d08770;">0x9600F0</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0x20F662</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span><span>&lt;snip&gt;
+</span></code></pre>
+<p>At first glance the files seem to be laid out sequentially, aligned to a pointer-width boundary. Except, notice that last file's offset... <code>0x9600F0</code>. This is way outside of the range of my <code>0x648EEE</code>-length file, and this file list contains 3,582 files! Not 54 as expected from the count of Unreal Package magics!</p>
+<p>The mismatch file count could be explained by not every file in this container being an Unreal Package, but the offsets so far are <em>extremely</em> wrong.</p>
+<h3 id="file-reading"><a class="zola-anchor" href="#file-reading" aria-label="Anchor link for: file-reading"
+    >#</a
+>
+File Reading</h3>
+<p>After debugging the game in the Original Xbox emulator <a href="https://xemu.app/">xemu</a>, I was able to find the routine which opens the file, as well as the function which reads and decompresses data.</p>
+<div class="wrap-collabsible">
+    <input id="collapsible1" class="toggle" type="checkbox" />
+    <label for="collapsible1" class="lbl-toggle">Function Identification Methodology</label>
+    <div class="collapsible-content">
+        <div class="content-inner">
+            If anyone's curious on the methodology: I identified <code>NtCreateFile</code>, set a breakpoint, recorded the <code>HANDLE</code> returned for the file path I cared about, then set a breakpoint at <code>NtReadFile</code> and broke when the input <code>HANDLE</code> matched the expected value. The call stack/stepping from here helped identify interesting callers. Alternatively, the string "<code>unknown compression method</code>" is useful in finding the decompression routine <code>inflateInit2</code>.</p>
+<p>This is not super relevant to the blog post which is why it's in this little collapse section. I hate reading posts like this that skip over a detail I'm interested in like it's just common knowledge how something is done, so I'm trying to avoid doing that :)
+        </div>
+    </div>
+</div>
+<p><em>Note: Click images to see in higher res</em>.</p>
+<p><a href="/img/splinter-cell/compressed_fn_hlil.png"><img src="/img/splinter-cell/compressed_fn_hlil.png" alt="Compressed read function high-level IL" /></a></p>
+<p>This function basically checks the requested read size against how much data it has precached in its decompressed data buffer. It will then copy as much data as it can from its precached buffer to the output buffer, then read the next block of compressed zlib data into its precache buffer if the previous one was exhausted. Repeat this process until the request is satisfied.</p>
+<p>Identifying this function was pretty important for my reverse engineering process. I could now set breakpoints on the code which copies data to the output buffer and see who's calling this function when data is read from offsets I care about.</p>
+<p>I stepped through this code, set Memory Read breakpoints on data I didn't yet understand, and noted something interesting early on!</p>
+<p>Those "addresses" from the header (<code>0x139e585c</code>)? Those are actually passed to what I can only guess is a <code>Seek</code> routine which updates the <code>position</code> property of the file reader, which then makes an indirect call to another function that <strong>literally does nothing</strong>.</p>
+<p>The entire content of the function is:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>retn    4
+</span></code></pre>
+<p>That's it.</p>
+<p>Then the reads just... continue from their last position? Since the function is an indirect call, I can only assume that I was looking at some composed C++ object where the outer class object updates its own <code>position</code> in <code>Seek()</code> and then calls its underlying file reader's <code>Seek()</code>... which is a no-op?</p>
+<p>After setting Memory Read breakpoints on the object's <code>position</code> field, I noticed it's only ever used in their file reader equivalent of <code>FTell()</code>. It doesn't affect where data is actually being read from at all.</p>
+<p>The reason for the <code>Seek()</code> being a no-op is likely because the underlying file reader is reading directly from the compressed buffer, which reads in <code>0x4000</code>-byte chunks. Since you cannot reasonably map an uncompressed data offset to a compressed offset the format must be designed to ignore seeks and just read data linearly.</p>
+<p>...the <code>.lin</code> extension makes a lot more sense.</p>
+<p>💡 In order to read these files, you have to assume that you cannot seek forward/backward. Easy enough.</p>
+<h3 id="load-order-matters"><a class="zola-anchor" href="#load-order-matters" aria-label="Anchor link for: load-order-matters"
+    >#</a
+>
+Load Order Matters</h3>
+<p>We still have a problem that has not been addressed: why does the file table have a large count of files with bad offsets?</p>
+<p>I continued to use breakpoints inside of the file read function to trace where interesting bits of data were read and forced a break when the data immediately following the file table was read. Eventually I traced the file read operation back far enough to find this function, <code>StaticLoadObject</code>:</p>
+<p><a href="/img/splinter-cell/static_load_object.png"><img src="/img/splinter-cell/static_load_object.png" alt="StaticLoadObject implementation" /></a></p>
+<p>This function calls <code>ResolveName</code> which I was able to log the arguments to via a debugger breakpoint script, which told me the <code>InName</code> was <code>ini:Engine.Engine.GameEngine</code>:</p>
+<p><a href="/img/splinter-cell/resolve_name.png"><img src="/img/splinter-cell/resolve_name.png" alt="ResolveName implementation" /></a></p>
+<p>This <code>ini:Engine.Engine.GameEngine</code> name gets parsed as:</p>
+<ul>
+<li><code>ini:</code> &lt;- resolve the name from the game's INI files</li>
+<li><code>Engine.Engine</code> &lt;- the INI table to read from</li>
+<li><code>GameEngine</code> &lt;- the key from the table to read</li>
+</ul>
+<p>If I look in <code>UW.ini</code> included with the game, this table is defined as:</p>
+<pre data-lang="ini" style="background-color:#2b303b;color:#c0c5ce;" class="language-ini "><code class="language-ini" data-lang="ini"><span style="color:#b48ead;">[Engine.Engine]
+</span><span style="color:#bf616a;">RenderDevice</span><span>=D3DDrv.D3DRenderDevice
+</span><span style="color:#bf616a;">GameRenderDevice</span><span>=D3DDrv.D3DRenderDevice
+</span><span style="color:#bf616a;">AudioDevice</span><span>=XboxAudio.XboxAudioSubsystem
+</span><span style="color:#bf616a;">Console</span><span>=Engine.Console
+</span><span style="color:#bf616a;">DefaultPlayerMenu</span><span>=UPreview.UPreviewRootWindow
+</span><span style="color:#bf616a;">Language</span><span>=int
+</span><span style="color:#bf616a;">GameEngine</span><span>=Engine.GameEngine
+</span><span style="color:#bf616a;">EditorEngine</span><span>=Editor.EditorEngine
+</span><span style="color:#bf616a;">WindowedRenderDevice</span><span>=D3DDrv.D3DRenderDevice
+</span><span style="color:#bf616a;">DefaultGame</span><span>=Echelon.EchelonGameInfo
+</span><span style="color:#bf616a;">DefaultServerGame</span><span>=WarfareGame.WarfareTeamGame
+</span><span style="color:#bf616a;">ViewportManager</span><span>=XboxDrv.XboxClient
+</span><span style="color:#bf616a;">Render</span><span>=Render.Render
+</span><span style="color:#bf616a;">Input</span><span>=Engine.Input
+</span><span style="color:#bf616a;">Canvas</span><span>=Echelon.ECanvas
+</span><span style="color:#bf616a;">Editor3DRenderDevice</span><span>=D3DDrv.D3DRenderDevice
+</span></code></pre>
+<p>So the resulting value returned from this function is <code>Engine.GameEngine</code>, which matches what this function resolves.</p>
+<p>This is then used to resolve the <strong>package</strong> <code>Engine</code> and its <strong>exported object</strong> <code>GameEngine</code>. The game binary looks for the file <code>Engine</code> in its available sources (partial matching strategy), which includes searching against the LIN file table, and then resolves that name as <code>System\Engine.u</code>. My tool that reads the file table confirms that this is declared in the LIN file:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>FileEntry {
+</span><span>    name: System\\Engine.u,
+</span><span>    offset: </span><span style="color:#d08770;">0x13482120</span><span>,
+</span><span>    len: </span><span style="color:#d08770;">0x127DA1</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>},
+</span></code></pre>
+<p>Except the file start offset + len don't make sense. If I assume the <code>Engine.u</code> file is the first file immediately following the file table, advancing forward by this length appears to land right in the middle of some string?</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>┌────────┬─────────────────────────┬─────────────────────────┬────────┬────────┐
+</span><span>│00154330│ 09 45 4d 65 73 68 53 46 ┊ 58 00 10 00 07 00 1b 43 │.EMeshSF┊X......C│
+</span><span>│00154340│ 68 61 6e 64 65 72 6c 65 ┊ 72 43 72 79 73 74 61 6c │handerle┊rCrystal│
+</span><span>│00154350│ 50 61 72 74 69 63 75 6c ┊ 65 00 10 00 07 00 12 46 │Particul┊e......F│
+</span><span>└────────┴─────────────────────────┴─────────────────────────┴────────┴────────┘
+</span></code></pre>
+<p>I'll save some time and just say that I did not identify the wrong file. The lengths just don't matter, and for all intents and purposes are wrong. The reader in the game engine must just read the data in-order using its self-description in its own header?</p>
+<p>The Unreal Engine Package/Linker file format has been <a href="https://eliotvu.com/page/unreal-package-file-format">well documented</a> and does include some sizes in its header. The packages contain about what you'd expect of some object-oriented programming (OOP) script/data format.</p>
+<p>It has <em>exported</em> objects which are named instances of some OOP type and has properties and data. Or the object can be a class/struct definition. The exports may rely on types exported from other packages which are declared as <em>imports</em>. Both of these have names or string data associated with them which are defined in the <em>name</em> table.</p>
+<p>I mapped the existing documentation to the following Rust struct:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub struct </span><span>PackageHeader&lt;</span><span style="color:#b48ead;">&#39;i</span><span>&gt; {
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">version</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">flags</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">name_count</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">name_offset</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">export_count</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">export_offset</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">import_count</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">import_offset</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// Note: this is not in the above documented description
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">unk</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#65737e;">// Ditto.
+</span><span>    </span><span style="color:#65737e;">// Not shown: compressed int for length of this data at this position
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">unknown_data</span><span>: &amp;</span><span style="color:#b48ead;">&#39;i</span><span> [</span><span style="color:#b48ead;">u8</span><span>],
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">guid_a</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">guid_b</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">guid_c</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">guid_d</span><span>: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    </span><span style="color:#65737e;">// Not shown: compressed int for length of this data at this position.
+</span><span>    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">generations</span><span>: Vec&lt;GenerationInfo&gt;,
+</span><span>}
+</span></code></pre>
+<p>And of course, the offsets in this format are also unusable (e.g. the <code>name_offset</code> lands you <em>after</em> the start of the name table). But the counts look good:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>PackageHeader {
+</span><span>    version: </span><span style="color:#d08770;">0x110064</span><span>,
+</span><span>    flags: </span><span style="color:#d08770;">0x1</span><span>,
+</span><span>    name_count: </span><span style="color:#d08770;">0xE10</span><span>,
+</span><span>    name_offset: </span><span style="color:#d08770;">0x88</span><span>,
+</span><span>    export_count: </span><span style="color:#d08770;">0xFFA</span><span>,
+</span><span>    export_offset: </span><span style="color:#d08770;">0x117AF3</span><span>,
+</span><span>    import_count: </span><span style="color:#d08770;">0x4E</span><span>,
+</span><span>    import_offset: </span><span style="color:#d08770;">0x11783E</span><span>,
+</span><span>    unk: </span><span style="color:#d08770;">0xFF0ADDE</span><span>,
+</span><span>    unknown_data: [
+</span><span>      ...
+</span><span>    ]
+</span><span>    guid_a: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    guid_b: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    guid_c: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    guid_d: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    generations: [
+</span><span>        GenerationInfo {
+</span><span>            export_count: </span><span style="color:#d08770;">0xFFA</span><span>,
+</span><span>            name_count: </span><span style="color:#d08770;">0xE10</span><span>,
+</span><span>        },
+</span><span>    ],
+</span><span>}
+</span></code></pre>
+<p>Now with my tool updated to read these tables -- parsing by assuming that they immediately follow this header and each other -- I have imports that look like:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Package Core.Core
+</span><span>Import { class_package: </span><span style="color:#d08770;">4</span><span>, class_name: </span><span style="color:#d08770;">B64</span><span>, package_index: </span><span style="color:#d08770;">0</span><span>, object_name: </span><span style="color:#d08770;">4</span><span>, object: None }
+</span><span>
+</span><span>Class Core.Object
+</span><span>Import { class_package: </span><span style="color:#d08770;">4</span><span>, class_name: </span><span style="color:#d08770;">B62</span><span>, package_index: </span><span style="color:#d08770;">FFFFFFFF</span><span>, object_name: </span><span style="color:#d08770;">13</span><span>, object: None }
+</span><span>
+</span><span>Class Core.Function
+</span><span>Import { class_package: </span><span style="color:#d08770;">4</span><span>, class_name: </span><span style="color:#d08770;">B62</span><span>, package_index: </span><span style="color:#d08770;">FFFFFFFF</span><span>, object_name: </span><span style="color:#d08770;">BBD</span><span>, object: None }
+</span></code></pre>
+<p>And exports:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Class Actor
+</span><span>(</span><span style="color:#d08770;">0x0</span><span>) ObjectExport {
+</span><span>    class_index: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    super_index: </span><span style="color:#d08770;">0xFFFFFFFE</span><span>,
+</span><span>    package_index: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    object_name: </span><span style="color:#d08770;">0x206</span><span>,
+</span><span>    object_flags: </span><span style="color:#d08770;">0x40F0004</span><span>,
+</span><span>    serial_size: </span><span style="color:#d08770;">0x3A8</span><span>,
+</span><span>    serial_offset: </span><span style="color:#d08770;">0xF719</span><span>,
+</span><span>}
+</span><span>
+</span><span>Class Pawn
+</span><span>(</span><span style="color:#d08770;">0x1</span><span>) ObjectExport {
+</span><span>    class_index: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    super_index: </span><span style="color:#d08770;">0x1</span><span>,
+</span><span>    package_index: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    object_name: </span><span style="color:#d08770;">0x1A</span><span>,
+</span><span>    object_flags: </span><span style="color:#d08770;">0x40F0004</span><span>,
+</span><span>    serial_size: </span><span style="color:#d08770;">0x281</span><span>,
+</span><span>    serial_offset: </span><span style="color:#d08770;">0xFAC1</span><span>,
+</span><span>}
+</span><span>
+</span><span>...
+</span><span>
+</span><span>Class GameEngine
+</span><span>(</span><span style="color:#d08770;">0xEFB</span><span>) ObjectExport {
+</span><span>    class_index: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    super_index: </span><span style="color:#d08770;">0x1C8</span><span>,
+</span><span>    package_index: </span><span style="color:#d08770;">0x0</span><span>,
+</span><span>    object_name: </span><span style="color:#d08770;">0x1D8</span><span>,
+</span><span>    object_flags: </span><span style="color:#d08770;">0x40F0004</span><span>,
+</span><span>    serial_size: </span><span style="color:#d08770;">0x5B</span><span>,
+</span><span>    serial_offset: </span><span style="color:#d08770;">0xC50DB</span><span>,
+</span><span>}
+</span></code></pre>
+<p>So the <code>GameEngine</code> object has export index <code>0xEFB</code> and its data is supposedly located at offset <code>0xC50DB</code> relative to the package start. You guessed it though, its offset is wrong!</p>
+<h3 id="export-data"><a class="zola-anchor" href="#export-data" aria-label="Anchor link for: export-data"
+    >#</a
+>
+Export Data</h3>
+<p>Up to this point we know:</p>
+<ol>
+<li>You cannot seek in the file reader.</li>
+<li>The offsets do not map cleanly to the on-disk representation and aren't really used other than for position tracking.</li>
+<li>The sizes (at least in the file table, and I soon realized in the export data) are incorrect.</li>
+<li>We know <code>GameEngine</code> is the first object requested by the C++ side of the game and is export index <code>0xEFB</code> in the <code>Engine</code> package. It may not be the first object actually <em>parsed</em>, but it's the first object requested.</li>
+</ol>
+<p>Now, to achieve my goal of dumping these files I attempted to simply sum the size of these exports to figure out the end offset of the file... but trying a combination of that calculated size + any of the <code>{end_of_export_table, start_of_file}</code> offsets landed me in weird places with other Linker files in-between.</p>
+<p>By referencing <a href="https://github.com/EliotVU/Unreal-Library">Unreal-Library</a> to help fill in some of the blanks, I observed the following high-level parsing logic in the game engine:</p>
+<ol>
+<li>An exported object is requested by the game. If it isn't loaded already, the export is lazy loaded.</li>
+<li>Lazy loading requires resolving the <code>super</code> type's object. For some things this is the <code>Class</code> or <code>Struct</code> base types, for other things this is a different parent class which will eventually have <code>Class</code> as its parent type.</li>
+<li>Exports have properties which can be of varying size. As you read an export, you deserialize its data as described by its <code>serial_size</code> and <code>serial_offset</code> fields, and however the types exported from the C++ side defines the deserialization routine.</li>
+</ol>
+<p>Which visually results in something like the following flow when resolving imports/exports:</p>
+<p><img src="/img/splinter-cell/export_load_flow_diagram.svg" alt="Export parsing flow" /></p>
+<p>To give a concrete example, imagine that <code>GameEngine</code> has the following class hierarchy:</p>
+<p><code>GameEngine -&gt; Engine -&gt; Subsystem -&gt; Class</code></p>
+<p>Also imagine that <code>GameEngine</code> is the very first object ever parsed -- nothing else has been loaded yet. Requesting to load <code>GameEngine</code> from the <code>Engine.u</code> package will trigger the following sequence of events:</p>
+<ol>
+<li><code>Engine.u</code> header read/parse (since no package has been created yet)</li>
+<li>Lookup <code>Engine</code>'s <code>GameEngine</code> export. It's not yet parsed, so we need to construct this object by constructing/deserializing it.</li>
+<li><code>GameEngine</code>'s parent class is <code>Engine.Engine</code>. It has not yet been parsed, so we need to deserialize it <strong>before</strong> <code>GameEngine</code>.</li>
+<li><code>Core.Subsystem</code> is <code>Engine.Engine</code>'s parent class. Same thing.</li>
+<li><code>Core.u</code> header read/parse (since <code>Core</code> hasn't been loaded yet)</li>
+<li><code>Core.Class</code> is <code>Core.Subsystem</code>'s parent class (and the base class). Construct this object.</li>
+<li><code>Core.Class</code> property deserialization. We can now continue with <code>Core.Subsystem</code> creation.</li>
+<li><code>Core.Subsystem</code> property deserialization...</li>
+<li><code>Engine.Engine</code> property deserialization..</li>
+<li><code>Engine.GameEngine</code> property deserialization...</li>
+<li>We can now return the fully constructed <code>Engine.GameEngine</code>.</li>
+</ol>
+<p>I believe this can result in export data that is interleaved, unfortunately. For the above scenario the data may be on disk like the following diagram. <strong>Note:</strong> for space/simplicity I've omitted <code>Core.Class</code>, as well as the potential for the <em>properties themselves</em> to trigger deserializing of other exports.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>┌─────────────────────────────────────────────────────────────┐
+</span><span>│                                                             │
+</span><span>│                                                             │
+</span><span>│                        File Table                           │
+</span><span>│                                                             │
+</span><span>│                                                             │
+</span><span>│                                                             │
+</span><span>├───────────────────────────┬─────────────────────────────────┤
+</span><span>│Core.u Header              │ Engine.u Header                 │
+</span><span>│                           │                                 │
+</span><span>│                           │                                 │
+</span><span>├────┬────┬─────────────────┴───────┬─────────────────────────┤
+</span><span>│    │▰▰▰▰│▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰│                         │
+</span><span>│    │▰▰▰▰│▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰│          │    │         │
+</span><span>│    │▰▰▰▰│▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰│          │    │         │
+</span><span>│  ▲ │ ▲ ▰│▰▰ ▲ ▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰│        ▲ │   ▲│      ▲  │
+</span><span>├──┼─┴─┼──┴───┼─────────────────────┴────────┼─┴───┼┴──────┼──┤
+</span><span>│  │   │      │                              │     │       │  │
+</span><span>│  │   │    ┌─┴──────────────────────────┐   │     │       │  │
+</span><span>│  │   │    │ Core.Subsystem Export Data │   │     │       │  │
+</span><span>│  │   │    └────────────────────────────┘   │     │       │  │
+</span><span>│  │ ┌─┴────────────────────────────────┐    │     │       │  │
+</span><span>│  │ │ Engine (Super Class) Export Data │    │     │       │  │
+</span><span>│  │ └──────────────────────────────────┘    │     │       │  │
+</span><span>│  │                               ┌─────────┴─────┴───────┴──┤
+</span><span>│┌─┴────────────────────────┐      │    GameEngine Object     │
+</span><span>││ GameEngine Object Start  │      │        Properties        │
+</span><span>│└──────────────────────────┘      └──────────────────────────┤
+</span><span>└─────────────────────────────────────────────────────────────┘
+</span></code></pre>
+<p>And now if you imagine that there's a <em>second</em> object which also extends from <code>Engine</code> loaded after <code>GameEngine</code>, then their common the super class <code>Engine</code> has already been parsed and its information is already in-memory. i.e. if you serialize two objects of the same exact type, the first object might have all the data for its parent classes interleaved with <em>its own</em> export data and the second object only contains its own property data.</p>
+<p>Unfortunately, this means that to read these files statically (even for just static recompilation) you need to have full knowledge of how each C++-implemented type is parsed in order to parse all exports and their properties. Additionally, reading one export may trigger resolving of imports in your own Linker object, which in turn trigger deserialization of exports in another Linker object.</p>
+<p>This results in the export data's size not necessarily being <em>wrong</em> per se, but not super usable without actually doing full parsing. If other exports are deserialized in the middle of deserializing an export, they will seek around and restore the original position. When the export is done deserializing it subtracts the post-deserialization <code>position</code> of the file reader from the saved pre-deserialization <code>position</code> and asserts that it equals the export's expected length. It's misleading though as you cannot simply read <code>SerialSize</code> bytes from its offset.</p>
+<p><em>Note: I'm not 100% confident in the data being interleaved vs just sequential. Through observing seek/read operations for various exports, I do see seeks going to a wildly different offset in the middle of deserializing an export, then another export deserializing, then seeking back to the original export and continuing to deserialize it again This is a PITA to debug though</em>.</p>
+<h3 id="why"><a class="zola-anchor" href="#why" aria-label="Anchor link for: why"
+    >#</a
+>
+Why??????</h3>
+<p>I imagine there's a very good reason for packaging data this way. It's best to consider the constraints of the time:</p>
+<ol>
+<li>The game is being shipped on a physical disc.</li>
+<li>The Xbox has 64MB of RAM shared between the CPU and GPU, with some portion of that being dedicated to the OS.</li>
+<li>The CPU wasn't terribly slow for the time, but wasting cycles would have been noticed.</li>
+</ol>
+<p>The <code>.lin</code> format mitigates these issues with:</p>
+<ol>
+<li>Compressing data means you save space on the disc... If you conveniently ignore the fact that <code>common.lin</code> is duplicated in each map's directory and is the same for every map I tested, which kinda negates part of this.</li>
+<li>Streaming data in from the file instead of decompressing the whole thing at once saves on overall memory pressure during the data loading phase.</li>
+<li>Laying out the file in a byte-for-byte exact read order increases I/O speeds by not having to seek around the physical media, and ensures that you don't need magic to translate an uncompressed offset to a compressed one in a performant manner.</li>
+</ol>
+<h2 id="logging-load-order-for-static-recompilation"><a class="zola-anchor" href="#logging-load-order-for-static-recompilation" aria-label="Anchor link for: logging-load-order-for-static-recompilation"
+    >#</a
+>
+Logging Load Order for Static Recompilation</h2>
+<p>I really, really wanted to avoid doing any runtime dumping that requires playing the game in an emulator or physical console. It doesn't scale well to other games and is generally less flexible. But doing runtime observations are extremely useful in making sense of the format, so I went ahead and added some logging to get an idea of the file read order from the compressed archive when booting the game:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>..\System\Engine.u
+</span><span>..\System\Core.u
+</span><span>..\System\Echelon.u
+</span><span>..\Textures\HUD.utx
+</span><span>..\Sounds\FisherFoley.uax
+</span><span>..\Sounds\CommonMusic.uax
+</span><span>..\System\EchelonEffect.u
+</span><span>..\Textures\ETexSFX.utx
+</span><span>..\Textures\2-1_CIA_tex.utx
+</span><span>..\Textures\generic_shaders.utx
+</span><span>..\Textures\LightGenTex.utx
+</span><span>..\Textures\5_1_PresidentialPalace_tex.utx
+</span><span>..\Textures\1_2_Def_Ministry_tex.utx
+</span><span>..\Textures\EGO_Tex.utx
+</span><span>..\Textures\ETexIngredient.utx
+</span><span>..\Textures\1-1_TBilisi_tex.utx
+</span><span>..\Textures\1_3_CaspianOilRefinery_TEX.utx
+</span><span>..\StaticMeshes\EMeshSFX.usx
+</span><span>..\StaticMeshes\EGO_OBJ.usx
+</span><span>..\Textures\ETexCharacter.utx
+</span><span>..\Textures\4_3_Chinese_Embassy_tex.utx
+</span><span>..\Textures\4_3_0_Chinese_Embassy_tex.utx
+</span><span>..\Textures\4_3_2_Chinese_Embassy_tex.utx
+</span><span>..\Sounds\water.uax
+</span><span>..\Sounds\DestroyableObjet.uax
+</span><span>..\Sounds\FisherVoice.uax
+</span><span>..\Sounds\FisherEquipement.uax
+</span><span>..\Sounds\GunCommon.uax
+</span><span>..\Sounds\Interface.uax
+</span><span>..\Sounds\Electronic.uax
+</span><span>..\Sounds\Dog.uax
+</span><span>..\Sounds\Lambert.uax
+</span><span>..\StaticMeshes\EMeshIngredient.usx
+</span><span>..\StaticMeshes\EMeshCharacter.usx
+</span><span>..\Textures\2_2_1_Kalinatek_tex.utx
+</span><span>..\StaticMeshes\LightGenOBJ.usx
+</span><span>..\Textures\ETexRenderer.utx
+</span><span>..\Sounds\Door.uax
+</span><span>..\Sounds\GenericLife.uax
+</span><span>..\Sounds\Special.uax
+</span><span>..\Sounds\ThrowObject.uax
+</span><span>..\StaticMeshes\Generic_Mesh.usx
+</span><span>..\StaticMeshes\prog\generic_obj.usx
+</span><span>..\Textures\0_0_Training_tex.utx
+</span><span>..\Textures\3_4_Severo_tex.utx
+</span><span>..\System\EchelonIngredient.u
+</span><span>..\Sounds\Gun.uax
+</span><span>..\System\EchelonGameObject.u
+</span><span>..\Animations\ESkelIngredients.ukx
+</span><span>..\Sounds\Metal.uax
+</span><span>..\Animations\ETrk.ukx
+</span><span>..\StaticMeshes\2-1_cia_obj.usx
+</span><span>..\System\EchelonHUD.u
+</span><span>..\Animations\ESam.ukx
+</span><span>..\Maps\menu\menu.unr             // &lt;--- # 55
+</span><span>..\Textures\2_2_Kalinatek_tex.utx
+</span><span>..\StaticMeshes\2_2_Kalinatek_OBJ.usx
+</span><span>..\System\EchelonPattern.u
+</span><span>..\Sounds\S3_4_2Voice.uax
+</span><span>..\Sounds\S3_4_3Voice.uax
+</span><span>..\Sounds\S2_2_2Voice.uax
+</span><span>..\Sounds\S2_1_2Voice.uax
+</span><span>..\Sounds\S5_1_2Voice.uax
+</span><span>..\Sounds\S3_2_2Voice.uax
+</span><span>..\Sounds\S4_2_2Voice.uax
+</span><span>..\Sounds\S4_1_1Voice.uax
+</span><span>..\Sounds\S1_2_1Voice.uax
+</span><span>..\Sounds\S1_1_2Voice.uax
+</span><span>..\Sounds\S0_0_3Voice.uax
+</span><span>..\Sounds\S3_2_1Voice.uax
+</span><span>..\Sounds\S4_2_1Voice.uax
+</span><span>..\Sounds\S1_3_3Voice.uax
+</span><span>..\Sounds\S0_0_2Voice.uax
+</span><span>..\Sounds\S4_3_2Voice.uax
+</span><span>..\Sounds\S1_1_1Voice.uax
+</span><span>..\Sounds\S2_2_1Voice.uax
+</span><span>..\Sounds\S4_3_1Voice.uax
+</span><span>..\Sounds\S5_1_1Voice.uax
+</span><span>..\Sounds\S4_1_2Voice.uax
+</span><span>..\Sounds\S2_1_1Voice.uax
+</span><span>..\Sounds\S1_1_0Voice.uax
+</span><span>..\Sounds\S2_2_3Voice.uax
+</span><span>..\Sounds\S2_1_0Voice.uax
+</span><span>..\Sounds\S1_2_2Voice.uax
+</span><span>..\Sounds\Vehicules.uax
+</span><span>..\Sounds\S1_1_Voice.uax
+</span><span>..\Sounds\S2_1_Voice.uax
+</span><span>..\Sounds\S4_3_0Voice.uax
+</span><span>..\Sounds\S1_3_2Voice.uax
+</span><span>..\Sounds\Machine.uax
+</span><span>..\Sounds\FireSound.uax
+</span><span>..\Sounds\SoundEvent.uax
+</span><span>..\Sounds\S0_0_Voice.uax
+</span><span>..\Sounds\S4_3_Voice.uax
+</span><span>..\Sounds\S4_2_Voice.uax
+</span><span>..\Sounds\S5_1_Voice.uax
+</span><span>..\Sounds\XboxLive.uax
+</span><span>..\System\EchelonCharacter.u
+</span><span>..\Sounds\GearCommon.uax
+</span><span>..\Animations\ENPC.ukx
+</span><span>..\Sounds\Exspetsnaz.uax
+</span><span>..\Sounds\GeorgianSoldier.uax
+</span><span>..\Sounds\RussianMafioso.uax
+</span><span>..\Sounds\GeorgianCop.uax
+</span><span>..\Sounds\EliteForce.uax
+</span><span>..\Sounds\CiaSecurity.uax
+</span><span>..\Sounds\CiaAgentMale.uax
+</span><span>..\Sounds\ChineseSoldier.uax
+</span><span>..\Animations\EFemale.ukx
+</span><span>..\Animations\EDog.ukx
+</span><span>..\Sounds\GeorgianPalaceGuard.uax
+</span></code></pre>
+<div class="wrap-collabsible">
+    <input id="collapsible2" class="toggle" type="checkbox" />
+    <label for="collapsible2" class="lbl-toggle">File Dumping Script</label>
+    <div class="collapsible-content">
+        <div class="content-inner">
+            I set a breakpoint in the prologue of a function with the string "<code>LinkerExists</code>" that I later determined to be the constructor for an object called <code>ULinkerLoad</code>. One of the arguments is the file name for this object.</p>
+<p>When triggered, the breakpoint executes the following IDA Python script which reads the filename pointer, then the filename, outputs it to the IDA console, and continues execution:</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>ida_idd, ida_kernwin, ctypes
+</span><span>p=ida_dbg.</span><span style="color:#bf616a;">get_reg_val</span><span>(&quot;</span><span style="color:#a3be8c;">ebx</span><span>&quot;)
+</span><span>s=</span><span style="color:#b48ead;">b</span><span>&quot;&quot;
+</span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span>:
+</span><span>    c = ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(p,</span><span style="color:#d08770;">2</span><span>)
+</span><span>    </span><span style="color:#b48ead;">if </span><span>not c or c == </span><span style="color:#b48ead;">b</span><span>&quot;</span><span style="color:#96b5b4;">\x00\x00</span><span>&quot;: </span><span style="color:#b48ead;">break
+</span><span>    s += c; p+=</span><span style="color:#d08770;">2
+</span><span>
+</span><span>ida_kernwin.</span><span style="color:#bf616a;">msg</span><span>(&quot;</span><span style="color:#a3be8c;">ULinkerLoad: </span><span>&quot; + s.</span><span style="color:#bf616a;">decode</span><span>(&#39;</span><span style="color:#a3be8c;">utf-16-le</span><span>&#39;)+&quot;</span><span style="color:#96b5b4;">\n</span><span>&quot;)
+</span></code></pre>
+
+        </div>
+    </div>
+</div>
+<p>In the above file load order I annotated file #55 which is <code>..\Maps\menu\menu.unr</code>. The <code>common.lin</code> file has 54 Linker files and #55 in the above listing happens to be the map which is loading and has its own dedicated <code>.lin</code> file. This is a strong indicator that the <code>common.lin</code> archive genuinely contains only 54 files and anything else is read from level-specific archives.</p>
+<p>I also set a breakpoint in the function which deserializes exports (called <code>Preload</code>) and did some logging of which export is read and when a stream seek occurred:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>ULinkerLoad: ..\System\Engine.u
+</span><span>ULinkerLoad: ..\System\Core.u
+</span><span>Export offset: 0x0,0x0,0x0,0x97,0x40f0004,0x4d,0x1b05
+</span><span>Seeking to/from: 0x1b05,0x10883
+</span><span>Export offset: 0xfffffffe,0x0,0x3,0x13d,0x70004,0x1c,0x6531
+</span><span>Seeking to/from: 0x6531,0x1b18
+</span><span>Read complete: 0xfffffffe,0x0,0x3,0x13d,0x70004,0x1c,0x6531
+</span><span>Seeking to/from: 0x1b18,0x654d
+</span><span>Export offset: 0xfffffffe,0x0,0x3,0x13c,0x70004,0x1c,0x6515
+</span><span>Seeking to/from: 0x6515,0x1b18
+</span><span>Read complete: 0xfffffffe,0x0,0x3,0x13c,0x70004,0x1c,0x6515
+</span><span>Seeking to/from: 0x1b18,0x6531
+</span><span>Export offset: 0xfffffffe,0x0,0x3,0x119d,0x70004,0x2c,0x6432
+</span><span>Seeking to/from: 0x6432,0x1b18
+</span><span>Seeking to/from: 0x6451,0x6452
+</span><span>Seeking to/from: 0x6453,0x6454
+</span><span>Seeking to/from: 0x6454,0x6455
+</span><span>Seeking to/from: 0x6455,0x6456
+</span><span>Export offset: 0xfffffffd,0x0,0x2d7,0x477,0x70004,0xb,0x1c35
+</span><span>Seeking to/from: 0x1c35,0x6457
+</span><span>Read complete: 0xfffffffd,0x0,0x2d7,0x477,0x70004,0xb,0x1c35
+</span><span>Seeking to/from: 0x6457,0x1c40
+</span><span>Export offset: 0xfffffffd,0x0,0x2d7,0x46d,0x70004,0xb,0x2736
+</span></code></pre>
+<div class="wrap-collabsible">
+    <input id="collapsible3" class="toggle" type="checkbox" />
+    <label for="collapsible3" class="lbl-toggle">Export Preload Script</label>
+    <div class="collapsible-content">
+        <div class="content-inner">
+            IDA Python breakpoint script at <code>Preload</code> entry, identifiable by the string "<code>SerialSize</code>" <strong>and</strong> after the deserialization routine is called:</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>ida_dbg, ida_idd, ida_kernwin, ctypes, time
+</span><span>
+</span><span>export_addr=ida_dbg.</span><span style="color:#bf616a;">get_reg_val</span><span>(&quot;</span><span style="color:#a3be8c;">ebp</span><span>&quot;)
+</span><span>
+</span><span>class_index = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>super_index = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>package_index = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">8</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>object_name = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">12</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>object_flags = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">16</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>serial_size = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">20</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>serial_offset = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">24</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>
+</span><span>edx=ida_dbg.</span><span style="color:#bf616a;">get_reg_val</span><span>(&quot;</span><span style="color:#a3be8c;">edx</span><span>&quot;)
+</span><span>
+</span><span>properties = [class_index, super_index, package_index, object_name, object_flags, serial_size, serial_offset]
+</span><span>
+</span><span>ida_kernwin.</span><span style="color:#bf616a;">msg</span><span>(&quot;</span><span style="color:#a3be8c;">Export data: </span><span>&quot; + &quot;</span><span style="color:#a3be8c;">,</span><span>&quot;.</span><span style="color:#bf616a;">join</span><span>(</span><span style="color:#96b5b4;">hex</span><span>(n) </span><span style="color:#b48ead;">for </span><span>n </span><span style="color:#b48ead;">in </span><span>properties) +&quot;</span><span style="color:#96b5b4;">\n</span><span>&quot;)
+</span></code></pre>
+
+        </div>
+    </div>
+</div>
+<p>There is really no discernable pattern to the loads at all. The file/export load order seems to be just satisfying the dependency graph (exports required for parents/properties of yet-to-be-parsed types) for requested objects from the C++ side of the house.</p>
+<p>I think an acceptable compromise to doing this statically would be requiring dumping the file/export load order from the game... but more work is needed to prove the viability of this approach.</p>
+<p>I adjusted my program to read my logged lines into a queue of exports to be parsed, using the <strong>completed</strong> reads (lines starting with <code>Read complete</code> rather than <code>Export offset</code>). It then attempted to find the matching export in the export table across any package, and read its size. Repeat until the next Linker object is encountered, parse that, add it to the list, and repeat.</p>
+<p>This quickly proved to be non-viable with my very barebones program. I would hit a point where I failed to find a matching export for the line logged, presumably because I was not reading the correct amount of data required to reach the next Unreal Package where that export was declared.</p>
+<p>This was either a bug, or maybe some of the types attempt to seek+read without triggering a <code>Preload()</code>. At any rate, I had now invested a week or longer on the static approach with no data successfully dumped yet.</p>
+<h2 id="dumping-at-runtime"><a class="zola-anchor" href="#dumping-at-runtime" aria-label="Anchor link for: dumping-at-runtime"
+    >#</a
+>
+Dumping at Runtime</h2>
+<p>At some point during the above research, I discovered the <a href="https://github.com/Joshhhuaaa/EnhancedSC">EnhancedSC</a> project -- a community patch for Splinter Cell 1 on PC which fixes bugs, adds gameplay improvements, and has folks who certainly know the game engine better than me. I joined their Discord and asked if anyone knew about this format and they said that it's been a dead end for anyone who's bothered.</p>
+<p>They were quite interested though in any progress achieved as they want to port some content from the Xbox versions of the games to PC. Through this community I got some great help with various theories, ideas, and introduced to tooling like <a href="https://github.com/UE-Explorer/UE-Explorer">UE-Explorer</a>.</p>
+<p>After spending about a week on static recompilation I didn't want to spend even more time investing in getting things dumped only to hit a hard wall. For example discovering that the files were wildly different than expected, wouldn't work on PC, or wouldn't work with UE Explorer. I needed to dump <em>something</em>.</p>
+<p>The game can obviously read the data fine. The thought came to me that perhaps I could just dump the data into some crappy format after it's read that makes piecing it back together easy.</p>
+<p>While doing static analysis I came across a function that was very peculiar to me. I identified the <code>ULinkerLoad</code> function mentioned earlier by searching for the Unreal Package file magic (highlighted below), and found the following function:</p>
+<p><a href="/img/splinter-cell/linker_load.png"><img src="/img/splinter-cell/linker_load.png" alt="LinkerLoad HLIL" /></a></p>
+<p>As expected, the file magic is checked against what's read from disk. But there's another result for the magic in a different function that is <strong>setting</strong> some structure's field to the magic:</p>
+<p><a href="/img/splinter-cell/linker_save.png"><img src="/img/splinter-cell/linker_save.png" alt="SerializeLinker HLIL" /></a></p>
+<p>And what is the purpose of this code? As it turns out, user game saves are just Unreal Objects serialized in the same format -- sans compression and other oddities that go along with it!</p>
+<p><a href="/img/splinter-cell/save_fn.png"><img src="/img/splinter-cell/save_fn.png" alt="SaveObject HLIL" /></a></p>
+<h3 id="patching-og-xbox-binaries"><a class="zola-anchor" href="#patching-og-xbox-binaries" aria-label="Anchor link for: patching-og-xbox-binaries"
+    >#</a
+>
+Patching OG Xbox Binaries</h3>
+<p>In order to do interesting things, we need to run our own code alongside the game. Debugger scripts are simply too slow and unreliable, so we need something running in the emulator or on a physical device. It'd also be cool if I could write a QEMU plugin for the emulator... but that's another rabbit hole.</p>
+<p>Injecting code into a game on Windows or Unix is easy. You can <code>CreateRemoteThread()</code> or DLL hijack on Windows, and on Unix use <code>LD_PRELOAD</code>. On Xbox 360 you can "inject" persistent DLLs. On original Xbox, you have one process with (as far as I know), no DLLs.</p>
+<p>This could probably be a blog post on its own since modern information is pretty scarce (RIP XboxHacker.org), but there are at least two tools I know of that can be used to manipulate original Xbox executables.</p>
+<ol>
+<li>The Python library <a href="https://github.com/mborgerson/pyxbe">pyxbe</a></li>
+<li>The CLI tool <a href="https://github.com/grimdoomer/XboxImageXploder">XboxImageExploder</a></li>
+</ol>
+<p>Both of these tools allow you to add a new section to an executable and basically create a code cave that you can use for placing additional code or data. When the system loads the image, it maps that newly added section with the appropriate permissions. You then need to patch some place in the original executable so that your code runs.</p>
+<p>Using XboxImageExploder and XePatcher <a href="https://github.com/landaire/SplinterCellDumpPatch/blob/main/SplinterCellFileDumper.asm">I was able to write a patch</a> which calls the serialization routine on an object after it gets loaded into memory.</p>
+<p><strong>tl;dr</strong> of the patch:</p>
+<ol>
+<li>Define a hook point at the end of the<code>LoadMap()</code> function. This definition will cause XePatcher to write these instructions that jump execution to <code>Hack_LoadMap</code> at the declared file offset.</li>
+<li><code>Hack_LoadMap</code> calls <code>Hack_DumpAllLinkers</code> and does the standard epilogue cleanup for <code>LoadMap()</code> which won't be executed since we hijacked execution</li>
+<li><code>Hack_DumpAllLinkers</code> iterates a global list of <code>Linker</code> objects and calls <code>Hack_DumpFile</code> with that linker as an argument.</li>
+<li><code>Hack_DumpFile</code> ensures that the output directory for the given <code>Linker</code> file is created, then calls the game-provided function which serializes the <code>Linker</code> to that path. For example, the <code>..\System\Engine.u</code> linker file from the <code>common.lin</code> file will be written to <code>z:\System\Engine.u</code>.</li>
+</ol>
+<pre data-lang="asm" style="background-color:#2b303b;color:#c0c5ce;" class="language-asm "><code class="language-asm" data-lang="asm"><span style="color:#65737e;">;---------------------------------------------------------
+</span><span style="color:#65737e;">; At the very end of the LoadMap() routine
+</span><span style="color:#65737e;">;---------------------------------------------------------
+</span><span style="color:#65737e;">; file offset, not a VA
+</span><span style="color:#96b5b4;">dd      </span><span style="color:#d08770;">73698h
+</span><span style="color:#96b5b4;">dd      </span><span style="color:#8fa1b3;">(_load_map_return_end </span><span>- </span><span style="color:#8fa1b3;">_load_map_return_start)
+</span><span style="color:#8fa1b3;">_load_map_return_start:
+</span><span>
+</span><span style="color:#65737e;">    ; Jump to our detour function
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#8fa1b3;">Hack_LoadMap
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jmp     </span><span style="color:#bf616a;">eax
+</span><span>
+</span><span style="color:#8fa1b3;">_load_map_return_end:
+</span><span>
+</span><span>
+</span><span style="color:#8fa1b3;">_Hack_LoadMapCalled:
+</span><span style="color:#8fa1b3;">    </span><span style="color:#96b5b4;">dd      </span><span style="color:#d08770;">0
+</span><span>
+</span><span style="color:#8fa1b3;">_Hack_LoadMap:
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#8fa1b3;">Hack_DumpAllLinkers
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">call    </span><span style="color:#bf616a;">eax
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#8fa1b3;">Hack_LoadMapCalled
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#96b5b4;">dword </span><span>[</span><span style="color:#bf616a;">eax</span><span>], </span><span style="color:#d08770;">1
+</span><span>
+</span><span style="color:#8fa1b3;">    _load_map_restore_registers:
+</span><span style="color:#65737e;">    ; return value that we clobbered in the
+</span><span style="color:#65737e;">    ; hook
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">eax
+</span><span>
+</span><span style="color:#65737e;">    ; Since we patched in the prologue, we will just
+</span><span style="color:#65737e;">    ; do the register restore ourselves
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">edi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">ebx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">esp</span><span>, </span><span style="color:#bf616a;">ebp
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">ebp
+</span><span style="color:#8fa1b3;">    retn    </span><span style="color:#d08770;">8
+</span><span>
+</span><span style="color:#8fa1b3;">_Hack_DumpAllLinkers:
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">ebx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">esi
+</span><span>
+</span><span>    </span><span style="color:#96b5b4;">%define </span><span style="color:#8fa1b3;">g_ObjectLinkers </span><span style="color:#d08770;">0033c42ch
+</span><span>
+</span><span style="color:#65737e;">    ; Load the linker count
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ebx</span><span>, [</span><span style="color:#8fa1b3;">g_ObjectLinkers </span><span>+ </span><span style="color:#d08770;">4</span><span>]
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">test    </span><span style="color:#bf616a;">ebx</span><span>, </span><span style="color:#bf616a;">ebx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jz      </span><span style="color:#8fa1b3;">_dump_all_linkers_restore_registers
+</span><span>
+</span><span style="color:#65737e;">    ; esi will be our index
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">esi</span><span>, </span><span style="color:#d08770;">0
+</span><span>
+</span><span style="color:#8fa1b3;">    _dump_all_linkers_linker_loop_start:
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">cmp     </span><span style="color:#bf616a;">esi</span><span>, </span><span style="color:#bf616a;">ebx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jz      </span><span style="color:#8fa1b3;">_dump_all_linkers_linker_loop_finish
+</span><span>
+</span><span style="color:#65737e;">    ; Iterate the linkers
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, [</span><span style="color:#8fa1b3;">g_ObjectLinkers</span><span>]
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ecx</span><span>, </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">imul    </span><span style="color:#bf616a;">ecx</span><span>, </span><span style="color:#d08770;">4
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">add     </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#bf616a;">ecx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, [</span><span style="color:#bf616a;">eax</span><span>]
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ecx</span><span>, </span><span style="color:#8fa1b3;">Hack_DumpFile
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">call    </span><span style="color:#bf616a;">ecx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">add     </span><span style="color:#bf616a;">esp</span><span>, </span><span style="color:#8fa1b3;">(</span><span style="color:#d08770;">4 </span><span>* </span><span style="color:#d08770;">1</span><span style="color:#8fa1b3;">)
+</span><span>
+</span><span style="color:#8fa1b3;">    _dump_all_linkers_linker_loop_end:
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">inc     </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jmp     </span><span style="color:#8fa1b3;">_dump_all_linkers_linker_loop_start
+</span><span>
+</span><span style="color:#8fa1b3;">    _dump_all_linkers_linker_loop_finish:
+</span><span style="color:#8fa1b3;">    _dump_all_linkers_restore_registers:
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">ebx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">ret
+</span><span>
+</span><span style="color:#8fa1b3;">_Hack_DumpFile:
+</span><span style="color:#65737e;">    ; Load the argument representing the
+</span><span style="color:#65737e;">    ; object that&#39;s being saved
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, [</span><span style="color:#bf616a;">esp </span><span>+ </span><span style="color:#d08770;">4</span><span>]
+</span><span>
+</span><span style="color:#65737e;">    ; Save registers
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">edi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">ebx
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">edi</span><span>, </span><span style="color:#bf616a;">eax
+</span><span>
+</span><span style="color:#8fa1b3;">    _dump_file_do_dump:
+</span><span>
+</span><span style="color:#65737e;">    ; Iterate the object&#39;s exports and save their flags
+</span><span>
+</span><span style="color:#65737e;">    ; ==== NOT USED
+</span><span style="color:#65737e;">    ; Grab the export data pointer
+</span><span style="color:#65737e;">    ;mov     ecx, [edi + 0x88]
+</span><span style="color:#65737e;">    ; Grab the number of exports
+</span><span style="color:#65737e;">    ;mov     ebx, [edi + 0x8C]
+</span><span style="color:#65737e;">    ; ==== NOT USED
+</span><span>
+</span><span style="color:#65737e;">    ; Allocate space for the file path
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">sub     </span><span style="color:#bf616a;">esp</span><span>, </span><span style="color:#d08770;">0x200
+</span><span>
+</span><span>
+</span><span style="color:#65737e;">    ; Grab the linker&#39;s filename
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, [</span><span style="color:#bf616a;">edi </span><span>+ </span><span style="color:#d08770;">0x98</span><span>]
+</span><span>
+</span><span style="color:#65737e;">    ; Put the input filename in esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">esi</span><span>, </span><span style="color:#bf616a;">eax
+</span><span>
+</span><span style="color:#65737e;">    ; If the input filename is empty, jump to the cleanup routine
+</span><span style="color:#65737e;">    ; since this is not a file that&#39;s in the packed .lin
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">cmp    </span><span style="color:#96b5b4;">word </span><span>[</span><span style="color:#bf616a;">eax</span><span>], </span><span style="color:#d08770;">0
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jz     </span><span style="color:#8fa1b3;">_Hack_DumpFile_Done
+</span><span>
+</span><span style="color:#65737e;">    ;===== DIRECTORY CREATION
+</span><span style="color:#65737e;">    ; The file path is located at the beginning of the stack
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ebx</span><span>, </span><span style="color:#bf616a;">esp
+</span><span>
+</span><span style="color:#65737e;">    ; Set the filename on the stack to `z:`
+</span><span style="color:#65737e;">    ; This has to be a char*, not a wchar_t*
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#96b5b4;">byte </span><span>[</span><span style="color:#bf616a;">esp</span><span>], </span><span style="color:#a3be8c;">&#39;z&#39;
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#96b5b4;">byte </span><span>[</span><span style="color:#bf616a;">esp </span><span>+ </span><span style="color:#d08770;">1</span><span>], </span><span style="color:#a3be8c;">&#39;:&#39;
+</span><span>
+</span><span style="color:#65737e;">    ; This will hold our position in the path we&#39;re building
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ebx</span><span>, </span><span style="color:#d08770;">0
+</span><span>
+</span><span style="color:#8fa1b3;">    _Hack_DumpFile_File_Directory:
+</span><span>
+</span><span style="color:#65737e;">    ; We are looking for a backslash
+</span><span style="color:#65737e;">    ; this is wchar_t `\`
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#d08770;">0x005c
+</span><span style="color:#65737e;">    ; Grab the position of the last backslash for the
+</span><span style="color:#65737e;">    ; input file
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#8fa1b3;">appStrchr
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">call    </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">add     </span><span style="color:#bf616a;">esp</span><span>, </span><span style="color:#8fa1b3;">(</span><span style="color:#d08770;">4 </span><span>* </span><span style="color:#d08770;">2</span><span style="color:#8fa1b3;">)
+</span><span>
+</span><span style="color:#65737e;">    ; Not found
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">test    </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jz      </span><span style="color:#8fa1b3;">_Hack_DumpFile_Directory_Finish
+</span><span>
+</span><span style="color:#65737e;">    ; We found a slash -- check if we&#39;ve discarded the first
+</span><span style="color:#65737e;">    ; bit of data before the slash (it&#39;s expected to start
+</span><span style="color:#65737e;">    ; with &quot;..\&quot; )
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">test    </span><span style="color:#bf616a;">ebx</span><span>, </span><span style="color:#bf616a;">ebx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jnz     </span><span style="color:#8fa1b3;">_Hack_DumpFile_File_Directory_Create_Directory
+</span><span>
+</span><span style="color:#65737e;">    ; Update ebx to point to the first slash so we can use it
+</span><span style="color:#65737e;">    ; for later copying.
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ebx</span><span>, </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jmp     </span><span style="color:#8fa1b3;">_hack_dumpfile_directory_end
+</span><span>
+</span><span style="color:#8fa1b3;">    _Hack_DumpFile_File_Directory_Create_Directory:
+</span><span>
+</span><span style="color:#65737e;">    ; Skip the Z: part for the dest file path
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">lea     </span><span style="color:#bf616a;">ecx</span><span>, [</span><span style="color:#bf616a;">esp </span><span>+ </span><span style="color:#d08770;">2</span><span>]
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">edx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">esi
+</span><span style="color:#65737e;">    ; Start of the linker&#39;s file path
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">esi</span><span>, </span><span style="color:#bf616a;">ebx
+</span><span>
+</span><span style="color:#65737e;">    ; Copy from ebx to eax
+</span><span style="color:#8fa1b3;">    _hack_dump_file_copy_directory_loop:
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">cmp     </span><span style="color:#bf616a;">esi</span><span>, </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">je      </span><span style="color:#8fa1b3;">_hack_dump_file_copy_directory_loop_finish
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">dl</span><span>,   [</span><span style="color:#bf616a;">esi</span><span>]
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span>[</span><span style="color:#bf616a;">ecx</span><span>], </span><span style="color:#bf616a;">dl
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">inc     </span><span style="color:#bf616a;">ecx
+</span><span style="color:#65737e;">    ; we&#39;re doing some janky wchar_t to char
+</span><span style="color:#65737e;">    ; conversion tricks
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">add     </span><span style="color:#bf616a;">esi</span><span>, </span><span style="color:#d08770;">2
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jmp     </span><span style="color:#8fa1b3;">_hack_dump_file_copy_directory_loop
+</span><span>
+</span><span style="color:#8fa1b3;">    _hack_dump_file_copy_directory_loop_finish:
+</span><span style="color:#65737e;">    ; Add null terminator
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#96b5b4;">byte </span><span>[</span><span style="color:#bf616a;">ecx</span><span>], </span><span style="color:#d08770;">0
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">edx
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ecx</span><span>, </span><span style="color:#bf616a;">esp
+</span><span style="color:#65737e;">    ; Make sure we don&#39;t clobber eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">eax
+</span><span>
+</span><span style="color:#65737e;">    ; Attributes
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#d08770;">0x0
+</span><span style="color:#65737e;">    ; Create this directory
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">ecx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ecx</span><span>, </span><span style="color:#8fa1b3;">CreateDirectory
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">call    </span><span style="color:#bf616a;">ecx
+</span><span style="color:#65737e;">    ; cdecl function, it cleans up
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">eax
+</span><span>
+</span><span style="color:#8fa1b3;">    _hack_dumpfile_directory_end:
+</span><span style="color:#65737e;">    ; Save the position
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">lea     </span><span style="color:#bf616a;">esi</span><span>, [</span><span style="color:#bf616a;">eax </span><span>+ </span><span style="color:#d08770;">2</span><span>]
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">jmp     </span><span style="color:#8fa1b3;">_Hack_DumpFile_File_Directory
+</span><span>
+</span><span style="color:#8fa1b3;">    _Hack_DumpFile_Directory_Finish:
+</span><span>
+</span><span style="color:#65737e;">    ; Set the file path we want to copy
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">esi</span><span>, </span><span style="color:#bf616a;">ebx
+</span><span>
+</span><span style="color:#65737e;">    ;===== FILE CREATION
+</span><span>
+</span><span style="color:#65737e;">    ; The file path is located at the beginning of the stack
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">ebx</span><span>, </span><span style="color:#bf616a;">esp
+</span><span>
+</span><span style="color:#65737e;">    ; Set the start of VeryLongString to `Z:`
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#8fa1b3;">ZDrive
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">ebx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#8fa1b3;">wstrcpy
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">call    </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">add     </span><span style="color:#bf616a;">esp</span><span>, </span><span style="color:#8fa1b3;">(</span><span style="color:#d08770;">4 </span><span>* </span><span style="color:#d08770;">2</span><span style="color:#8fa1b3;">)
+</span><span>
+</span><span style="color:#65737e;">    ; Set the copy target to the bytes immediatley
+</span><span style="color:#65737e;">    ; following `z:`, so the result should be
+</span><span style="color:#65737e;">    ; `z:\filename`
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">lea     </span><span style="color:#bf616a;">eax</span><span>, [</span><span style="color:#bf616a;">ebx </span><span>+ </span><span style="color:#d08770;">4</span><span>]
+</span><span>
+</span><span style="color:#65737e;">    ; Copy the filename to the path buffer
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">esi
+</span><span>
+</span><span style="color:#65737e;">    ; Set ESI to the full file path for later use
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">esi</span><span>, </span><span style="color:#bf616a;">ebx
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#8fa1b3;">wstrcpy
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">call    </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">add     </span><span style="color:#bf616a;">esp</span><span>, </span><span style="color:#8fa1b3;">(</span><span style="color:#d08770;">4 </span><span>* </span><span style="color:#d08770;">2</span><span style="color:#8fa1b3;">)
+</span><span>
+</span><span style="color:#65737e;">    ; Error
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">edx</span><span>, </span><span style="color:#96b5b4;">dword </span><span>[</span><span style="color:#8fa1b3;">GlobalError</span><span>]
+</span><span style="color:#65737e;">    ; InOuter
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, [</span><span style="color:#bf616a;">edi </span><span>+ </span><span style="color:#d08770;">2Ch</span><span>]
+</span><span>
+</span><span style="color:#65737e;">    ; Pad size?
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#d08770;">0xFFFFFFFF
+</span><span style="color:#65737e;">    ; Conform
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#d08770;">0x0
+</span><span style="color:#65737e;">    ; Error
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">edx
+</span><span style="color:#65737e;">    ; Filename
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">esi
+</span><span style="color:#65737e;">    ; TopLeveLFlags
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span>-</span><span style="color:#d08770;">1
+</span><span style="color:#65737e;">    ; Base
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">edi
+</span><span style="color:#65737e;">    ; InOuter
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">push    </span><span style="color:#bf616a;">eax
+</span><span>
+</span><span style="color:#65737e;">    ; ( UObject* InOuter,
+</span><span style="color:#65737e;">    ;   UObject* Base,
+</span><span style="color:#65737e;">    ;   DWORD TopLevelFlags,
+</span><span style="color:#65737e;">    ;   const TCHAR* Filename,
+</span><span style="color:#65737e;">    ;   FOutputDevice* Error=GError,
+</span><span style="color:#65737e;">    ;   ULinkerLoad* Conform=NULL );
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">mov     </span><span style="color:#bf616a;">eax</span><span>, </span><span style="color:#8fa1b3;">UObject_SavePackage
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">call    </span><span style="color:#bf616a;">eax
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">add     </span><span style="color:#bf616a;">esp</span><span>, </span><span style="color:#8fa1b3;">(</span><span style="color:#d08770;">7 </span><span>* </span><span style="color:#d08770;">4</span><span style="color:#8fa1b3;">)
+</span><span>
+</span><span>
+</span><span style="color:#8fa1b3;">    _Hack_DumpFile_Done:
+</span><span>
+</span><span style="color:#65737e;">    ; Restore the stack to clean up the file
+</span><span style="color:#65737e;">    ; path
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">add     </span><span style="color:#bf616a;">esp</span><span>, </span><span style="color:#d08770;">0x200
+</span><span>
+</span><span style="color:#65737e;">    ; Restore the export flags
+</span><span>
+</span><span style="color:#8fa1b3;">    _dump_file_restore_registers:
+</span><span>
+</span><span style="color:#65737e;">    ; Restore saved registers
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">ebx
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">esi
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">pop     </span><span style="color:#bf616a;">edi
+</span><span>
+</span><span style="color:#8fa1b3;">    </span><span style="color:#b48ead;">ret
+</span><span>
+</span></code></pre>
+<p><em>Why assembly?</em> Sunk cost and not wanting to figure out tooling required to compile C to shell code targeting this platform. The functions could be written in C. The detour hooks must remain assembly.</p>
+<h2 id="results"><a class="zola-anchor" href="#results" aria-label="Anchor link for: results"
+    >#</a
+>
+Results</h2>
+<p>We can now read the output files in UE Explorer, and even run the Xbox main menu and the in-engine cinematic from the first level on PC... albeit with some bugged lighting and textures. Anything past that first level cinematic, including the interactive bit of the level itself, has failed to load.</p>
+<p>The above patch, dumping at <code>LoadMap()</code> end, resulted in the most reliable file dumping out of my many experiments. At the end of this function it seems nearly all data is read and ready to go, but there are definitely a couple of objects deserialized after this point. Dumping after all object reads are complete though actually seems to make things worse -- maybe because some object properties have changed in-memory from their default values?</p>
+<p>Loading an Xbox file in UE Explorer:</p>
+<p><a href="/img/splinter-cell/ue_explorer.png"><img src="/img/splinter-cell/ue_explorer.png" alt="Engine.Engine package in UE Explorer" /></a></p>
+<p>First level cinematic which should have a dimly-lit hallway with shadows:</p>
+<p><a href="/img/splinter-cell/level_load.webp"><img src="/img/splinter-cell/level_load.webp" alt="Training Mission Load" /></a></p>
+<p>Swapping a texture had some problems:</p>
+<p><a href="/img/splinter-cell/corrupt_textures.png"><img src="/img/splinter-cell/corrupt_textures.png" alt="Bugged Textures" /></a></p>
+<p>In fact, the textures were just straight up incomplete data. Since literally every texture object had a small size I figured that between the time the object was deserialized and the point I dumped it the original texture data must have been transformed to the target format and the original free'd.</p>
+<p>To confirm my assumption, I set a breakpoint in the function which kicks off object deserialization so that it would break immediately before:</p>
+<div class="wrap-collabsible">
+    <input id="collapsible4" class="toggle" type="checkbox" />
+    <label for="collapsible4" class="lbl-toggle">Targeted Export Breakpoint Code</label>
+    <div class="collapsible-content">
+        <div class="content-inner">
+            I set a breakpoint in the <code>Preload()</code> routine immediately before object deserialization with the following script.</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>ida_dbg, ida_idd, ida_kernwin, ctypes, time
+</span><span>
+</span><span>export_addr=ida_dbg.</span><span style="color:#bf616a;">get_reg_val</span><span>(&quot;</span><span style="color:#a3be8c;">ebp</span><span>&quot;)
+</span><span>
+</span><span>serial_offset = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">24</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>
+</span><span>class_index = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>super_index = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>package_index = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">8</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>object_name = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">12</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>object_flags = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">16</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>serial_size = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">20</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>serial_offset = int.</span><span style="color:#bf616a;">from_bytes</span><span>(ida_idd.</span><span style="color:#bf616a;">dbg_read_memory</span><span>(export_addr + </span><span style="color:#d08770;">24</span><span>, </span><span style="color:#d08770;">4</span><span>), &quot;</span><span style="color:#a3be8c;">little</span><span>&quot;)
+</span><span>
+</span><span>edx=ida_dbg.</span><span style="color:#bf616a;">get_reg_val</span><span>(&quot;</span><span style="color:#a3be8c;">edx</span><span>&quot;)
+</span><span>
+</span><span>properties = [class_index, super_index, package_index, object_name, object_flags, serial_size, serial_offset]
+</span><span>
+</span><span>ida_kernwin.</span><span style="color:#bf616a;">msg</span><span>(&quot;</span><span style="color:#a3be8c;">Export offset: </span><span>&quot; + &quot;</span><span style="color:#a3be8c;">,</span><span>&quot;.</span><span style="color:#bf616a;">join</span><span>(</span><span style="color:#96b5b4;">hex</span><span>(n) </span><span style="color:#b48ead;">for </span><span>n </span><span style="color:#b48ead;">in </span><span>properties) +&quot;</span><span style="color:#96b5b4;">\n</span><span>&quot;)
+</span><span>
+</span><span style="color:#65737e;"># Break only when the object offset matches my target
+</span><span style="color:#b48ead;">return </span><span>serial_offset == </span><span style="color:#d08770;">0x11f65f
+</span></code></pre>
+
+        </div>
+    </div>
+</div>
+<p>Then I set a breakpoint in the data read function and examined where the texture data from disk was being copied to. I had to do some stepping through to figure out where this destination pointer originated, then located immediately next to <em>that</em> pointer is the dynamic array's length and capacity. Set a Memory Write breakpoint on the length field and wait for it to go to zero. Wherever it happened, that was the code and the <code>realloc</code> immediately following had to simply get nop'd out to prevent the texture data from being evicted.</p>
+<p>After adjusting my patch and dumping data again I noted that the texture file's size changed dramatically and I now had some nice textures to look at:</p>
+<p><a href="/img/splinter-cell/cia_flag_texture.png"><img src="/img/splinter-cell/cia_flag_texture.png" alt="CIA Flag Texture" /></a></p>
+<p><a href="/img/splinter-cell/hud_texture.png"><img src="/img/splinter-cell/hud_texture.png" alt="HUD Texture" /></a></p>
+<h2 id="general-issues-with-dumping"><a class="zola-anchor" href="#general-issues-with-dumping" aria-label="Anchor link for: general-issues-with-dumping"
+    >#</a
+>
+General Issues With Dumping</h2>
+<p>Since exports are lazy loaded, you can only dump what's used in a level. The main menu uses some functionality from <code>Engine</code> and <code>Core</code>, but not all of it. So if I load the main menu map and dump all the linkers when it's finished loading, I will only have a partial representation of <code>Engine</code> and <code>Core</code>.</p>
+<p>In the same vein, anything unreferenced or unused which might by happenstance be in the archive cannot be easily recovered without intelligent brute forcing since you don't know where its data starts. e.g. the main menu has some brushes which are in the export table but appear to be unused, so nothing ever triggers their appropriate load.</p>
+<h2 id="next-steps"><a class="zola-anchor" href="#next-steps" aria-label="Anchor link for: next-steps"
+    >#</a
+>
+Next Steps</h2>
+<p>While we've had some wins with dumping data and I feel I've accomplished a lot, I'm not going to be satisfied until I can cleanly dump anything I want from the game. A major milestone would be to get the training mission on Xbox completely working on PC. I'm going to try to make some strides here and if I hit a wall, I'll at least try to dump some data from the review copy of the game.</p>
+<p>This format can certainly be read statically <em>with</em> load-order knowledge from the game engine. I'm hoping for now that someone from the community can use the work presented in this blog post to get it working in Unreal-Library.</p>
+<p>Static recompilation would be a much more general approach which I hope only requires two debugger breakpoint scripts to dump package filenames and export loads on a per-game basis rather than a binary patch. We already have this for SC1. The difficulty would be in contributing to UELib (or some other project) so that it can match the game's exact I/O behavior and deserialize multiple packages simultaneously using the load-order data. If this interests you, <a href="https://github.com/EliotVU/Unreal-Library/issues/125">check out the issue I filed in the project repo</a>.</p>
+<p>If you have questions, feel free to reach out to me on Twitter: <a href="https://x.com/landaire">@landaire</a>.</p>
+<h2 id="thanks"><a class="zola-anchor" href="#thanks" aria-label="Anchor link for: thanks"
+    >#</a
+>
+Thanks</h2>
+<ul>
+<li>Grimdoomer for getting me up to speed with writing OG Xbox patches and for listening to my rants about this format.</li>
+<li>To the EnhancedSC developer community for helping inspect my dumped files and for investing in what success we've had so far.</li>
+<li>EliotVU for developing the great UE Explorer and UELib.</li>
+<li>The folks who documented their own findings on this format before me. Every little bit of information helps.</li>
+</ul>
+
+</main>
+<p>
+</p>
+<footer>
+</footer>
+</body>
+</html>

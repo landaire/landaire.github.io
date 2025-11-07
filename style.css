@@ -1,0 +1,1 @@
+pre{padding:1rem}h2,h3,h4,h5,h6{position:relative}.zola-anchor{text-decoration:none;color:inherit;opacity:0;margin-left:.4em;transition:opacity .2s}h2:hover .zola-anchor,h3:hover .zola-anchor,h4:hover .zola-anchor,h5:hover .zola-anchor,h6:hover .zola-anchor{opacity:.6}.zola-anchor:hover{opacity:1;color:var(--accent-color, #07c)}

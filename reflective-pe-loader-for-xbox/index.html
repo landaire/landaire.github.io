@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Writing a PE Loader for the Xbox in 2024 | lander&#x27;s posts</title>
+  <meta name="title" content="Writing a PE Loader for the Xbox in 2024" />
+<meta name="twitter:title" content="Writing a PE Loader for the Xbox in 2024" />
+<meta name="og:twitter:title" content="Writing a PE Loader for the Xbox in 2024" />
+<meta name="description"
+    content="Adventures in reinventing the wheel. Also: I hate thread-local storage." />
+<meta name="og:description"
+    content="Adventures in reinventing the wheel. Also: I hate thread-local storage." />
+<meta name="twitter:description"
+    content="Adventures in reinventing the wheel. Also: I hate thread-local storage." />
+
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content=" 2024-08-13T00:00:00+00:00">
+
+
+
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  <link rel="alternate" type="application/atom+xml" title="lander&#x27;s posts" href="https://landaire.net/atom.xml">
+      
+  <style>@font-face {
+font-family: 'BerkeleyMono';
+src: url('/font/BerkeleyMono-Regular.woff2') format('woff2'),
+url('/font/BerkeleyMono-Regular.woff') format('woff');
+}
+
+/* Expando */
+.wrap-collabsible {
+margin-bottom: 1.2rem 0;
+}
+
+input[type='checkbox'] {
+display: none;
+}
+
+.lbl-toggle {
+display: block;
+
+font-weight: bold;
+font-family: monospace;
+font-size: 1.2rem;
+text-transform: uppercase;
+text-align: center;
+
+padding: 1rem;
+
+color: #ccc;
+background: #226999;/*#5B99C2;*/
+
+cursor: pointer;
+
+border-radius: 7px;
+transition: all 0.25s ease-out;
+}
+
+.lbl-toggle:hover {
+color: #0B2033;/*#1A4870;*/
+}
+
+.lbl-toggle::before {
+content: ' ';
+display: inline-block;
+
+border-top: 5px solid transparent;
+border-bottom: 5px solid transparent;
+border-left: 5px solid currentColor;
+vertical-align: middle;
+margin-right: .7rem;
+transform: translateY(-2px);
+
+transition: transform .2s ease-out;
+}
+
+.toggle:checked + .lbl-toggle::before {
+transform: rotate(90deg) translateX(-3px);
+}
+
+.collapsible-content {
+max-height: 0px;
+overflow: hidden;
+transition: max-height .25s ease-in-out;
+}
+
+.toggle:checked + .lbl-toggle + .collapsible-content {
+max-height: 1000vh;
+}
+
+.toggle:checked + .lbl-toggle {
+border-bottom-right-radius: 0;
+border-bottom-left-radius: 0;
+}
+
+.collapsible-content .content-inner {
+background: rgba(26, 72, 112, .2);
+border-bottom: 1px solid rgb(31, 49, 111, .45);
+border-bottom-left-radius: 7px;
+border-bottom-right-radius: 7px;
+padding: .5rem 1rem;
+}
+
+
+body {
+font-family: Verdana, sans-serif;
+margin: auto;
+padding: 20px;
+max-width: 900px;
+text-align: left;
+background-color: #fff;
+word-wrap: break-word;
+overflow-wrap: break-word;
+line-height: 1.5;
+color: #444;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+color: #222;
+}
+
+a {
+color: #3273dc;
+}
+
+.title {
+text-decoration: none;
+border: 0;
+}
+
+.title span {
+font-weight: 400;
+}
+
+nav a {
+margin-right: 10px;
+}
+
+textarea {
+width: 100%;
+font-size: 1rem;
+}
+
+input {
+font-size: 1rem;
+}
+
+main,article {
+line-height: 1.6;
+}
+
+table {
+width: 100%;
+}
+
+img {
+max-width: 100%;
+}
+
+main img {
+display:block;
+margin-left:auto;
+margin-right:auto;
+}
+
+code {
+padding: 2px 5px;
+background-color: #f2f2f2;
+}
+
+pre code {
+color: #222;
+display: block;
+padding: 20px;
+/*white-space: pre-wrap;*/
+font-size: 0.875rem;
+overflow-x: auto;
+}
+
+div.highlight pre {
+background-color: initial;
+color: initial;
+}
+
+div.highlight code {
+background-color: unset;
+color: unset;
+}
+
+blockquote {
+border-left: 1px solid #999;
+color: #222;
+padding-left: 20px;
+font-style: italic;
+}
+
+footer {
+padding: 25px;
+text-align: center;
+}
+
+.helptext {
+color: #222;
+font-size: small;
+}
+
+.errorlist {
+color: #eba613;
+font-size: small;
+}
+
+/* blog posts */
+ul.blog-posts {
+list-style-type: none;
+padding: unset;
+}
+
+ul.blog-posts li {
+display: flex;
+}
+
+ul.blog-posts li span {
+flex: 0 0 130px;
+}
+
+ul.blog-posts li a:visited {
+color: #8b6fcb;
+}
+
+@media (prefers-color-scheme: dark) {
+body {
+background-color: #333;
+color: #ddd;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+color: #eee;
+}
+
+a {
+color: #8cc2dd;
+}
+
+code {
+background-color: #222;
+}
+
+pre code {
+color: /*#ffb000;*/ #ddd;
+}
+
+blockquote {
+color: #ccc;
+}
+
+textarea,
+input {
+background-color: #252525;
+color: #ddd;
+}
+
+.helptext {
+color: #aaa;
+}
+}
+
+.header-block-inline {
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.header-block img {
+margin: auto;
+display: block;
+}
+
+.header-img {
+margin-right: 1rem ;
+}
+
+/*
+@media (min-width: 1200px) {
+pre {
+width: 1080px;
+position: relative;
+left: calc(-540px + 50%);
+}
+}
+
+*/
+
+pre {
+text-align: center;
+background-color: transparent !important;
+}
+
+pre code {
+/*display: inline-block;*/
+text-align: left;
+}
+
+
+/*
+pre code {
+width: 120em;
+position: relative;
+left: calc(-60em + 50%);
+}
+*/
+
+pre, pre * {
+font-family: 'BerkeleyMono', monospace;
+font-variant-ligatures: none;
+}
+
+pre {
+max-height: 100vh;
+overflow: -moz-scrollbars-vertical;
+overflow-y: scroll;
+overflow-x: auto;
+}
+
+
+/*.zola-anchor {
+  color: inherit;
+  opacity: 0;
+  margin-left: 0.4em;
+  transition: opacity 0.2s;
+}*/
+
+.zola-anchor {
+  text-decoration: none;
+  color: var(--accent-color, #0077cc);
+}
+</style>
+  </head>
+<body>
+  <header>
+  <a href="https:&#x2F;&#x2F;landaire.net" class="title">
+    <h2>lander&#x27;s posts</h2>
+  </a>
+  <nav>
+    
+
+  </nav>
+</header>
+
+
+
+  <hgroup>
+    <h1>Writing a PE Loader for the Xbox in 2024</h1>
+    <p><em>Adventures in reinventing the wheel. Also: I hate thread-local storage.</em></p>
+  </hgroup>
+
+</div>
+<p>
+  <i>
+    <time datetime=' 2024-08-13T00:00:00+00:00' pubdate>13 Aug, 2024</time>
+  </i>
+</p>
+<hr>
+<main>
+  
+  <p><em>If you're already familiar with PE loading, absolutely nothing new is presented in this blog post but you might learn something like I did. Full source code can be found <a href="https://github.com/exploits-forsale/solstice">on our GitHub</a>. <a href="#fin">Jump to the end</a> to see the fruits of our labor.</em></p>
+
+  
+  <p>Emma (<a href="https://twitter.com/carrot_c4k3">@carrot_c4k3</a>) is a good friend of mine. We met in 2007 from the Xbox 360 scene and have remained friends ever since. She recently participated in pwn2own in the Windows LPE category and ended up using a great bug for LPE.</p>
+<p>The bug far exceeded the category though: this vulnerability was also a <em>sandbox escape</em>, i.e. it's in an NT syscall which is reachable from the UWP sandbox. A couple months ago she got a wild idea: why not try to port the exploit over to the Xbox One? (Modern Xboxes, not to be confused with the OG Xbox)</p>
+<h2 id="brief-primer-on-the-xbox-one-s-security"><a class="zola-anchor" href="#brief-primer-on-the-xbox-one-s-security" aria-label="Anchor link for: brief-primer-on-the-xbox-one-s-security"
+    >#</a
+>
+Brief Primer on the Xbox One's Security</h2>
+<p>Since I'll be talking about this in the context of the Xbox, it's worthwhile to spend a moment discussing the Xbox One's security model. There's <a href="https://www.youtube.com/watch?v=U7VwtOrwceo">a very great and in-depth overview of the Xbox One's security model on YouTube</a> presented by Tony Chen who is one of the folks who designed it. I highly recommend watching it if you're interested, but I'll do my best at giving a crash course:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>┌────────────────────────────┐     ┌────────────────────────────┐
+</span><span>│                            │     │                            │
+</span><span>│                            │     │                            │
+</span><span>│                            │     │                            │
+</span><span>│                            │     │                            │
+</span><span>│        ERA (GameOS)        │     │         SystemOS           │
+</span><span>│                            │     │                            │
+</span><span>│                            │     │                            │
+</span><span>│                            │     │     │             │        │
+</span><span>│                            │     │     │             │        │
+</span><span>└────────────────────────────┘     └─────┼─────────────┼┬───────┤
+</span><span>               │                         │             ││ VMBus │
+</span><span>               │                         │             │└───────┘
+</span><span>┌──────────────┼─────────────────────────┼─────────────┼────────┐
+</span><span>│              │                         ▼             ▼        │
+</span><span>│              │           HostOS  ┌──────────┐ ┌───────────────┤
+</span><span>│              │                   │ Synthetic│ │ VSPs/Normal   │
+</span><span>│              └──────────────────▶│ Devices  │ │ Hyper-V Stuff │
+</span><span>└──────────────────────────────────┴──────────┴─┴───────────────┘
+</span><span>┌───────────────────────────────────────────────────────────────┐
+</span><span>│                                                               │
+</span><span>│                          Hypervisor                           │
+</span><span>│                                                               │
+</span><span>│                                                               │
+</span><span>└───────────────────────────────────────────────────────────────┘
+</span></code></pre>
+<p>This is a very, very simplified drawing of what you'd find on Microsoft's <a href="https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/reference/hyper-v-architecture">Hyper-V Architecture page</a>. The main thing I'm trying to highlight here is that there are 3 VMs with 3 different purposes:</p>
+<ol>
+<li>HostOS, which acts very similar to your standard Hyper-V host.</li>
+<li>ERA OS (aka GameOS) which is where games run.</li>
+<li>SystemOS which is where applications run. Here you'll find the system shell and UWP applications from the Windows Store.</li>
+</ol>
+<p>Each VM is running a very slimmed down version of Windows based on Windows Core OS (WCOS). The Hyper-V architecture is mostly what you'd encounter on a normal PC but with some additional Xbox-specific VSPs/functionality.</p>
+<p>Missing from the above diagram is the <em>security processor</em> (SP). The Xbox One's security processor should be the only thing on the Xbox which can reveal a title's plaintext on Xbox One. (<em>Random fact: Microsoft's <a href="https://learn.microsoft.com/en-us/windows/security/hardware-security/pluton/microsoft-pluton-security-processor">Pluton Processor</a> is based on learnings from the Xbox One's security processor</em>)</p>
+<p>The core idea behind all of this is to <strong>make piracy extremely difficult</strong>, if not impossible without breaking the SP. If you <em>do</em> hack the Xbox One, you can't do it online trivially because the SP will attest that the console's state is something unexpected.</p>
+<h2 id="ok-how-does-this-relate-to-the-pe-loader"><a class="zola-anchor" href="#ok-how-does-this-relate-to-the-pe-loader" aria-label="Anchor link for: ok-how-does-this-relate-to-the-pe-loader"
+    >#</a
+>
+OK, How Does This Relate to the PE loader?</h2>
+<p>Unrelated to her pwn2own entry, Emma found a vulnerability/feature in an application on the Xbox One marketplace called <em>GameScript</em>, which is an ImGui UI for messing with the <a href="https://github.com/kgabis/ape">Ape programming language</a>.</p>
+<p><a href="https://gist.github.com/carrot-c4k3/10fdb4f3d11ca568f5452bbaefdc20dd">Through this vulnerability</a> Emma was able to read/write arbitrary memory and run shellcode. So we have arbitrary code execution in SystemOS, but now the problem: writing shellcode is a pain, so how can we run arbitrary <em>executables</em> easily?</p>
+<p>We have the ability to read/write arbitrary memory and change page permissions which is enough to write a portable executable (PE/.exe) loader. Emma asked if I would write one since it would simplify the exploit development pipeline while she worked on porting her LPE exploit over and it'll be useful for homebrew later on too. Easy enough right?</p>
+<p><strong>Wrong.</strong></p>
+<h2 id="reinventing-the-wheel"><a class="zola-anchor" href="#reinventing-the-wheel" aria-label="Anchor link for: reinventing-the-wheel"
+    >#</a
+>
+Reinventing the Wheel</h2>
+<p>The specific technique of PE loading outlined here is referred to as "Reflective PE Loading". To me this sounds like some #redteam term I'd never heard before embarking on this project, and is not very descriptive in my opinion... but a "reflective PE loader" is simply some user-mode code that can load and execute a PE without going through the normal <code>LoadLibrary()</code> / <code>CreateProcess()</code> routines .</p>
+<p>Avoiding <code>LoadLibrary()</code> and <code>CreateProcess()</code> is very important for us since those will check for code integrity and any code we write will not be properly signed.</p>
+<p>I took a look at the work involved and decided I wanted to write my own loader for multiple reasons:</p>
+<ol>
+<li>
+<p>I despise dealing with C/C++ build systems.</p>
+</li>
+<li>
+<p>Since I'm targeting <em>Xbox Windows</em> and not <em>desktop Windows</em>, I might encounter some problems and I know how to debug my own code better than someone else's.</p>
+</li>
+<li>
+<p>On the Xbox we're required to use a PE loader for running unsigned executables until we eventually break code integrity. So we better know how it works and be able to load complex applications.</p>
+</li>
+<li>
+<p>I don't give a shit about EDR evasion or any #redteam stuff like that.</p>
+</li>
+<li>
+<p>We originally had some very, very strict size constraints that we found a workaround for, but we want to be able to control the loader size as much as possible.</p>
+</li>
+<li>
+<p>It seemed simple enough at the time to just rewrite it in Rust, so I did.</p>
+</li>
+</ol>
+<p>For my project's base I combined two open-source Rust projects:</p>
+<ul>
+<li><a href="https://github.com/b1tg/rust-windows-shellcode">b1tg/rust-windows-shellcode</a> which provided a great template for writing and building Windows shellcode in Rust.</li>
+<li><a href="https://github.com/Thoxy67/rspe">Thoxy67/rspe</a> which provides a basic reflective loader.</li>
+</ul>
+<p>rspe already got me most of the way there, but with a few caveats:</p>
+<ul>
+<li>It needed some cleanup (e.g. lots of unnecessary copies)</li>
+<li>It did not support loading imports by ordinal</li>
+<li>It did not support thread-local storage at all</li>
+<li>It did not support command line arguments</li>
+<li>It did not support environments with W^X mitigations</li>
+<li>It did not work with <em>shellcode-based programming</em> in mind.</li>
+</ul>
+<div class="wrap-collabsible">
+    <input id="collapsible1" class="toggle" type="checkbox" />
+    <label for="collapsible1" class="lbl-toggle">What is shellcode-based programming?</label>
+    <div class="collapsible-content">
+        <div class="content-inner">
+            On that last point above you might be wondering, "What is shellcode-based programming?" Well why don't I just give an example. Here's how a <code>VirtualAlloc()</code> call in <code>rspe</code> worked before:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">link</span><span>(name = &quot;</span><span style="color:#a3be8c;">kernel32</span><span>&quot;)]
+</span><span style="color:#b48ead;">extern </span><span>&quot;</span><span style="color:#a3be8c;">system</span><span>&quot; {
+</span><span>    </span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">VirtualAlloc</span><span>(
+</span><span>        </span><span style="color:#bf616a;">lpaddress</span><span>: </span><span style="color:#b48ead;">*const</span><span> c_void,
+</span><span>        </span><span style="color:#bf616a;">dwsize</span><span>: </span><span style="color:#b48ead;">usize</span><span>,
+</span><span>        </span><span style="color:#bf616a;">flallocationtype</span><span>: VIRTUAL_ALLOCATION_TYPE,
+</span><span>        </span><span style="color:#bf616a;">flprotect</span><span>: PAGE_PROTECTION_FLAGS,
+</span><span>    ) -&gt; </span><span style="color:#b48ead;">*mut</span><span> c_void;
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">// Allocate memory for the image
+</span><span style="color:#b48ead;">let</span><span> baseptr = VirtualAlloc(
+</span><span>    core::ptr::null_mut(), </span><span style="color:#65737e;">// lpAddress: A pointer to the starting address of the region to allocate.
+</span><span>    imagesize,             </span><span style="color:#65737e;">// dwSize: The size of the region, in bytes.
+</span><span>    </span><span style="color:#d08770;">MEM_COMMIT</span><span>,            </span><span style="color:#65737e;">// flAllocationType: The type of memory allocation.
+</span><span>    </span><span style="color:#d08770;">PAGE_EXECUTE_READWRITE</span><span>, </span><span style="color:#65737e;">// flProtect: The memory protection for the region of pages to be allocated.
+</span><span>);
+</span></code></pre>
+<p>And here's how this would look with shellcode-based programming:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub type </span><span>VirtualAllocFn = </span><span style="color:#b48ead;">unsafe extern </span><span>&quot;</span><span style="color:#a3be8c;">system</span><span>&quot; </span><span style="color:#b48ead;">fn</span><span>(
+</span><span>    lpAddress: </span><span style="color:#b48ead;">*const c_void</span><span>,
+</span><span>    dwSize: </span><span style="color:#b48ead;">usize</span><span>,
+</span><span>    flAllocationType: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>    flProtect: </span><span style="color:#b48ead;">u32</span><span>,
+</span><span>) -&gt; PVOID;
+</span><span>
+</span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">fetch_virtual_alloc</span><span>(</span><span style="color:#bf616a;">kernelbase_ptr</span><span>: PVOID) -&gt; VirtualAllocFn {
+</span><span>    </span><span style="color:#65737e;">// this is some macro that, using `kernelbase_ptr`, parses kernelbase&#39;s export table to find `VirtualAlloc`
+</span><span>    </span><span style="color:#65737e;">// and return its address. i.e. kind of a self-made version of `GetProcAddress`
+</span><span>    resolve_func!(kernelbase_ptr, &quot;</span><span style="color:#a3be8c;">VirtualAlloc</span><span>&quot;)
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">let</span><span> VirtualAlloc = </span><span style="color:#96b5b4;">fetch_virtual_alloc</span><span>(kernelbase_ptr);
+</span><span style="color:#b48ead;">let</span><span> baseptr = (VirtualAlloc)(
+</span><span>    preferred_load_addr, </span><span style="color:#65737e;">// lpAddress: A pointer to the starting address of the region to allocate.
+</span><span>    imagesize,           </span><span style="color:#65737e;">// dwSize: The size of the region, in bytes.
+</span><span>    </span><span style="color:#d08770;">MEM_COMMIT</span><span>,          </span><span style="color:#65737e;">// flAllocationType: The type of memory allocation.
+</span><span>    </span><span style="color:#d08770;">PAGE_READWRITE</span><span>,     </span><span style="color:#65737e;">// flProtect: The memory protection for the region of pages to be allocated.
+</span><span>);
+</span></code></pre>
+<p>As you might have noticed, we're not linking against any libraries and calling those imports directly. Instead we're using indirect calls to functions whose addresses we manually resolved at runtime. All you need for shellcode development that <em>isn't</em> painful is to find <code>kernelbase.dll</code> which can be done using the <code>gs</code> register to grab the PEB:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">get_module_by_name</span><span>(</span><span style="color:#bf616a;">module_name</span><span>: </span><span style="color:#b48ead;">*const u16</span><span>) -&gt; Option&lt;PVOID&gt; {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> peb: </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">PEB</span><span>;
+</span><span>    </span><span style="color:#b48ead;">unsafe </span><span>{
+</span><span>        asm!(
+</span><span>            &quot;</span><span style="color:#a3be8c;">mov {}, gs:[0x60]</span><span>&quot;,
+</span><span>            </span><span style="color:#96b5b4;">out</span><span>(reg) peb,
+</span><span>        );
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ldr = (*peb).Ldr;
+</span><span>        </span><span style="color:#b48ead;">let</span><span> module_list = &amp;((*ldr).InLoadOrderModuleList);
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// The first entry of LDR_DATA_TABLE_ENTRY is a LIST_ENTRY, so transmuting this address
+</span><span>        </span><span style="color:#65737e;">// from LIST_ENTRY to LDR_DATA_TABLE_ENTRY is legal.
+</span><span>        </span><span style="color:#b48ead;">let mut</span><span> cur_module: </span><span style="color:#b48ead;">*const </span><span style="color:#d08770;">LDR_DATA_TABLE_ENTRY </span><span>= core::mem::transmute(module_list);
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// The list is doubly-linked, so eventually we will wrap back around to the head.
+</span><span>        </span><span style="color:#b48ead;">let</span><span> module_list_head = cur_module;
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">loop </span><span>{
+</span><span>            </span><span style="color:#b48ead;">let</span><span> cur_name = (*cur_module).BaseDllName.Buffer;
+</span><span>            </span><span style="color:#b48ead;">if </span><span>!cur_name.</span><span style="color:#96b5b4;">is_null</span><span>() &amp;&amp; </span><span style="color:#96b5b4;">icmp_raw_str_u16</span><span>(module_name, cur_name) {
+</span><span>                </span><span style="color:#b48ead;">return </span><span>Some((*cur_module).BaseAddress);
+</span><span>            }
+</span><span>
+</span><span>            </span><span style="color:#b48ead;">let</span><span> flink = (*cur_module).InLoadOrderModuleList.Flink;
+</span><span>            cur_module = flink as </span><span style="color:#b48ead;">*const </span><span style="color:#d08770;">LDR_DATA_TABLE_ENTRY</span><span>;
+</span><span>
+</span><span>            </span><span style="color:#b48ead;">if</span><span> cur_module == module_list_head {
+</span><span>                </span><span style="color:#65737e;">// We wrapped the whole list and didn&#39;t find a result.
+</span><span>                </span><span style="color:#b48ead;">return </span><span>None;
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Then <a href="https://github.com/exploits-forsale/solstice/blob/6c47b5a0cd155d629845412974e7580fa9dff840/crates/shellcode_utils/src/lib.rs#L121-L161">parse the PE's export table</a> to find <code>GetModuleHandleA()</code>, and <code>GetProcAddress()</code>.
+        </div>
+    </div>
+</div>
+<h2 id="the-easy-parts"><a class="zola-anchor" href="#the-easy-parts" aria-label="Anchor link for: the-easy-parts"
+    >#</a
+>
+The Easy Parts</h2>
+<p><a href="https://github.com/BenjaminSoelberg/ReflectivePELoader?tab=readme-ov-file">Although it's been talked about before</a>, I'll give a brief overview of how a basic loader works:</p>
+<ol>
+<li>
+<p>Parse the PE headers and <code>VirtualAlloc()</code> some memory for the "cloned" PE with all the fixups applied. You'll try to <code>VirtualAlloc()</code> at the PE's preferred load address, but if you don't get it fall back to a random address. This is your <em>load address</em>. From here you calculate the delta between the preferred and actual load address and this will be used for fixing relocations. (Note: copying the PE just to change its fields isn't strictly necessary but simplifies some things)</p>
+</li>
+<li>
+<p><a href="https://github.com/exploits-forsale/solstice/blob/6c47b5a0cd155d629845412974e7580fa9dff840/crates/solstice_loader/src/pelib.rs#L211-L254">Iterate each PE section and copy it over to the newly <code>VirtualAlloc</code>'d region</a>. The virtual addresses here are <em>relative</em> virtual addresses, so you just take each section's VirtualAddress, add it to the load address, and copy the section from its old location to the new address.</p>
+</li>
+<li>
+<p><a href="https://github.com/exploits-forsale/solstice/blob/6c47b5a0cd155d629845412974e7580fa9dff840/crates/solstice_loader/src/pelib.rs#L256-L321">Fix section permissions</a>. For each section, look at its <code>Characteristics</code> field and determine the correct permissions. <code>VirtualProtect()</code> the section according to the permissions.</p>
+</li>
+<li>
+<p><a href="https://github.com/exploits-forsale/solstice/blob/6c47b5a0cd155d629845412974e7580fa9dff840/crates/solstice_loader/src/pelib.rs#L425-L545">Fix imports</a>. For each import in the import table (<code>IMAGE_DIRECTORY_ENTRY_IMPORT</code>), ensure the imported DLL is loaded. Then use the loaded DLL's handle with <code>GetProcAddress()</code> to get the address of the function being imported. For each import in the table, write the real address in the import's thunk. Instead of <code>GetProcAddress()</code> could also parse the module's exports and match things up, but I took the lazy way.</p>
+</li>
+<li>
+<p><a href="https://github.com/exploits-forsale/solstice/blob/6c47b5a0cd155d629845412974e7580fa9dff840/crates/solstice_loader/src/pelib.rs#L323-L398">Fix relocations</a>. This basically involves walking the <code>IMAGE_DIRECTORY_ENTRY_BASERELOC</code> directory and fixing each <code>IMAGE_BASE_RELOCATION</code> such that you add the delta calculated in step 1 to the relocation's <code>VirtualAddress</code> field. There's some nuance here where you need to only modify certain bits, etc. etc. but this is the basic idea.</p>
+</li>
+<li>
+<p><a href="https://github.com/exploits-forsale/solstice/blob/main/crates/solstice_loader/src/lib.rs#L343-L347">Call the module's entrypoints</a>.</p>
+</li>
+</ol>
+<p>I learned through this experience that PEs can have multiple thread-local storage callbacks called before the actual module entrypoint. Calling these is fairly straightforward:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let</span><span> tls_directory =
+</span><span>    &amp;ntheader_ref.OptionalHeader.DataDirectory[</span><span style="color:#d08770;">IMAGE_DIRECTORY_ENTRY_TLS </span><span>as </span><span style="color:#b48ead;">usize</span><span>];
+</span><span>
+</span><span style="color:#65737e;">// Grab the TLS data from the PE we&#39;re loading
+</span><span style="color:#b48ead;">let</span><span> tls_data_addr =
+</span><span>    baseptr.</span><span style="color:#96b5b4;">offset</span><span>(tls_directory.VirtualAddress as </span><span style="color:#b48ead;">isize</span><span>) as </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">IMAGE_TLS_DIRECTORY64</span><span>;
+</span><span>
+</span><span style="color:#b48ead;">let</span><span> tls_data: &amp;</span><span style="color:#b48ead;">mut </span><span style="color:#d08770;">IMAGE_TLS_DIRECTORY64 </span><span>= </span><span style="color:#b48ead;">unsafe </span><span>{ core::mem::transmute(tls_data_addr) };
+</span><span>
+</span><span style="color:#b48ead;">let mut</span><span> callbacks_addr = tls_data.AddressOfCallBacks as </span><span style="color:#b48ead;">*const *const c_void</span><span>;
+</span><span style="color:#b48ead;">if </span><span>!callbacks_addr.</span><span style="color:#96b5b4;">is_null</span><span>() {
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> callback = </span><span style="color:#b48ead;">unsafe </span><span>{ *callbacks_addr };
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">while </span><span>!callback.</span><span style="color:#96b5b4;">is_null</span><span>() {
+</span><span>        </span><span style="color:#96b5b4;">execute_tls_callback</span><span>(baseptr, callback);
+</span><span>        callbacks_addr = callbacks_addr.</span><span style="color:#96b5b4;">add</span><span>(</span><span style="color:#d08770;">1</span><span>);
+</span><span>        callback = </span><span style="color:#b48ead;">unsafe </span><span>{ *callbacks_addr };
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">unsafe fn </span><span style="color:#8fa1b3;">execute_tls_callback</span><span>(</span><span style="color:#bf616a;">baseptr</span><span>: </span><span style="color:#b48ead;">*const</span><span> c_void, </span><span style="color:#bf616a;">entrypoint</span><span>: </span><span style="color:#b48ead;">*const</span><span> c_void) {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> func: ImageTlsCallbackFn = core::mem::transmute(entrypoint);
+</span><span>    </span><span style="color:#96b5b4;">func</span><span>(baseptr, </span><span style="color:#d08770;">DLL_THREAD_ATTACH</span><span>, ptr::null_mut());
+</span><span>}
+</span></code></pre>
+<p>Executing the image entrypoint is pretty similar:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let</span><span> entrypoint = (baseptr as </span><span style="color:#b48ead;">usize
+</span><span>    + (*(ntheader as </span><span style="color:#b48ead;">*const </span><span style="color:#d08770;">IMAGE_NT_HEADERS64</span><span>))
+</span><span>        .OptionalHeader
+</span><span>        .AddressOfEntryPoint as </span><span style="color:#b48ead;">usize</span><span>) as </span><span style="color:#b48ead;">*const c_void</span><span>;
+</span><span>
+</span><span style="color:#65737e;">// Create a new thread to execute the image
+</span><span style="color:#96b5b4;">execute_image</span><span>(baseptr, entrypoint, context.fns.create_thread_fn);
+</span><span>
+</span><span style="color:#b48ead;">unsafe fn </span><span style="color:#8fa1b3;">execute_image</span><span>(
+</span><span>    </span><span style="color:#bf616a;">dll_base</span><span>: </span><span style="color:#b48ead;">*const</span><span> c_void,
+</span><span>    </span><span style="color:#bf616a;">entrypoint</span><span>: </span><span style="color:#b48ead;">*const</span><span> c_void,
+</span><span>    </span><span style="color:#bf616a;">create_thread_fn</span><span>: CreateThreadFn,
+</span><span>) {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> func: </span><span style="color:#b48ead;">extern </span><span>&quot;</span><span style="color:#a3be8c;">system</span><span>&quot; </span><span style="color:#b48ead;">fn</span><span>(</span><span style="color:#b48ead;">*const c_void</span><span>, </span><span style="color:#b48ead;">u32</span><span>, </span><span style="color:#b48ead;">*const c_void</span><span>) -&gt; </span><span style="color:#b48ead;">u32 </span><span>=
+</span><span>        core::mem::transmute(entrypoint);
+</span><span>    </span><span style="color:#96b5b4;">func</span><span>(dll_base, </span><span style="color:#d08770;">DLL_PROCESS_ATTACH</span><span>, ptr::null());
+</span><span>}
+</span></code></pre>
+<h2 id="the-hard-parts"><a class="zola-anchor" href="#the-hard-parts" aria-label="Anchor link for: the-hard-parts"
+    >#</a
+>
+The Hard Parts</h2>
+<p>There were some parts that really kicked my ass in figuring out, but in my opinion were very important for what I wanted in the PE loader.</p>
+<ol>
+<li>
+<p>The exploit / PE loader must not cause the hijacked application to become unreliable. I don't want to be debugging crashes in some of the existing threads that broke simply because we're hijacking the address space.</p>
+</li>
+<li>
+<p>We must be able to run complex applications. Since we're using this technique to bypass code integrity, this will be our main method of running arbitrary applications.</p>
+</li>
+<li>
+<p>The application shouldn't <em>know</em> it's been reflectively loaded, or care.</p>
+</li>
+</ol>
+<h3 id="thread-local-storage"><a class="zola-anchor" href="#thread-local-storage" aria-label="Anchor link for: thread-local-storage"
+    >#</a
+>
+Thread-Local Storage</h3>
+<p>Related to #2, the absolute biggest challenge I faced was with applications that use thread-local storage (TLS). Having done all of my development in Rust, my test program that I was loading was also written in Rust.</p>
+<p>I kept crashing on <code>int 29</code> instructions (<code>RtlFailFast(code)</code>) shortly after executing the module's entrypoint. This was <strong>extremely</strong> painful to debug but eventually I figured out that I was failing after fetching data from TLS</p>
+<p><a href="/img/pe-loader/tls-thread-set-current.png"><img src="/img/pe-loader/tls-thread-set-current.png" alt="Screenshot of assembly instructions from a Rust &quot;hello world&quot; application loading data from TLS in IDA pro" /></a></p>
+<p><a href="/img/pe-loader/int-29.png"><img src="/img/pe-loader/int-29.png" alt="Screenshot of assembly instructions from a Rust &quot;hello world&quot; application executing an int 29 instruction in IDA pro" /></a></p>
+<p>I was kind of confused because I didn't expect my application to use TLS, but apparently even the most basic "hello world" Rust program uses TLS:</p>
+<p><a href="/img/pe-loader/pe-bear-tls.png"><img src="/img/pe-loader/pe-bear-tls.png" alt="Screenshot of a Rust &quot;hello world&quot; application loaded into the &quot;PE Bear&quot; program, showing its TLS directory" /></a></p>
+<p>It turns out that this is related to Rust's thread initialization code that sets some thread-locals for the current thread and thread ID: <a href="https://github.com/rust-lang/rust/blob/2e630267b2bce50af3258ce4817e377fa09c145b/library/std/src/thread/mod.rs#L694">https://github.com/rust-lang/rust/blob/2e630267b2bce50af3258ce4817e377fa09c145b/library/std/src/thread/mod.rs#L694</a></p>
+<p>So I came to realize that my original idea for how I was handling TLS data was completely flawed. Originally I was <em>allocating</em> new memory for my module's TLS, but didn't even realize it had some default state associated with it that I had to copy over. Simple fix right?</p>
+<pre data-lang="patch" style="background-color:#2b303b;color:#c0c5ce;" class="language-patch "><code class="language-patch" data-lang="patch"><span>diff --git a/crates/loader/src/lib.rs b/crates/loader/src/lib.rs
+</span><span>index 97311d0..d66773d 100755
+</span><span>--- a/crates/loader/src/lib.rs
+</span><span>+++ b/crates/loader/src/lib.rs
+</span><span>@@ -180,34 +185,53 @@ </span><span style="color:#8fa1b3;">unsafe fn reflective_loader_impl(context: LoaderContext) {
+</span><span>             .OptionalHeader
+</span><span>             .AddressOfEntryPoint as usize) as *const c_void;
+</span><span>
+</span><span style="color:#bf616a;">-    let tls_directory = &amp;ntheader_ref.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS];
+</span><span style="color:#a3be8c;">+    let tls_directory =
+</span><span style="color:#a3be8c;">+        &amp;ntheader_ref.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS as usize];
+</span><span style="color:#a3be8c;">+
+</span><span style="color:#a3be8c;">+    // Grab the TLS data from the PE we&#39;re loading
+</span><span style="color:#a3be8c;">+    let tls_data_addr =
+</span><span style="color:#a3be8c;">+        baseptr.offset(tls_directory.VirtualAddress as isize) as *mut IMAGE_TLS_DIRECTORY64;
+</span><span style="color:#a3be8c;">+
+</span><span style="color:#a3be8c;">+    // TODO: Patch the module list
+</span><span style="color:#a3be8c;">+    let tls_index = patch_module_list(
+</span><span style="color:#a3be8c;">+        context.image_name,
+</span><span style="color:#a3be8c;">+        baseptr,
+</span><span style="color:#a3be8c;">+        imagesize,
+</span><span style="color:#a3be8c;">+        context.fns.get_module_handle_fn,
+</span><span style="color:#a3be8c;">+        tls_data_addr,
+</span><span style="color:#a3be8c;">+        context.fns.virtual_protect,
+</span><span style="color:#a3be8c;">+        entrypoint,
+</span><span style="color:#a3be8c;">+    );
+</span><span style="color:#a3be8c;">+
+</span><span>     if tls_directory.Size &gt; 0 {
+</span><span>         // Grab the TLS data from the PE we&#39;re loading
+</span><span>         let tls_data_addr =
+</span><span>             baseptr.offset(tls_directory.VirtualAddress as isize) as *mut IMAGE_TLS_DIRECTORY64;
+</span><span>
+</span><span style="color:#bf616a;">-        let tls_data: &amp;IMAGE_TLS_DIRECTORY64 = unsafe { core::mem::transmute(tls_data_addr) };
+</span><span style="color:#a3be8c;">+        let tls_data: &amp;mut IMAGE_TLS_DIRECTORY64 = unsafe { core::mem::transmute(tls_data_addr) };
+</span><span>
+</span><span>         // Grab the TLS start from the TEB
+</span><span>         let tls_start: *mut *mut c_void;
+</span><span>         unsafe { core::arch::asm!(&quot;mov {}, gs:[0x58]&quot;, out(reg) tls_start) }
+</span><span>
+</span><span style="color:#bf616a;">-        let tls_index = unsafe { *(tls_data.AddressOfIndex as *const u32) };
+</span><span style="color:#bf616a;">-
+</span><span>         let tls_slot = tls_start.offset(tls_index as isize);
+</span><span>         let raw_data_size = tls_data.EndAddressOfRawData - tls_data.StartAddressOfRawData;
+</span><span style="color:#bf616a;">-        *tls_slot = (context.fns.virtual_alloc)(
+</span><span style="color:#a3be8c;">+        let tls_data_addr = (context.fns.virtual_alloc)(
+</span><span>             ptr::null(),
+</span><span style="color:#bf616a;">-            raw_data_size as usize,
+</span><span style="color:#a3be8c;">+            raw_data_size as usize, // + tls_data.SizeOfZeroFill as usize,
+</span><span>             MEM_COMMIT,
+</span><span>             PAGE_READWRITE,
+</span><span>         );
+</span><span>
+</span><span style="color:#bf616a;">-        // if !tls_start.is_null() {
+</span><span style="color:#bf616a;">-        //     // Zero out this memory
+</span><span style="color:#bf616a;">-        //     let tls_slots: &amp;mut [u64] = unsafe { core::slice::from_raw_parts_mut(tls_start, 64) };
+</span><span style="color:#bf616a;">-        //     tls_slots.iter_mut().for_each(|slot| *slot = 0);
+</span><span style="color:#bf616a;">-        // }
+</span><span style="color:#a3be8c;">+        core::ptr::copy_nonoverlapping(
+</span><span style="color:#a3be8c;">+            tls_data.StartAddressOfRawData as *const _,
+</span><span style="color:#a3be8c;">+            tls_data_addr,
+</span><span style="color:#a3be8c;">+            raw_data_size as usize,
+</span><span style="color:#a3be8c;">+        );
+</span><span style="color:#a3be8c;">+
+</span><span style="color:#a3be8c;">+        // Update the TLS index
+</span><span style="color:#a3be8c;">+        core::ptr::write(tls_data.AddressOfIndex as *mut u32, tls_index);
+</span><span style="color:#a3be8c;">+        *tls_slot = tls_data_addr;
+</span><span>
+</span><span>         let mut callbacks_addr = tls_data.AddressOfCallBacks as *const *const c_void;
+</span><span>         if !callbacks_addr.is_null() {
+</span></code></pre>
+<p>This code worked, but not for long. I obviously had no idea how TLS worked, and soon discovered that in a multi-threaded application I was <em>again</em> getting similar crashes because the TLS data was bad. Through much pain and debugging I ended up learning:</p>
+<ul>
+<li>
+<p>Changing the TLS for your current thread is obviously not enough. New threads that spawn won't have the modifications I did above, so they'll have "default" TLS without my module included since the changes I did above are only reflected for the current thread. Duh.</p>
+</li>
+<li>
+<p>TLS is allocated in slots for the current thread and each slot is a pointer to the TLS data.</p>
+</li>
+<li>
+<p>Windows keeps a cache of TLS directories for each loaded module, which means you can't just pave over the hijacked module's TLS data with your new TLS data and things will "just work". You'll have to update the cache.</p>
+</li>
+</ul>
+<h3 id="fixing-tls-data"><a class="zola-anchor" href="#fixing-tls-data" aria-label="Anchor link for: fixing-tls-data"
+    >#</a
+>
+Fixing TLS Data</h3>
+<p>In the above section I mentioned that Windows keeps a cache of TLS directories for each loaded module, and I think this is a critical reason why the reflective PE loaders I sampled didn't bother with TLS data (<a href="https://github.com/DarthTon/Blackbone/blob/5ede6ce50cd8ad34178bfa6cae05768ff6b3859b/src/BlackBone/ManualMap/Native/NtLoader.cpp#L153">only one loader sampled seemed to support TLS data</a>).</p>
+<p>I really only discovered this by painfully debugging and figuring out the application only crashed when spawning new threads, that the crashes were relating to data in TLS, and figuring that something must be wrong with the TLS data.</p>
+<p>It finally clicked when I noticed that the <code>ThreadLocalStoragePointer</code> for the crashing thread's TEB didn't match the spawning thread's...</p>
+<p><a href="/img/pe-loader/teb-command.png"><img src="/img/pe-loader/teb-command.png" alt="!teb command in WinDbg" /></a></p>
+<p><a href="/img/pe-loader/thread-local-storage.png"><img src="/img/pe-loader/thread-local-storage.png" alt="Clicking the TEB pointer in WinDbg&#39;s !teb output" /></a></p>
+<p>This is super obvious in hindsight! Each thread's TLS has to be unique, but I don't know... I thought the <code>ThreadLocalStoragePointer</code> was a pointer to the <em>default state</em> TLS and the per-thread slots were in the TEB's <code>TlsSlots</code> field?</p>
+<p>Anyways, I set a breakpoint at the thread initialization routine, <code>LdrpInitializeThread</code>, and debugged it to see if there was anything that stood out for TLS initialization. Like magic, I eventually stepped into <code>LdrpAllocateTls</code>:</p>
+<p><a href="/img/pe-loader/LdrpAllocateTls.png"><img src="/img/pe-loader/LdrpAllocateTls.png" alt="WinDbg stack for a new user thread showing the call into LdrpAllocateTls" /></a></p>
+<p>The <a href="https://github.com/mirror/reactos/blob/c6d2b35ffc91e09f50dfb214ea58237509329d6b/reactos/dll/ntdll/ldr/ldrinit.c#L1215-L1273">ReactOS source code</a> was of huge help here in figuring out what was going on, but essentially what happens when spawning a new thread is:</p>
+<ol>
+<li>If any of the currently loaded modules has TLS, allocate a <code>ThreadLocalStoragePointer</code>.</li>
+<li>The size of this memory block is <code>sizeof(void*) * NUM_MODULES_WITH_TLS_DATA</code>.</li>
+<li>Iterate some <code>TlsLinks</code> list. This is a list of <code>LDRP_TLS_DATA</code>:</li>
+</ol>
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">typedef struct</span><span> _LDRP_TLS_DATA
+</span><span>{
+</span><span>    LIST_ENTRY TlsLinks;
+</span><span>    IMAGE_TLS_DIRECTORY TlsDirectory;
+</span><span>} LDRP_TLS_DATA, *PLDRP_TLS_DATA;
+</span></code></pre>
+<ol start="4">
+<li>Calculate the size of the TLS data based on the <code>TlsDirectory</code>, and copy its contents.</li>
+<li>Put the pointer to the memory allocated in step 4 in the appropriate slot, recorded as <code>TlsData-&gt;TlsDirectory.Characteristics</code>.</li>
+</ol>
+<p>Now that I know the TLS data is cached, can't I just overwrite the <code>TlsDirectory</code> data in this list from the host module with the data from the new module? Well yes... and no. The <code>LDRP_TLS_DATA</code> is heap-allocated, so I'd have to scan the heap which would be pretty bug-prone.</p>
+<h4 id="janky-approach-to-fixing-tls-data"><a class="zola-anchor" href="#janky-approach-to-fixing-tls-data" aria-label="Anchor link for: janky-approach-to-fixing-tls-data"
+    >#</a
+>
+Janky Approach to Fixing TLS Data</h4>
+<p><strong>tl;dr</strong>: use a private <code>ntdll</code> function that returns the cached <code>TLS_ENTRY</code> from a <code>LDR_DATA_TABLE_ENTRY*</code> to find the hijacked module's TLS data. Once found, overwrite the cached <code>IMAGE_TLS_DIRECTORY</code> with the new module's.</p>
+<p>This has a big problem: if the program you're loading requires TLS, you must inject into a program with TLS. Otherwise you'll be replacing a random DLL's TLS data if you aren't careful.</p>
+<div class="wrap-collabsible">
+    <input id="collapsible2" class="toggle" type="checkbox" />
+    <label for="collapsible2" class="lbl-toggle">List Patching Details</label>
+    <div class="collapsible-content">
+        <div class="content-inner">
+            I popped <code>ntdll.dll</code> into IDA to see what functions were using this <code>LdrpTlsList</code> to see if maybe there was some other way I could grab the list's address.</p>
+<p><a href="/img/pe-loader/LdrpFindTlsEntry.png"><img src="/img/pe-loader/LdrpFindTlsEntry.png" alt="IDA Pro window showing functions using LdrpTlsList" /></a></p>
+<p>I found that in Windows (but not ReactOS) is a function, "<code>LdrpFindTlsList</code>", which will return a <code>PTLS_ENTRY</code> (the actual name of the Windows data structure for ReactOS's <code>LDRP_TLS_DATA</code>) given a <code>PLDR_DATA_TABLE_ENTRY</code>. <a href="http://www.nynaeve.net/Code/VistaImplicitTls.cpp">Ken Johnson even conviently provided the source code on his blog</a>.</p>
+<p>The <code>PLDR_DATA_TABLE_ENTRY</code> can be found in the PEB which you can explore using the <code>!peb</code> command in WinDbg.</p>
+<p>The complete code:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">/// Returns the Thread Environment Block (TEB)
+</span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">teb</span><span>() -&gt; </span><span style="color:#b48ead;">*mut</span><span> TEB {
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> teb: </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">TEB</span><span>;
+</span><span>    </span><span style="color:#b48ead;">unsafe </span><span>{ core::arch::asm!(&quot;</span><span style="color:#a3be8c;">mov {}, gs:[0x30]</span><span>&quot;, </span><span style="color:#96b5b4;">out</span><span>(reg) teb) }
+</span><span>
+</span><span>    teb
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">pub unsafe fn </span><span style="color:#8fa1b3;">patch_module_list</span><span>(
+</span><span>    </span><span style="color:#bf616a;">image_name</span><span>: Option&lt;&amp;[</span><span style="color:#b48ead;">u16</span><span>]&gt;,
+</span><span>    </span><span style="color:#bf616a;">new_base_address</span><span>: </span><span style="color:#b48ead;">*mut</span><span> c_void,
+</span><span>    </span><span style="color:#bf616a;">module_size</span><span>: </span><span style="color:#b48ead;">usize</span><span>,
+</span><span>    </span><span style="color:#bf616a;">get_module_handle_fn</span><span>: GetModuleHandleAFn,
+</span><span>    </span><span style="color:#bf616a;">this_tls_data</span><span>: </span><span style="color:#b48ead;">*const</span><span> IMAGE_TLS_DIRECTORY64,
+</span><span>    </span><span style="color:#bf616a;">virtual_protect</span><span>: VirtualProtectFn,
+</span><span>    </span><span style="color:#bf616a;">entrypoint</span><span>: </span><span style="color:#b48ead;">*const</span><span> c_void,
+</span><span>) -&gt; </span><span style="color:#b48ead;">u32 </span><span>{
+</span><span>    </span><span style="color:#b48ead;">let</span><span> current_module = </span><span style="color:#96b5b4;">get_module_handle_fn</span><span>(core::ptr::null());
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> teb = </span><span style="color:#96b5b4;">teb</span><span>();
+</span><span>    </span><span style="color:#b48ead;">let</span><span> peb = (*teb).ProcessEnvironmentBlock;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> ldr_data = (*peb).Ldr;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> module_list_head = &amp;</span><span style="color:#b48ead;">mut </span><span>(*ldr_data).InMemoryOrderModuleList as </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">LIST_ENTRY</span><span>;
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> next = (*module_list_head).Flink;
+</span><span>    </span><span style="color:#b48ead;">while</span><span> next != module_list_head {
+</span><span>        </span><span style="color:#65737e;">// -1 because this is the second field in the LDR_DATA_TABLE_ENTRY struct.
+</span><span>        </span><span style="color:#65737e;">// the first one is also a LIST_ENTRY
+</span><span>        </span><span style="color:#b48ead;">let</span><span> module_info = (next.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">1</span><span>)) as </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">LDR_DATA_TABLE_ENTRY</span><span>;
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(*module_info).DllBase == current_module {
+</span><span>            (*module_info).DllBase = new_base_address;
+</span><span>            </span><span style="color:#65737e;">// EntryPoint
+</span><span>            (*module_info).Reserved3[</span><span style="color:#d08770;">0</span><span>] = entrypoint as </span><span style="color:#b48ead;">*mut c_void</span><span>;
+</span><span>            </span><span style="color:#65737e;">// SizeOfImage
+</span><span>            (*module_info).Reserved3[</span><span style="color:#d08770;">1</span><span>] = module_size as </span><span style="color:#b48ead;">*mut c_void</span><span>;
+</span><span>
+</span><span>            </span><span style="color:#b48ead;">if </span><span>!this_tls_data.</span><span style="color:#96b5b4;">is_null</span><span>() {
+</span><span>                </span><span style="color:#b48ead;">let</span><span> ntdll_addr = </span><span style="color:#96b5b4;">get_module_handle_fn</span><span>(&quot;</span><span style="color:#a3be8c;">ntdll.dll</span><span style="color:#96b5b4;">\0</span><span>&quot;.</span><span style="color:#96b5b4;">as_ptr</span><span>() as </span><span style="color:#b48ead;">*const </span><span>_);
+</span><span>                </span><span style="color:#b48ead;">if let </span><span>Some(ntdll_text) = </span><span style="color:#96b5b4;">get_module_section</span><span>(ntdll_addr as </span><span style="color:#b48ead;">*mut </span><span>_, </span><span style="color:#b48ead;">b</span><span>&quot;</span><span style="color:#a3be8c;">.text</span><span>&quot;) {
+</span><span>                    </span><span style="color:#b48ead;">for</span><span> window in ntdll_text.</span><span style="color:#96b5b4;">windows</span><span>(</span><span style="color:#d08770;">LDRP_FIND_TLS_ENTRY_SIGNATURE_BYTES</span><span>.</span><span style="color:#96b5b4;">len</span><span>()) {
+</span><span>                        </span><span style="color:#b48ead;">if</span><span> window == </span><span style="color:#d08770;">LDRP_FIND_TLS_ENTRY_SIGNATURE_BYTES </span><span>{
+</span><span>                            </span><span style="color:#65737e;">// Get this window&#39;s pointer and move backwards to find the start of the fn
+</span><span>                            </span><span style="color:#b48ead;">let mut</span><span> ptr = window.</span><span style="color:#96b5b4;">as_ptr</span><span>();
+</span><span>                            </span><span style="color:#b48ead;">loop </span><span>{
+</span><span>                                </span><span style="color:#b48ead;">let</span><span> behind = ptr.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">1</span><span>);
+</span><span>                                </span><span style="color:#b48ead;">if </span><span>*behind == </span><span style="color:#d08770;">0xcc </span><span>{
+</span><span>                                    </span><span style="color:#b48ead;">break</span><span>;
+</span><span>                                }
+</span><span>                                ptr = ptr.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">1</span><span>);
+</span><span>                            }
+</span><span>
+</span><span>                            </span><span style="color:#b48ead;">let</span><span> LdrpFindTlsEntry: LdrpFindTlSEntryFn = core::mem::transmute(ptr);
+</span><span>
+</span><span>                            </span><span style="color:#b48ead;">let</span><span> list_entry = LdrpFindTlsEntry(module_info);
+</span><span>
+</span><span>                            (*list_entry).TlsDirectory = *this_tls_data;
+</span><span>                        }
+</span><span>                    }
+</span><span>                }
+</span><span>            }
+</span><span>            </span><span style="color:#b48ead;">break</span><span>;
+</span><span>        }
+</span><span>        next = (*next).Flink;
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// This stuff here is mostly unnecessary, but I did it anyways as a &quot;just in case&quot;.
+</span><span>    </span><span style="color:#65737e;">// The idea is to overwrite the `IMAGE_TLS_DIRECTORY` of the hijacked module
+</span><span>    </span><span style="color:#65737e;">// to point at the new module&#39;s.
+</span><span>    </span><span style="color:#65737e;">// And to get the hijacked module&#39;s TLS index since that&#39;s the slot we&#39;ll be
+</span><span>    </span><span style="color:#65737e;">// hijacking for our new module.
+</span><span>    </span><span style="color:#b48ead;">if </span><span>!this_tls_data.</span><span style="color:#96b5b4;">is_null</span><span>() {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> dosheader = </span><span style="color:#96b5b4;">get_dos_header</span><span>(current_module);
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ntheader = </span><span style="color:#96b5b4;">get_nt_header</span><span>(current_module, dosheader);
+</span><span>
+</span><span>        #[</span><span style="color:#bf616a;">cfg</span><span>(target_arch = &quot;</span><span style="color:#a3be8c;">x86_64</span><span>&quot;)]
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ntheader_ref: &amp;</span><span style="color:#b48ead;">mut </span><span style="color:#d08770;">IMAGE_NT_HEADERS64 </span><span>= </span><span style="color:#b48ead;">unsafe </span><span>{ core::mem::transmute(ntheader) };
+</span><span>        #[</span><span style="color:#bf616a;">cfg</span><span>(target_arch = &quot;</span><span style="color:#a3be8c;">x86</span><span>&quot;)]
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ntheader_ref: &amp;</span><span style="color:#b48ead;">mut </span><span style="color:#d08770;">IMAGE_NT_HEADERS32 </span><span>= </span><span style="color:#b48ead;">unsafe </span><span>{ core::mem::transmute(ntheader) };
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">let</span><span> real_module_tls_entry =
+</span><span>            &amp;</span><span style="color:#b48ead;">mut</span><span> ntheader_ref.OptionalHeader.DataDirectory[</span><span style="color:#d08770;">IMAGE_DIRECTORY_ENTRY_TLS </span><span>as </span><span style="color:#b48ead;">usize</span><span>];
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">let</span><span> real_module_tls_dir = current_module
+</span><span>            .</span><span style="color:#96b5b4;">offset</span><span>(real_module_tls_entry.VirtualAddress as </span><span style="color:#b48ead;">isize</span><span>)
+</span><span>            as </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">IMAGE_TLS_DIRECTORY64</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">let mut</span><span> old_perms = </span><span style="color:#d08770;">0</span><span>;
+</span><span>        </span><span style="color:#96b5b4;">virtual_protect</span><span>(
+</span><span>            real_module_tls_dir as </span><span style="color:#b48ead;">*mut </span><span>_ as </span><span style="color:#b48ead;">*const </span><span>_,
+</span><span>            core::mem::size_of::&lt;IMAGE_TLS_DIRECTORY64&gt;(),
+</span><span>            </span><span style="color:#d08770;">PAGE_READWRITE</span><span>,
+</span><span>            &amp;</span><span style="color:#b48ead;">mut</span><span> old_perms,
+</span><span>        );
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">let</span><span> idx = *((*real_module_tls_dir).AddressOfIndex as </span><span style="color:#b48ead;">*const u32</span><span>);
+</span><span>        *real_module_tls_dir = *this_tls_data;
+</span><span>
+</span><span>        idx
+</span><span>    } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>        </span><span style="color:#d08770;">0
+</span><span>    }
+</span><span>}
+</span></code></pre>
+
+        </div>
+    </div>
+</div>
+<h4 id="the-good-method"><a class="zola-anchor" href="#the-good-method" aria-label="Anchor link for: the-good-method"
+    >#</a
+>
+The Good Method</h4>
+<p>Remember how I said <a href="https://github.com/DarthTon/Blackbone/blob/5ede6ce50cd8ad34178bfa6cae05768ff6b3859b/src/BlackBone/ManualMap/Native/NtLoader.cpp#L153">only one loader sampled seemed to support TLS data</a>? This happens to be the same approach they took.</p>
+<p>Building on the above list patching method, I saw a different function called <code>LdrpAllocateTlsEntry</code> referenced the <code>LdrpTlsList</code> cache and is called by <code>LdrpHandleTlsData</code>. The latter function is called when a new module is loaded and is responsible for setting up almost all of the state relating to a module's TLS.</p>
+<p>It has no sanity checks on whether or not the module's TLS data has already been handled. Which is awesome, and actually makes sense! Why sanity check if this function is only ever called once during real loader scenarios?</p>
+<p>We can abuse this by performing the following operations:</p>
+<ol>
+<li>Update the hijacked module's <code>LDR_DATA_TABLE_ENTRY</code> (found via the PEB) to point to our new module's base address.</li>
+<li>Release the hijacked module's TLS data (<code>LdrpReleaseTlsEntry</code>)</li>
+<li>Call <code>LdrpHandleTlsData</code> with the hijacked module to force the new TLS data to be loaded.</li>
+</ol>
+<p>This also solves all of the problems we had with both prior methods!</p>
+<ul>
+<li>We can inject into any process and not just processes that have TLS data</li>
+<li>According to the <a href="http://www.nynaeve.net/Code/VistaImplicitTls.cpp">Ken Johnson code</a> this function updates the TLS info in the PEB (or maybe some kernel data?)</li>
+<li>And according to the Ken Johnson code updates other threads</li>
+<li>Is less code than <em>both</em> other solutions</li>
+<li>Doesn't require me to manually update the new module's TLS index</li>
+</ul>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">const </span><span style="color:#d08770;">LDRP_RELEASE_TLS_ENTRY_SIGNATURE_BYTES</span><span>: [</span><span style="color:#b48ead;">u8</span><span>; </span><span style="color:#d08770;">7</span><span>] = [</span><span style="color:#d08770;">0x83</span><span>, </span><span style="color:#d08770;">0xE1</span><span>, </span><span style="color:#d08770;">0x07</span><span>, </span><span style="color:#d08770;">0x48</span><span>, </span><span style="color:#d08770;">0xC1</span><span>, </span><span style="color:#d08770;">0xEA</span><span>, </span><span style="color:#d08770;">0x03</span><span>];
+</span><span>
+</span><span style="color:#b48ead;">const </span><span style="color:#d08770;">LDRP_HANDLE_TLS_DATA_SIGNATURE_BYTES</span><span>: [</span><span style="color:#b48ead;">u8</span><span>; </span><span style="color:#d08770;">9</span><span>] =
+</span><span>    [</span><span style="color:#d08770;">0xBA</span><span>, </span><span style="color:#d08770;">0x23</span><span>, </span><span style="color:#d08770;">0x00</span><span>, </span><span style="color:#d08770;">0x00</span><span>, </span><span style="color:#d08770;">0x00</span><span>, </span><span style="color:#d08770;">0x48</span><span>, </span><span style="color:#d08770;">0x83</span><span>, </span><span style="color:#d08770;">0xC9</span><span>, </span><span style="color:#d08770;">0xFF</span><span>];
+</span><span>
+</span><span>
+</span><span style="color:#65737e;">// Function signature/type alias for LdrpReleaseTlsEntry
+</span><span style="color:#b48ead;">type </span><span>LdrpReleaseTlsEntryFn =
+</span><span>    </span><span style="color:#b48ead;">unsafe extern </span><span>&quot;</span><span style="color:#a3be8c;">system</span><span>&quot; </span><span style="color:#b48ead;">fn</span><span>(entry: </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">LDR_DATA_TABLE_ENTRY</span><span>, unk: </span><span style="color:#b48ead;">*mut c_void</span><span>) -&gt; NTSTATUS;
+</span><span>
+</span><span style="color:#65737e;">// Function signature/type alias for LdrpHandleTlsData
+</span><span style="color:#b48ead;">type </span><span>LdrpHandleTlsDataFn = </span><span style="color:#b48ead;">unsafe extern </span><span>&quot;</span><span style="color:#a3be8c;">system</span><span>&quot; </span><span style="color:#b48ead;">fn</span><span>(entry: </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">LDR_DATA_TABLE_ENTRY</span><span>);
+</span><span>
+</span><span style="color:#65737e;">/// Returns the Thread Environment Block (TEB)
+</span><span style="color:#b48ead;">pub fn </span><span style="color:#8fa1b3;">teb</span><span>() -&gt; </span><span style="color:#b48ead;">*mut</span><span> TEB {
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> teb: </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">TEB</span><span>;
+</span><span>    </span><span style="color:#b48ead;">unsafe </span><span>{ core::arch::asm!(&quot;</span><span style="color:#a3be8c;">mov {}, gs:[0x30]</span><span>&quot;, </span><span style="color:#96b5b4;">out</span><span>(reg) teb) }
+</span><span>
+</span><span>    teb
+</span><span>}
+</span><span>
+</span><span style="color:#65737e;">/// Patches the module list to change the hijacked module&#39;s DLL base and entrypoint.
+</span><span style="color:#65737e;">///
+</span><span style="color:#65737e;">/// TODO: Patch image name.
+</span><span style="color:#65737e;">///
+</span><span style="color:#65737e;">/// This is useful to ensure that a program that depends on `GetModuleHandle*`
+</span><span style="color:#65737e;">/// doesn&#39;t fail simply because its module is not found
+</span><span style="color:#b48ead;">pub unsafe fn </span><span style="color:#8fa1b3;">patch_ldr_data</span><span>(
+</span><span>    </span><span style="color:#bf616a;">new_base_address</span><span>: </span><span style="color:#b48ead;">*mut</span><span> c_void,
+</span><span>    </span><span style="color:#bf616a;">module_size</span><span>: </span><span style="color:#b48ead;">usize</span><span>,
+</span><span>    </span><span style="color:#bf616a;">get_module_handle_fn</span><span>: GetModuleHandleAFn,
+</span><span>    </span><span style="color:#bf616a;">this_tls_data</span><span>: </span><span style="color:#b48ead;">*const</span><span> IMAGE_TLS_DIRECTORY64,
+</span><span>    </span><span style="color:#bf616a;">entrypoint</span><span>: </span><span style="color:#b48ead;">*const</span><span> c_void,
+</span><span>) {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> current_module = </span><span style="color:#96b5b4;">get_module_handle_fn</span><span>(core::ptr::null());
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> teb = </span><span style="color:#96b5b4;">teb</span><span>();
+</span><span>    </span><span style="color:#b48ead;">let</span><span> peb = (*teb).ProcessEnvironmentBlock;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> ldr_data = (*peb).Ldr;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> module_list_head = &amp;</span><span style="color:#b48ead;">mut </span><span>(*ldr_data).InMemoryOrderModuleList as </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">LIST_ENTRY</span><span>;
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> next = (*module_list_head).Flink;
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">while</span><span> next != module_list_head {
+</span><span>        </span><span style="color:#65737e;">// -1 because this is the second field in the LDR_DATA_TABLE_ENTRY struct.
+</span><span>        </span><span style="color:#65737e;">// the first one is also a LIST_ENTRY
+</span><span>        </span><span style="color:#b48ead;">let</span><span> module_info = (next.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">1</span><span>)) as </span><span style="color:#b48ead;">*mut </span><span style="color:#d08770;">LDR_DATA_TABLE_ENTRY</span><span>;
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(*module_info).DllBase != current_module {
+</span><span>            next = (*next).Flink;
+</span><span>            </span><span style="color:#b48ead;">continue</span><span>;
+</span><span>        }
+</span><span>
+</span><span>        (*module_info).DllBase = new_base_address;
+</span><span>        </span><span style="color:#65737e;">// EntryPoint
+</span><span>        (*module_info).Reserved3[</span><span style="color:#d08770;">0</span><span>] = entrypoint as </span><span style="color:#b48ead;">*mut c_void</span><span>;
+</span><span>        </span><span style="color:#65737e;">// SizeOfImage
+</span><span>        (*module_info).Reserved3[</span><span style="color:#d08770;">1</span><span>] = module_size as </span><span style="color:#b48ead;">*mut c_void</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">if</span><span> this_tls_data.</span><span style="color:#96b5b4;">is_null</span><span>() {
+</span><span>            </span><span style="color:#b48ead;">break</span><span>;
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ntdll_addr = </span><span style="color:#96b5b4;">get_module_handle_fn</span><span>(&quot;</span><span style="color:#a3be8c;">ntdll.dll</span><span style="color:#96b5b4;">\0</span><span>&quot;.</span><span style="color:#96b5b4;">as_ptr</span><span>() as </span><span style="color:#b48ead;">*const </span><span>_);
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ntdll_text = </span><span style="color:#96b5b4;">get_module_section</span><span>(ntdll_addr as </span><span style="color:#b48ead;">*mut </span><span>_, </span><span style="color:#b48ead;">b</span><span>&quot;</span><span style="color:#a3be8c;">.text</span><span>&quot;);
+</span><span>        </span><span style="color:#b48ead;">if</span><span> ntdll_text.</span><span style="color:#96b5b4;">is_none</span><span>() {
+</span><span>            </span><span style="color:#b48ead;">break</span><span>;
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">let</span><span> ntdll_text = ntdll_text.</span><span style="color:#96b5b4;">unwrap</span><span>();
+</span><span>        </span><span style="color:#65737e;">// Get the TLS entry for the current module and remove it from the list
+</span><span>        </span><span style="color:#b48ead;">if let </span><span>Some(window) = ntdll_text
+</span><span>            .</span><span style="color:#96b5b4;">windows</span><span>(</span><span style="color:#d08770;">LDRP_RELEASE_TLS_ENTRY_SIGNATURE_BYTES</span><span>.</span><span style="color:#96b5b4;">len</span><span>())
+</span><span>            .</span><span style="color:#96b5b4;">find</span><span>(|&amp;</span><span style="color:#bf616a;">window</span><span>| window == </span><span style="color:#d08770;">LDRP_RELEASE_TLS_ENTRY_SIGNATURE_BYTES</span><span>)
+</span><span>        {
+</span><span>            </span><span style="color:#65737e;">// Get this window&#39;s pointer. It will land us in the middle of this function though
+</span><span>            </span><span style="color:#b48ead;">let mut</span><span> ptr = window.</span><span style="color:#96b5b4;">as_ptr</span><span>();
+</span><span>            </span><span style="color:#65737e;">// Walk backwards until we find the prologue. Pray this function retains padding
+</span><span>            </span><span style="color:#b48ead;">loop </span><span>{
+</span><span>                </span><span style="color:#b48ead;">if </span><span>*ptr.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">1</span><span>) == </span><span style="color:#d08770;">0xcc </span><span>&amp;&amp; *ptr.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">2</span><span>) == </span><span style="color:#d08770;">0xcc </span><span>{
+</span><span>                    </span><span style="color:#b48ead;">break</span><span>;
+</span><span>                }
+</span><span>                ptr = ptr.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">1</span><span>);
+</span><span>            }
+</span><span>
+</span><span>            #[</span><span style="color:#bf616a;">allow</span><span>(non_snake_case)]
+</span><span>            </span><span style="color:#b48ead;">let</span><span> LdrpReleaseTlsEntry: LdrpReleaseTlsEntryFn = core::mem::transmute(ptr);
+</span><span>
+</span><span>            LdrpReleaseTlsEntry(module_info, core::ptr::null_mut());
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">if let </span><span>Some(window) = ntdll_text
+</span><span>            .</span><span style="color:#96b5b4;">windows</span><span>(</span><span style="color:#d08770;">LDRP_HANDLE_TLS_DATA_SIGNATURE_BYTES</span><span>.</span><span style="color:#96b5b4;">len</span><span>())
+</span><span>            .</span><span style="color:#96b5b4;">find</span><span>(|&amp;</span><span style="color:#bf616a;">window</span><span>| window == </span><span style="color:#d08770;">LDRP_HANDLE_TLS_DATA_SIGNATURE_BYTES</span><span>)
+</span><span>        {
+</span><span>            </span><span style="color:#65737e;">// Get this window&#39;s pointer. It will land us in the middle of this function though
+</span><span>            </span><span style="color:#b48ead;">let mut</span><span> ptr = window.</span><span style="color:#96b5b4;">as_ptr</span><span>();
+</span><span>            </span><span style="color:#65737e;">// Walk backwards until we find the prologue. Pray this function retains padding
+</span><span>            </span><span style="color:#b48ead;">loop </span><span>{
+</span><span>                </span><span style="color:#b48ead;">if </span><span>*ptr.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">1</span><span>) == </span><span style="color:#d08770;">0xcc </span><span>&amp;&amp; *ptr.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">2</span><span>) == </span><span style="color:#d08770;">0xcc </span><span>{
+</span><span>                    </span><span style="color:#b48ead;">break</span><span>;
+</span><span>                }
+</span><span>                ptr = ptr.</span><span style="color:#96b5b4;">offset</span><span>(-</span><span style="color:#d08770;">1</span><span>);
+</span><span>            }
+</span><span>
+</span><span>            #[</span><span style="color:#bf616a;">allow</span><span>(non_snake_case)]
+</span><span>            </span><span style="color:#b48ead;">let</span><span> LdrpHandleTlsData: LdrpHandleTlsDataFn = core::mem::transmute(ptr);
+</span><span>
+</span><span>            LdrpHandleTlsData(module_info);
+</span><span>        }
+</span><span>        </span><span style="color:#b48ead;">break</span><span>;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h3 id="patching-command-line-args"><a class="zola-anchor" href="#patching-command-line-args" aria-label="Anchor link for: patching-command-line-args"
+    >#</a
+>
+Patching Command-Line Args</h3>
+<p>This has been done by other PE loaders, but I wanted to call this out as well: while the PEB contains the image name and process arugments, so does <code>kernelbase.dll</code>! Why? For <code>GetCommandLineW</code> and <code>GetCommandLineA</code> of course.</p>
+<p>This one wasn't <em>too</em> bad to patch so long as you want to rely on the fact that the <code>UNICODE_STRING</code> structure for the PEB and in <code>kernelbase.dll</code> share the same backing buffer (i.e. the latter is a shallow copy of the former). That also doesn't account for the <code>ANSI_STRING</code> variant... but 🤷‍♂️</p>
+<p>tl;dr of the following code: we scan the global memory of <code>kernelbase.dll</code> looking for the previously mentioned <code>UNICODE_STRING</code> buffer pointer we obtained from the PEB then, once found, update its pointer and length to match our new pointer and length.</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub unsafe fn </span><span style="color:#8fa1b3;">patch_cli_args</span><span>(</span><span style="color:#bf616a;">args</span><span>: Option&lt;&amp;[</span><span style="color:#b48ead;">u16</span><span>]&gt;, </span><span style="color:#bf616a;">kernelbase_ptr</span><span>: </span><span style="color:#b48ead;">*mut u8</span><span>) {
+</span><span>    </span><span style="color:#b48ead;">if let </span><span>Some(args) = args {
+</span><span>        </span><span style="color:#b48ead;">let</span><span> peb = (*</span><span style="color:#96b5b4;">teb</span><span>()).ProcessEnvironmentBlock;
+</span><span>        </span><span style="color:#65737e;">// This buffer pointer should match the cached UNICODE_STRING in kernelbase
+</span><span>        </span><span style="color:#b48ead;">let</span><span> buffer = (*(*peb).ProcessParameters).CommandLine.Buffer;
+</span><span>
+</span><span>        </span><span style="color:#65737e;">// Search this pointer in kernel32&#39;s .data section
+</span><span>        </span><span style="color:#b48ead;">if let </span><span>Some(kernelbase_data) = </span><span style="color:#96b5b4;">get_module_section</span><span>(kernelbase_ptr, </span><span style="color:#b48ead;">b</span><span>&quot;</span><span style="color:#a3be8c;">.data</span><span>&quot;) {
+</span><span>            </span><span style="color:#b48ead;">let</span><span> ptr = kernelbase_data.</span><span style="color:#96b5b4;">as_mut_ptr</span><span>();
+</span><span>            </span><span style="color:#b48ead;">let</span><span> len = kernelbase_data.</span><span style="color:#96b5b4;">len</span><span>() / </span><span style="color:#d08770;">2</span><span>;
+</span><span>            </span><span style="color:#65737e;">// Do not have two mutable references to the same memory range
+</span><span>
+</span><span>            </span><span style="color:#b48ead;">let</span><span> data_as_wordsize = core::slice::from_raw_parts(ptr as </span><span style="color:#b48ead;">*const usize</span><span>, len);
+</span><span>            </span><span style="color:#b48ead;">if let </span><span>Some(found) = data_as_wordsize
+</span><span>                .</span><span style="color:#96b5b4;">iter</span><span>()
+</span><span>                .</span><span style="color:#96b5b4;">position</span><span>(|</span><span style="color:#bf616a;">ptr</span><span>| *ptr == buffer as </span><span style="color:#b48ead;">usize</span><span>)
+</span><span>            {
+</span><span>                </span><span style="color:#65737e;">// We originally found this while scanning usize-sized data, so we have to translate
+</span><span>                </span><span style="color:#65737e;">// this to a byte index
+</span><span>                </span><span style="color:#b48ead;">let</span><span> found_buffer_byte_pos = found * core::mem::size_of::&lt;</span><span style="color:#b48ead;">usize</span><span>&gt;();
+</span><span>                </span><span style="color:#65737e;">// Get the start of the unicode string
+</span><span>                </span><span style="color:#b48ead;">let</span><span> unicode_str_start =
+</span><span>                    found_buffer_byte_pos - core::mem::offset_of!(</span><span style="color:#d08770;">UNICODE_STRING</span><span>, Buffer);
+</span><span>                </span><span style="color:#b48ead;">let</span><span> unicode_str = core::mem::transmute::&lt;_, &amp;</span><span style="color:#b48ead;">mut</span><span> UNICODE_STRING&gt;(
+</span><span>                    ptr.</span><span style="color:#96b5b4;">offset</span><span>(unicode_str_start as </span><span style="color:#b48ead;">isize</span><span>),
+</span><span>                );
+</span><span>
+</span><span>                </span><span style="color:#b48ead;">let</span><span> args_byte_len = args.</span><span style="color:#96b5b4;">len</span><span>() * core::mem::size_of::&lt;</span><span style="color:#b48ead;">u16</span><span>&gt;();
+</span><span>                unicode_str.Buffer = args.</span><span style="color:#96b5b4;">as_ptr</span><span>() as </span><span style="color:#b48ead;">*mut </span><span>_;
+</span><span>                unicode_str.Length = args_byte_len as </span><span style="color:#b48ead;">u16</span><span>;
+</span><span>                unicode_str.MaximumLength = args_byte_len as </span><span style="color:#b48ead;">u16</span><span>;
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h3 id="preventing-hijacked-application-crashes"><a class="zola-anchor" href="#preventing-hijacked-application-crashes" aria-label="Anchor link for: preventing-hijacked-application-crashes"
+    >#</a
+>
+Preventing Hijacked Application Crashes</h3>
+<p>I thought a great idea to prevent the hijacked application from crashing by suspending all of its threads. I was surprised to learn that not only was this fairly easy to do on Windows, it was <em>even</em> easier to accidentally do this from a non-admin session for all other Medium-IL processes!</p>
+<p><a href="/img/pe-loader/thread_suspension.png"><img src="/img/pe-loader/thread_suspension.png" alt="Tweet by @landaire with text, &quot;it has been 0 minutes since I last accidentally suspended all medium-IL threads on my system&quot;" /></a></p>
+<p><em>Yeah, don't call <code>CreateToolhelp32Snapshot()</code> incorrectly</em>.</p>
+<p>The Windows examples were fairly straightforward but on Xbox the code crashed. And that's because the <code>kernel32_ptr</code> here actually needs to be a pointer to <code>kernel32legacy.dll</code> since on Xbox <code>kernel32.dll</code> doesn't exist.</p>
+<p>That took me a while to figure out and hunt down and double-check where the functions got relocated to.</p>
+<p>Here is the code I eventually came up with:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub unsafe fn </span><span style="color:#8fa1b3;">suspend_threads</span><span>(</span><span style="color:#bf616a;">kernel32_ptr</span><span>: PVOID, </span><span style="color:#bf616a;">kernelbase_ptr</span><span>: PVOID) {
+</span><span>    </span><span style="color:#65737e;">// kernel32legacy.dll on xbox
+</span><span>    </span><span style="color:#b48ead;">let</span><span> CreateToolhelp32Snapshot = </span><span style="color:#96b5b4;">fetch_create_tool_help32</span><span>(kernel32_ptr);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> Thread32Next = </span><span style="color:#96b5b4;">fetch_thread_32_next</span><span>(kernel32_ptr);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> Thread32First = </span><span style="color:#96b5b4;">fetch_thread_32_first</span><span>(kernel32_ptr);
+</span><span>
+</span><span>    </span><span style="color:#65737e;">// kernelbase.dll on xbox
+</span><span>    </span><span style="color:#b48ead;">let</span><span> GetCurrentThreadId = </span><span style="color:#96b5b4;">fetch_get_current_thread_id</span><span>(kernelbase_ptr);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> GetCurrentProcessId = </span><span style="color:#96b5b4;">fetch_get_current_process_id</span><span>(kernelbase_ptr);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> OpenThread = </span><span style="color:#96b5b4;">fetch_open_thread</span><span>(kernelbase_ptr);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> SuspendThread = </span><span style="color:#96b5b4;">fetch_suspend_thread</span><span>(kernelbase_ptr);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> CloseHandle = </span><span style="color:#96b5b4;">fetch_close_handle</span><span>(kernelbase_ptr);
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">let</span><span> pid = GetCurrentProcessId();
+</span><span>    </span><span style="color:#65737e;">// Suspend all other threads except this one
+</span><span>    </span><span style="color:#b48ead;">let</span><span> h = CreateToolhelp32Snapshot(</span><span style="color:#d08770;">TH32CS_SNAPTHREAD</span><span>, pid);
+</span><span>    </span><span style="color:#b48ead;">let</span><span> current_thread = GetCurrentThreadId();
+</span><span>    </span><span style="color:#b48ead;">let mut</span><span> te: </span><span style="color:#d08770;">THREADENTRY32 </span><span>= core::mem::zeroed();
+</span><span>    te.dwSize = core::mem::size_of_val(&amp;te) as </span><span style="color:#b48ead;">u32</span><span>;
+</span><span>    </span><span style="color:#b48ead;">if</span><span> Thread32First(h, &amp;</span><span style="color:#b48ead;">mut</span><span> te as </span><span style="color:#b48ead;">*mut </span><span>_) != </span><span style="color:#d08770;">0 </span><span>{
+</span><span>        </span><span style="color:#b48ead;">loop </span><span>{
+</span><span>            </span><span style="color:#b48ead;">if</span><span> te.dwSize as </span><span style="color:#b48ead;">usize
+</span><span>                &gt;= offset_of!(</span><span style="color:#d08770;">THREADENTRY32</span><span>, th32OwnerProcessID)
+</span><span>                    + core::mem::size_of_val(&amp;te.th32OwnerProcessID)
+</span><span>                &amp;&amp; te.th32OwnerProcessID == pid
+</span><span>                &amp;&amp; current_thread != te.th32ThreadID
+</span><span>            {
+</span><span>                </span><span style="color:#b48ead;">let</span><span> thread_handle = OpenThread(</span><span style="color:#d08770;">THREAD_SUSPEND_RESUME</span><span>, </span><span style="color:#d08770;">false</span><span>, te.th32ThreadID);
+</span><span>                SuspendThread(thread_handle);
+</span><span>            }
+</span><span>            </span><span style="color:#b48ead;">if</span><span> Thread32Next(h, &amp;</span><span style="color:#b48ead;">mut</span><span> te as </span><span style="color:#b48ead;">*mut </span><span>_) == </span><span style="color:#d08770;">0 </span><span>{
+</span><span>                </span><span style="color:#b48ead;">break</span><span>;
+</span><span>            }
+</span><span>            te.dwSize = core::mem::size_of_val(&amp;te) as </span><span style="color:#b48ead;">u32</span><span>;
+</span><span>        }
+</span><span>    }
+</span><span>
+</span><span>    CloseHandle(h);
+</span><span>}
+</span></code></pre>
+<h2 id="todo"><a class="zola-anchor" href="#todo" aria-label="Anchor link for: todo"
+    >#</a
+>
+TODO</h2>
+<p>There are still some remaining items for the loader:</p>
+<ul>
+<li>Ensure that <code>GetModuleHandle(NULL)</code> (handle to self) works correctly.</li>
+<li>Maybe load .NET binaries? We already have a technique for launching .NET code, but having an all-in-one solution might be nice.</li>
+<li>Maybe make this a generic crate?</li>
+</ul>
+<h2 id="fin"><a class="zola-anchor" href="#fin" aria-label="Anchor link for: fin"
+    >#</a
+>
+fin</h2>
+<p>This was a fun exercise that taught me a lot about how Windows binaries are loaded. I'd like to thank carrot_c4k3, tuxuser, and 0e9ca321209eca529d6988c276e4e4ed for their help/support.</p>
+<p>With this work, we're now able to do cool things on Xbox!</p>
+<p>For example, using the PE loader we can launch the main GameScript exploit, launch Emma's Windows exploit binary to elevate privileges, spawn a new process as suspended, inject our shellcode/PE loader, and execute a custom SSH/SFTP daemon which uses tokio for async. I think I accomplished my goal of loading complex applications :)</p>
+<video controls style="max-width: 720px; display: block; margin: 0 auto;">
+    <source src="&#x2F;img&#x2F;pe-loader&#x2F;xbox_hacks.mp4" type="video/mp4" />
+</video>
+<p><em>The top terminal session is the payload server running on my PC, while the bottom netcat session is the output from the exploit and SSH daemon running on my Xbox.</em></p>
+<p>tuxuser even managed to get toasts working!</p>
+<p><a href="/img/pe-loader/collat_achievement.webp"><img src="/img/pe-loader/collat_achievement.webp" alt="Collateral Damage Executed Achievement" /></a></p>
+
+</main>
+<p>
+</p>
+<footer>
+</footer>
+</body>
+</html>

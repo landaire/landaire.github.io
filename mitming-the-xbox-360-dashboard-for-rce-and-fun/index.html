@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MITMing the Xbox 360 Dashboard for Fun and RCE | lander&#x27;s posts</title>
+  <meta name="title" content="MITMing the Xbox 360 Dashboard for Fun and RCE" />
+<meta name="twitter:title" content="MITMing the Xbox 360 Dashboard for Fun and RCE" />
+<meta name="og:twitter:title" content="MITMing the Xbox 360 Dashboard for Fun and RCE" />
+<meta name="description"
+    content="The golden era of man-in-the-middle attacks" />
+<meta name="og:description"
+    content="The golden era of man-in-the-middle attacks" />
+<meta name="twitter:description"
+    content="The golden era of man-in-the-middle attacks" />
+
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content=" 2024-07-30T00:00:00+00:00">
+
+
+<meta name="twitter:card" content="summary_large_image">
+<meta property=" twitter:image" content="https://landaire.net/img/xbox-dashboard/epix-mirrored.jpg" />
+<meta property="og:image" content="https://landaire.net/img/xbox-dashboard/epix-mirrored.jpg" />
+<meta property="og:image:height" content="480" />
+<meta property="og:image:width" content="720" />
+<meta name="twitter:card" content="summary">
+
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  <link rel="alternate" type="application/atom+xml" title="lander&#x27;s posts" href="https://landaire.net/atom.xml">
+      
+  <style>@font-face {
+font-family: 'BerkeleyMono';
+src: url('/font/BerkeleyMono-Regular.woff2') format('woff2'),
+url('/font/BerkeleyMono-Regular.woff') format('woff');
+}
+
+/* Expando */
+.wrap-collabsible {
+margin-bottom: 1.2rem 0;
+}
+
+input[type='checkbox'] {
+display: none;
+}
+
+.lbl-toggle {
+display: block;
+
+font-weight: bold;
+font-family: monospace;
+font-size: 1.2rem;
+text-transform: uppercase;
+text-align: center;
+
+padding: 1rem;
+
+color: #ccc;
+background: #226999;/*#5B99C2;*/
+
+cursor: pointer;
+
+border-radius: 7px;
+transition: all 0.25s ease-out;
+}
+
+.lbl-toggle:hover {
+color: #0B2033;/*#1A4870;*/
+}
+
+.lbl-toggle::before {
+content: ' ';
+display: inline-block;
+
+border-top: 5px solid transparent;
+border-bottom: 5px solid transparent;
+border-left: 5px solid currentColor;
+vertical-align: middle;
+margin-right: .7rem;
+transform: translateY(-2px);
+
+transition: transform .2s ease-out;
+}
+
+.toggle:checked + .lbl-toggle::before {
+transform: rotate(90deg) translateX(-3px);
+}
+
+.collapsible-content {
+max-height: 0px;
+overflow: hidden;
+transition: max-height .25s ease-in-out;
+}
+
+.toggle:checked + .lbl-toggle + .collapsible-content {
+max-height: 1000vh;
+}
+
+.toggle:checked + .lbl-toggle {
+border-bottom-right-radius: 0;
+border-bottom-left-radius: 0;
+}
+
+.collapsible-content .content-inner {
+background: rgba(26, 72, 112, .2);
+border-bottom: 1px solid rgb(31, 49, 111, .45);
+border-bottom-left-radius: 7px;
+border-bottom-right-radius: 7px;
+padding: .5rem 1rem;
+}
+
+
+body {
+font-family: Verdana, sans-serif;
+margin: auto;
+padding: 20px;
+max-width: 900px;
+text-align: left;
+background-color: #fff;
+word-wrap: break-word;
+overflow-wrap: break-word;
+line-height: 1.5;
+color: #444;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+color: #222;
+}
+
+a {
+color: #3273dc;
+}
+
+.title {
+text-decoration: none;
+border: 0;
+}
+
+.title span {
+font-weight: 400;
+}
+
+nav a {
+margin-right: 10px;
+}
+
+textarea {
+width: 100%;
+font-size: 1rem;
+}
+
+input {
+font-size: 1rem;
+}
+
+main,article {
+line-height: 1.6;
+}
+
+table {
+width: 100%;
+}
+
+img {
+max-width: 100%;
+}
+
+main img {
+display:block;
+margin-left:auto;
+margin-right:auto;
+}
+
+code {
+padding: 2px 5px;
+background-color: #f2f2f2;
+}
+
+pre code {
+color: #222;
+display: block;
+padding: 20px;
+/*white-space: pre-wrap;*/
+font-size: 0.875rem;
+overflow-x: auto;
+}
+
+div.highlight pre {
+background-color: initial;
+color: initial;
+}
+
+div.highlight code {
+background-color: unset;
+color: unset;
+}
+
+blockquote {
+border-left: 1px solid #999;
+color: #222;
+padding-left: 20px;
+font-style: italic;
+}
+
+footer {
+padding: 25px;
+text-align: center;
+}
+
+.helptext {
+color: #222;
+font-size: small;
+}
+
+.errorlist {
+color: #eba613;
+font-size: small;
+}
+
+/* blog posts */
+ul.blog-posts {
+list-style-type: none;
+padding: unset;
+}
+
+ul.blog-posts li {
+display: flex;
+}
+
+ul.blog-posts li span {
+flex: 0 0 130px;
+}
+
+ul.blog-posts li a:visited {
+color: #8b6fcb;
+}
+
+@media (prefers-color-scheme: dark) {
+body {
+background-color: #333;
+color: #ddd;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+color: #eee;
+}
+
+a {
+color: #8cc2dd;
+}
+
+code {
+background-color: #222;
+}
+
+pre code {
+color: /*#ffb000;*/ #ddd;
+}
+
+blockquote {
+color: #ccc;
+}
+
+textarea,
+input {
+background-color: #252525;
+color: #ddd;
+}
+
+.helptext {
+color: #aaa;
+}
+}
+
+.header-block-inline {
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.header-block img {
+margin: auto;
+display: block;
+}
+
+.header-img {
+margin-right: 1rem ;
+}
+
+/*
+@media (min-width: 1200px) {
+pre {
+width: 1080px;
+position: relative;
+left: calc(-540px + 50%);
+}
+}
+
+*/
+
+pre {
+text-align: center;
+background-color: transparent !important;
+}
+
+pre code {
+/*display: inline-block;*/
+text-align: left;
+}
+
+
+/*
+pre code {
+width: 120em;
+position: relative;
+left: calc(-60em + 50%);
+}
+*/
+
+pre, pre * {
+font-family: 'BerkeleyMono', monospace;
+font-variant-ligatures: none;
+}
+
+pre {
+max-height: 100vh;
+overflow: -moz-scrollbars-vertical;
+overflow-y: scroll;
+overflow-x: auto;
+}
+
+
+/*.zola-anchor {
+  color: inherit;
+  opacity: 0;
+  margin-left: 0.4em;
+  transition: opacity 0.2s;
+}*/
+
+.zola-anchor {
+  text-decoration: none;
+  color: var(--accent-color, #0077cc);
+}
+</style>
+  </head>
+<body>
+  <header>
+  <a href="https:&#x2F;&#x2F;landaire.net" class="title">
+    <h2>lander&#x27;s posts</h2>
+  </a>
+  <nav>
+    
+
+  </nav>
+</header>
+
+
+<div class="header-block-inline">
+  
+  <a href="&#x2F;img&#x2F;xbox-dashboard&#x2F;epix-mirrored.jpg" class="header-img"><img src="https:&#x2F;&#x2F;landaire.net&#x2F;processed_images&#x2F;epix-mirrored.8c9394396fbe3456.jpg" /></a>
+  
+
+  <hgroup>
+    <h1>MITMing the Xbox 360 Dashboard for Fun and RCE</h1>
+    <p><em>The golden era of man-in-the-middle attacks</em></p>
+  </hgroup>
+
+</div>
+<p>
+  <i>
+    <time datetime=' 2024-07-30T00:00:00+00:00' pubdate>30 Jul, 2024</time>
+  </i>
+</p>
+<hr>
+<main>
+  
+  <p>In the late 2000s and early 2010s my friends and I were living and breathing Xbox hacking. We were heavily interested in game betas, internal tools, and in general exploring everything the console had to offer.</p>
+<p>In 2010 -- or maybe 2011? the dates are getting blurry to me -- my friend Emma (<a href="https://twitter.com/carrot_c4k3">@carrot_c4k3</a>) was reverse engineering how the Xbox 360 dashboard worked in order to get Hulu Plus on her retail console (there are a lot more details here missing, but that's the <em>why</em>).</p>
+<p>Somewhere along the way she discovered that there were different URLs and paths which served different "dashboard channels". A normal console would load the following endpoint as the root manifest for content:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>http://epix.xbox.com/epix/en-US/homepage.xml
+</span></code></pre>
+<p>And alternate channels for beta audiences existed at URLs like:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>http://epix.xbox.com/beta/preview_green/epix/en-US/homepage.xml
+</span><span>http://epix.xbox.com/beta/takehome_green/epix/en-US/homepage.xml
+</span></code></pre>
+<p>These manifest files contain the metadata for dynamic marketplace slots and channels that were used to serve ads:</p>
+<pre data-lang="xml" style="background-color:#2b303b;color:#c0c5ce;" class="language-xml "><code class="language-xml" data-lang="xml"><span>&lt;</span><span style="color:#bf616a;">channel</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#bf616a;">id</span><span>&gt;XBOX360&lt;/</span><span style="color:#bf616a;">id</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#bf616a;">definitionpath</span><span>&gt;epix://xbox360channel.xml&lt;/</span><span style="color:#bf616a;">definitionpath</span><span>&gt;
+</span><span>  &lt;/</span><span style="color:#bf616a;">channel</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#bf616a;">channel</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#bf616a;">id</span><span>&gt;XBOX_PRE_RELEASE&lt;/</span><span style="color:#bf616a;">id</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#bf616a;">channeldef</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#bf616a;">description</span><span>&gt;Xbox Pre-Release&lt;/</span><span style="color:#bf616a;">description</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#bf616a;">type</span><span>&gt;online&lt;/</span><span style="color:#bf616a;">type</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#bf616a;">slot</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">name</span><span>&gt;Marker Scene&lt;/</span><span style="color:#bf616a;">name</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">description</span><span>&gt;Xbox Beta Program&lt;/</span><span style="color:#bf616a;">description</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">description2</span><span>&gt;Preview LIVE update&lt;/</span><span style="color:#bf616a;">description2</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">rating</span><span>&gt;267242991&lt;/</span><span style="color:#bf616a;">rating</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">shallowimg</span><span>&gt;http://epix.xbox.com/shaXam/0201/df/e8/dfe8c92a-84b2-4fbc-8ee3-7af37dee567d.JPG?v=1#Beta_Audiences.JPG&lt;/</span><span style="color:#bf616a;">shallowimg</span><span>&gt;
+</span><span>      &lt;/</span><span style="color:#bf616a;">slot</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#bf616a;">slot</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">name</span><span>&gt;Beta Announcements&lt;/</span><span style="color:#bf616a;">name</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">description</span><span>&gt;Announcements&lt;/</span><span style="color:#bf616a;">description</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">description2</span><span>&gt;Read the latest information&lt;/</span><span style="color:#bf616a;">description2</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">rating</span><span>&gt;267242991&lt;/</span><span style="color:#bf616a;">rating</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">shallowimg</span><span>&gt;http://epix.xbox.com/shaXam/0201/37/6b/376b27a2-635b-4284-8fb4-713be4c98f60.JPG?v=1#Beta_Announcments.JPG&lt;/</span><span style="color:#bf616a;">shallowimg</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">epixid</span><span>&gt;46f2016d-0bd6-4d0b-8cb1-f2a81356b246&lt;/</span><span style="color:#bf616a;">epixid</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">onclick</span><span>&gt;
+</span><span>          &lt;</span><span style="color:#bf616a;">button</span><span>&gt;A&lt;/</span><span style="color:#bf616a;">button</span><span>&gt;
+</span><span>          &lt;</span><span style="color:#bf616a;">helptext</span><span>&gt;Select&lt;/</span><span style="color:#bf616a;">helptext</span><span>&gt;
+</span><span>          &lt;</span><span style="color:#bf616a;">action</span><span>&gt;KeyDown&lt;/</span><span style="color:#bf616a;">action</span><span>&gt;
+</span><span>        &lt;/</span><span style="color:#bf616a;">onclick</span><span>&gt;
+</span><span>      &lt;/</span><span style="color:#bf616a;">slot</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#bf616a;">epix</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">id</span><span>&gt;46f2016d-0bd6-4d0b-8cb1-f2a81356b246&lt;/</span><span style="color:#bf616a;">id</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">format</span><span>&gt;LUAXZP&lt;/</span><span style="color:#bf616a;">format</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">path</span><span>&gt;http://epix.xbox.com/shaXam/0204/79/35/7935844a-91a8-45fe-a9c0-94dfa4d6c053.lzp?v=11#Beta_Announcements.lzp&lt;/</span><span style="color:#bf616a;">path</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#bf616a;">param</span><span>&gt;url=http://live:11/xedl/BetaChannelXml/external/announcements.xml&lt;/</span><span style="color:#bf616a;">param</span><span>&gt;
+</span><span>      &lt;/</span><span style="color:#bf616a;">epix</span><span>&gt;
+</span></code></pre>
+<p>The <code>preview_green</code> URL was for users in the public Xbox LIVE preview, which Emma was a part of and therefore stood out. Through examining the Lua scripts and other manifest files she discovered a reference to <code>epix-preview.xbox.com</code> and tried loading the <code>preview_green</code> path from that domain instead.</p>
+<p>She discovered that the manifest from this domain contained <em>all</em> of the possible dashboard channels that were being tested for the various audiences.</p>
+<p>Emma had just discovered some critical info that <strong>there were other beta dashboard channels</strong>, the content of the channels reflected things that employees would typically only see, and there were multiple variations of beta channels.</p>
+<h2 id="inventing-man-in-the-middle-attacks"><a class="zola-anchor" href="#inventing-man-in-the-middle-attacks" aria-label="Anchor link for: inventing-man-in-the-middle-attacks"
+    >#</a
+>
+Inventing Man-in-the-Middle Attacks</h2>
+<p>A year or two before all of this, Emma and I self-discovered what a <a href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">man-in-the-middle</a> (MITM) attack was in the most janky way possible. I had learned that you could share your ethernet adapter on your PC with your Xbox to tunnel your Xbox's traffic through the PC and frequently used this technique to analyze the plaintext HTTP API calls the Xbox made to the marketplace services.</p>
+<p>I had also learned about what a <a href="https://en.wikipedia.org/wiki/Hosts_(file)"><code>hosts</code> file</a> was, and one day decided to try something wild:</p>
+<p>Redirect the ProdNet (retail) Xbox LIVE marketplace to the PartnerNet (developer) Xbox LIVE marketplace by adding an entry for marketplace.xboxlive.com in my hosts file, pointing at the PartnerNet IP address.</p>
+<p>It didn't work for me for some reason. But Emma tried it and it worked! She was seeing content from the developer network on her retail console.</p>
+<p>We knew how to reverse engineer PowerPC but knew absolutely nothing about networking. At this time we were loosely familiar with the idea of a MITM attack but had no idea how to actually perform one if you control the network. We walked away feeling as if we'd just discovered electricity.</p>
+<h2 id="practical-mitm-attacks"><a class="zola-anchor" href="#practical-mitm-attacks" aria-label="Anchor link for: practical-mitm-attacks"
+    >#</a
+>
+Practical MITM Attacks</h2>
+<p>Being the smart but dumb hackers we were, we decided to try using our hosts file/networking sharing trick on something even <em>crazier</em>:</p>
+<p>We were going to mirror the  <code>http://epix-preview.xbox.com/epix/en-US/homepage.xml</code> manifest and all of its dependencies on our local machine, then set up a web server that served the content.</p>
+<p>Ditto with <code>http://epix.xbox.com/beta/preview_green/epix/en-US/homepage.xml</code> URLs -- we would essentially rewrite the the manifest URL <em>we wanted</em> to be located on disk where the console <em>actually</em> loaded from. e.g. the <code>/beta/preview_green/</code> part of the path was removed and would be located at <code>http://epix.xbox.com/epix/en-US/homepage.xml</code> instead and <code>epix.xbox.com</code> would resolve to <code>127.0.0.1</code>.</p>
+<p>It's worth noting that these files were RSA signed and couldn't be tampered with:</p>
+<p><a href="/img/xbox-dashboard/epix-preview-signature.png"><img src="/img/xbox-dashboard/epix-preview-signature.png" alt="Dashboard manifest header" /></a></p>
+<p>Ditto with the XUI Lua scripts referenced by them (e.g. <code>http://epix.xbox.com/shaXam/0204/79/35/7935844a-91a8-45fe-a9c0-94dfa4d6c053.lzp?v=11#Beta_Announcements.lzp</code>)</p>
+<p>This worked surprisingly well and for a long time we were happily accessing internal Xbox employee dashboards. With a C# utility to automate the work we were mirroring the manifest files every week or so and seeing what was new:</p>
+<p><a href="/img/xbox-dashboard/epix-mirrored.jpg"><img src="/img/xbox-dashboard/epix-mirrored.jpg" alt="Screenshot of the mirrored dashboard channels" /></a></p>
+<p><em>Please ignore Ron Jeremy. I had no idea who he was at the time and had searched for "fat greasy man" with the intention of replacing all images in for the Canadian region (<code>en-CA</code>) with that photo to prank one of our friends in Canada who was using our server. It's unfortunate that this is one of the only clear screenshots of our MITM tricks that survived time.</em></p>
+<h3 id="manifests-from-other-live-environments"><a class="zola-anchor" href="#manifests-from-other-live-environments" aria-label="Anchor link for: manifests-from-other-live-environments"
+    >#</a
+>
+Manifests from Other Live Environments</h3>
+<p>A quick note about the dashboard manifest files: although the Xbox 360 had different signing keys for dev vs retail <em>executables and game content</em>, the dashboard files were signed with a shared key.</p>
+<p>Through leaked internal Xbox 360 dev kit recoveries we were able to access alternate Xbox LIVE environments such as "int2", "vint", and a few others:</p>
+<p><a href="/img/xbox-dashboard/xbox-live-environments.jpg"><img src="/img/xbox-dashboard/xbox-live-environments.jpg" alt="Xbox LIVE environments as seen on the Xbox 360 dev launcher" /></a></p>
+<p><a href="/img/xbox-dashboard/live-environments-folder.png"><img src="/img/xbox-dashboard/live-environments-folder.png" alt="A folder of different Xbox LIVE environment files" /></a></p>
+<p>Emma connected to int2 one day and discovered that the manifest files were set up for testing all of the available Xbox LIVE Gold offers... including Xbox LIVE for $1.</p>
+<p>Since we could use these files on our retail Xboxes, we were able to continuously alternate between the Xbox LIVE Gold for free and Xbox Live Gold for $1 offers to get 1 year of Gold for $6/year.</p>
+<h3 id="what-s-a-preview-tool"><a class="zola-anchor" href="#what-s-a-preview-tool" aria-label="Anchor link for: what-s-a-preview-tool"
+    >#</a
+>
+What's a "Preview Tool"?</h3>
+<p>Eventually on one of the dashboard channels I saw something weird that caught my eye:</p>
+<p><a href="/img/xbox-dashboard/preview-tool-listing.jpg"><img src="/img/xbox-dashboard/preview-tool-listing.jpg" alt="A dashboard channel showing a Native American on a dashboard tile with the text &quot;Xbox LIVE Marketplace Tools&quot;" /></a></p>
+<p>It's really hard to see on this terrible camera phone/CRT photo but the tile says "Xbox LIVE Programming Tools" at the very top. Upon navigating to the card there was an option to download something called "Preview Tool".</p>
+<p>This is a little more clear to see on the app's boxart:</p>
+<p><a href="/img/xbox-dashboard/preview-tool-modern-card.png"><img src="/img/xbox-dashboard/preview-tool-modern-card.png" alt="A dashboard channel showing a Native American on a dashboard tile with the text &quot;Xbox LIVE Marketplace Tools&quot;" /></a></p>
+<p>The file was <em>very</em> small and only displayed a message box asking if you'd like to enable "preview mode":</p>
+<p><a href="/img/xbox-dashboard/preview-tool-message-box.png"><img src="/img/xbox-dashboard/preview-tool-message-box.png" alt="An Xbox message box with options to enable/disable preview mode" /></a></p>
+<p>Upon enabling preview mode we suddenly saw debug information on the dashboard:</p>
+<p><a href="/img/xbox-dashboard/preview-tool-debug.png"><img src="/img/xbox-dashboard/preview-tool-debug.png" alt="The Xbox dashboard with debug text printed out in the corner" /></a></p>
+<p>Again, the text is <em>very</em> hard to see but there is now red text in the top-right corner of the dashboard showing debug output including the frames per second the dashboard is rendering at. We also noticed that Preview Tool <em>on its own</em> could force our console to use the internal dashboard files without having to do the MITM which made life much easier for us.</p>
+<h2 id="arbitrary-code-execution"><a class="zola-anchor" href="#arbitrary-code-execution" aria-label="Anchor link for: arbitrary-code-execution"
+    >#</a
+>
+Arbitrary Code Execution</h2>
+<p>Preview Tool was a unique type of application in that it actually had an expiration date associated with it. You were required to be on Xbox LIVE to launch the app and its revocation/expiration status would be checked by the system.</p>
+<p>Sooner or later our copies of Preview Tool expired. Although we had the means of downloading anything we wanted from the Xbox LIVE marketplace we were too lazy to brute-force the randomized 32-bit ID required to download the newer packages that expired in the future. We had done this for other titles in the past but it was a process that took a couple days when distributed across multiple parties.</p>
+<p><a href="/img/xbox-dashboard/halo4-offer-brute-force.jpg"><img src="/img/xbox-dashboard/halo4-offer-brute-force.jpg" alt="Brute forcing the Halo 4 beta offer ID with Archangel" /></a></p>
+<p><em>Archangel was a utility developed by <a href="https://twitter.com/xenomega9">@xenomga9</a> for brute forcing the Halo 4 beta's offer ID. If you were ever wondering how the "<a href="https://www.youtube.com/watch?v=POconAHU3aE">Halo 4 barn video</a>" came to be, this was it.</em></p>
+<p>Brute forcing just wasn't worth the time and effort though when we were still doing CDN cloning for our friends without Preview Tool. So we just stopped getting Preview Tool and started doing MITM again.</p>
+<p>We didn't realize how powerful Preview Tool was until our copies had expired. At some point I wanted to know how Preview Tool had been forcing the console to use internal dashboard channels, so I opened it up in IDA and noticed a call to an API I'd never seen before named <code>XamSetStagingMode</code>.</p>
+<p><a href="/img/xbox-dashboard/xam-set-staging-mode-call.png"><img src="/img/xbox-dashboard/xam-set-staging-mode-call.png" alt="XamSetStagingMode function call" /></a></p>
+<p>And the <code>XamSetStagingMode</code> API just sets some global:</p>
+<p><a href="/img/xbox-dashboard/xam-set-staging-mode.png"><img src="/img/xbox-dashboard/xam-set-staging-mode.png" alt="XamSetStagingMode function disassembly" /></a></p>
+<p>Ok... so who uses this global?</p>
+<p><a href="/img/xbox-dashboard/staging-mode-references.png"><img src="/img/xbox-dashboard/staging-mode-references.png" alt="System staging mode global references" /></a></p>
+<p>Interesting! <code>XamVerifyXSignerSignature</code> is used for verifying certain things which aren't checked by the hypervisor, like the dashboard manifest files and their Lua scripts. Checking how this is used:</p>
+<p><a href="/img/xbox-dashboard/staging-mode-check.png"><img src="/img/xbox-dashboard/staging-mode-check.png" alt="XamVerifyXSignerSignature diassembly" /></a></p>
+<p>Not shown in the above screenshot, but if staging mode is enabled and the file signature isn't valid the console will debug print the following string:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>XamVerifyXSignerSignature: Signature not trusted, but ok since we&#39;re in staging mode or on a devkit
+</span></code></pre>
+<p>i.e. <code>XamSetStagingMode()</code>, and therefore Preview Tool, disables all signature checks of dashboard contents. <em>Correction: <code>XamVerifyXSignerSignature</code> will allow unsigned content if the caller provides a certain flag indicating they want to allow untrusted signatures in devkit/staging mode. Back when we originally discovered Preview Tool, the dashboard provided this flag but does not appear to anymore.</em></p>
+<p>This doesn't actually answer the question though of how the alternate dashboard channels were being used.</p>
+<p>Although I never looked into it fully, I believe the dashboard or another component called <code>XamGetStagingMode()</code> and used a different value for the epix CDN/path. There also exists a "Live Hive" which is a key-value store used for dynamically configuring Xbox LIVE settings:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>CatalogCDNUriPort=80
+</span><span>CatalogCDNUriRoot=http://catalog.vint.xboxlive.com
+</span><span>CatalogUriPort=80
+</span><span>CatalogUriRoot=http://catalog.vint.xboxlive.com
+</span><span>CloudStorageStatus=1
+</span><span>CommunityGamesTrialExpirationInSeconds=480
+</span><span>ContractManagerUriRoot=http://contractfd.test.xboxlive.com/v2
+</span></code></pre>
+<p>I'm almost positive one of these settings was overwritten by Preview Tool (or something else) to point at a different base URL for epix.</p>
+<p>Although this is a bit anticlimactic, we barely even bothered to use this newfound knowledge of disabling signature checks since we had dev kits and could run our own <em>native</em> code anyways. This only gave us arbitrary Lua scripting capabilities.</p>
+<p>It also meant we'd have to grab Preview Tool versions that weren't expired every now and then, which we were too lazy to do. But it was nice to know that if we wanted to, we now knew how to control scripts on the dashboard.</p>
+<p>In the end what we got from this entire effort was access to Xbox employee-only game betas, tools, and interesting insight into how the dashboard worked.</p>
+<p>You can download some of the interesting manifest files I had saved on an old HDD <a href="https://archive.org/details/epix-playground-manifests">on Archive.org</a>. Unfortunately I did not mirror the Lua scripts and <code>epix-preview.xbox.com</code> has since been killed off by Microsoft -- but that's a story for another day :)</p>
+
+</main>
+<p>
+</p>
+<footer>
+</footer>
+</body>
+</html>
