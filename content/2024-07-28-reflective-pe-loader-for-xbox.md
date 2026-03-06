@@ -6,6 +6,9 @@ template = "toc_page.html"
 toc = true
 date = "2024-08-13"
 
+[taxonomies]
+tags = ["re", "security", "xbox"]
+
 [extra]
 #image = "/img/wows-obfuscation/header.png"
 #image_width =  250
@@ -59,7 +62,7 @@ This is a very, very simplified drawing of what you'd find on Microsoft's [Hyper
 
 Each VM is running a very slimmed down version of Windows based on Windows Core OS (WCOS). The Hyper-V architecture is mostly what you'd encounter on a normal PC but with some additional Xbox-specific VSPs/functionality.
 
-Missing from the above diagram is the _security processor_ (SP). The Xbox One's security processor should be the only thing on the Xbox which can reveal a title's plaintext on Xbox One. (*Random fact: Microsoft's [Pluton Processor](https://learn.microsoft.com/en-us/windows/security/hardware-security/pluton/microsoft-pluton-security-processor) is based on learnings from the Xbox One's security processor*)
+Missing from the above diagram is the _security processor_ (SP). The Xbox One's security processor should be the only thing on the Xbox which can reveal a title's plaintext on Xbox One. (_Random fact: Microsoft's [Pluton Processor](https://learn.microsoft.com/en-us/windows/security/hardware-security/pluton/microsoft-pluton-security-processor) is based on learnings from the Xbox One's security processor_)
 
 The core idea behind all of this is to **make piracy extremely difficult**, if not impossible without breaking the SP. If you _do_ hack the Xbox One, you can't do it online trivially because the SP will attest that the console's state is something unexpected.
 
@@ -67,7 +70,7 @@ The core idea behind all of this is to **make piracy extremely difficult**, if n
 
 Unrelated to her pwn2own entry, Emma found a vulnerability/feature in an application on the Xbox One marketplace called _GameScript_, which is an ImGui UI for messing with the [Ape programming language](https://github.com/kgabis/ape).
 
-[Through this vulnerability](https://gist.github.com/carrot-c4k3/10fdb4f3d11ca568f5452bbaefdc20dd) Emma was able to read/write arbitrary memory and run shellcode. So we have arbitrary code execution in SystemOS, but now the problem: writing shellcode is a pain, so how can we run arbitrary *executables* easily?
+[Through this vulnerability](https://gist.github.com/carrot-c4k3/10fdb4f3d11ca568f5452bbaefdc20dd) Emma was able to read/write arbitrary memory and run shellcode. So we have arbitrary code execution in SystemOS, but now the problem: writing shellcode is a pain, so how can we run arbitrary _executables_ easily?
 
 We have the ability to read/write arbitrary memory and change page permissions which is enough to write a portable executable (PE/.exe) loader. Emma asked if I would write one since it would simplify the exploit development pipeline while she worked on porting her LPE exploit over and it'll be useful for homebrew later on too. Easy enough right?
 
@@ -790,7 +793,7 @@ For example, using the PE loader we can launch the main GameScript exploit, laun
 
 {{ video(path="/img/pe-loader/xbox_hacks.mp4") }}
 
-*The top terminal session is the payload server running on my PC, while the bottom netcat session is the output from the exploit and SSH daemon running on my Xbox.*
+_The top terminal session is the payload server running on my PC, while the bottom netcat session is the output from the exploit and SSH daemon running on my Xbox._
 
 tuxuser even managed to get toasts working!
 

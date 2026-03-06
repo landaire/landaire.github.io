@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 440" font-family="ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="13">
+  <defs>
+    <!-- Scanline pattern -->
+    <pattern id="scanlines" patternUnits="userSpaceOnUse" width="720" height="2">
+      <rect width="720" height="1" fill="transparent"/>
+      <rect y="1" width="720" height="1" fill="rgba(0,0,0,0.06)"/>
+    </pattern>
+    <!-- CRT screen vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.3)"/>
+    </radialGradient>
+    <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4ac2e8"/>
+    </marker>
+    <marker id="ah-dim" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2a7a9a"/>
+    </marker>
+  </defs>
+
+  <!-- CRT housing / bezel -->
+  <rect width="720" height="440" rx="16" fill="#080c12"/>
+  <!-- Screen area -->
+  <rect x="6" y="6" width="708" height="428" rx="12" fill="#040810" stroke="#0a2a3a" stroke-width="1"/>
+  <!-- Scanlines overlay -->
+  <rect x="6" y="6" width="708" height="428" rx="12" fill="url(#scanlines)"/>
+
+  <!-- Disk offset label -->
+  <line x1="22" y1="24" x2="22" y2="268" stroke="#1a5a7a" stroke-width="1" stroke-dasharray="3,4"/>
+  <polygon points="22,274 19,266 25,266" fill="#1a5a7a"/>
+  <text transform="rotate(-90, 18, 155)" x="18" y="155" text-anchor="middle" fill="#2a7a9a" font-size="9" letter-spacing="1.5">DISK OFFSET</text>
+
+  <!-- File Table -->
+  <rect x="38" y="22" width="644" height="44" rx="3" fill="none" stroke="#1a6a8a" stroke-width="1.2"/>
+  <text x="360" y="50" text-anchor="middle" fill="#4ac2e8" font-weight="700" font-size="14">FILE TABLE</text>
+
+  <!-- Headers row -->
+  <rect x="38" y="74" width="310" height="34" rx="3" fill="none" stroke="#1a5a7a" stroke-width="1"/>
+  <text x="193" y="96" text-anchor="middle" fill="#3a9aba" font-weight="600" font-size="11">Core.u Header</text>
+
+  <rect x="356" y="74" width="326" height="34" rx="3" fill="none" stroke="#1a5a7a" stroke-width="1"/>
+  <text x="519" y="96" text-anchor="middle" fill="#3a9aba" font-weight="600" font-size="11">Engine.u Header</text>
+
+  <!-- Interleaved region border -->
+  <rect x="38" y="118" width="644" height="146" rx="3" fill="none" stroke="#0e3a4e" stroke-width="1" stroke-dasharray="5,4"/>
+  <text x="360" y="134" text-anchor="middle" fill="#1a5a7a" font-size="9" font-style="italic" letter-spacing="0.5">INTERLEAVED EXPORT DATA</text>
+
+  <!-- Step 1: GameEngine Object Start -->
+  <rect x="48" y="144" width="168" height="42" rx="3" fill="rgba(10,60,100,0.4)" stroke="#2a8ac8" stroke-width="1.2"/>
+  <text x="132" y="162" text-anchor="middle" fill="#5ac8f8" font-size="11" font-weight="700">GameEngine</text>
+  <text x="132" y="176" text-anchor="middle" fill="#3a9aba" font-size="9">Object Start</text>
+  <circle cx="58" cy="148" r="8" fill="rgba(42,138,200,0.25)" stroke="#2a8ac8" stroke-width="1"/>
+  <text x="58" y="152" text-anchor="middle" fill="#5ac8f8" font-size="9" font-weight="700">1</text>
+
+  <!-- Step 2: Engine Super Class -->
+  <rect x="224" y="144" width="208" height="42" rx="3" fill="rgba(100,30,50,0.35)" stroke="#c84a6a" stroke-width="1.2"/>
+  <text x="328" y="162" text-anchor="middle" fill="#f87a9a" font-size="11" font-weight="700">Engine (Super Class)</text>
+  <text x="328" y="176" text-anchor="middle" fill="#c84a6a" font-size="9">Export Data</text>
+  <circle cx="234" cy="148" r="8" fill="rgba(200,74,106,0.25)" stroke="#c84a6a" stroke-width="1"/>
+  <text x="234" y="152" text-anchor="middle" fill="#f87a9a" font-size="9" font-weight="700">2</text>
+
+  <!-- Step 3: Core.Subsystem -->
+  <rect x="440" y="144" width="232" height="42" rx="3" fill="rgba(20,80,40,0.35)" stroke="#3aaa5a" stroke-width="1.2"/>
+  <text x="556" y="162" text-anchor="middle" fill="#6ae88a" font-size="11" font-weight="700">Core.Subsystem</text>
+  <text x="556" y="176" text-anchor="middle" fill="#3aaa5a" font-size="9">Export Data</text>
+  <circle cx="450" cy="148" r="8" fill="rgba(58,170,90,0.25)" stroke="#3aaa5a" stroke-width="1"/>
+  <text x="450" y="152" text-anchor="middle" fill="#6ae88a" font-size="9" font-weight="700">3</text>
+
+  <!-- Step 4: GameEngine Properties -->
+  <rect x="48" y="218" width="624" height="38" rx="3" fill="rgba(10,60,100,0.4)" stroke="#2a8ac8" stroke-width="1.2"/>
+  <text x="360" y="235" text-anchor="middle" fill="#5ac8f8" font-size="11" font-weight="700">GameEngine Object Properties</text>
+  <text x="360" y="248" text-anchor="middle" fill="#3a9aba" font-size="8">continues after parent classes finish deserializing</text>
+  <circle cx="58" cy="222" r="8" fill="rgba(42,138,200,0.25)" stroke="#2a8ac8" stroke-width="1"/>
+  <text x="58" y="226" text-anchor="middle" fill="#5ac8f8" font-size="9" font-weight="700">4</text>
+
+  <!-- Flow arrows -->
+  <path d="M 216 165 L 220 165" stroke="#4ac2e8" stroke-width="1.2" fill="none" marker-end="url(#ah)"/>
+  <path d="M 432 165 L 436 165" stroke="#4ac2e8" stroke-width="1.2" fill="none" marker-end="url(#ah)"/>
+  <!-- Return arrow: Core.Subsystem down to GameEngine Properties -->
+  <path d="M 556 186 L 556 198 Q 556 206 548 206 L 60 206 Q 52 206 52 214" stroke="#2a7a9a" stroke-width="1.2" fill="none" marker-end="url(#ah-dim)" stroke-dasharray="4,3"/>
+
+  <!-- Legend -->
+  <g transform="translate(48, 278)">
+    <text x="0" y="0" fill="#3a9aba" font-size="10" font-weight="700" letter-spacing="1">DESERIALIZATION ORDER</text>
+    <text x="0" y="22" fill="#3a8aaa" font-size="10"><tspan fill="#5ac8f8" font-weight="700">1</tspan>  GameEngine starts deserializing &#x2014; triggers loading parent Engine</text>
+    <text x="0" y="40" fill="#3a8aaa" font-size="10"><tspan fill="#f87a9a" font-weight="700">2</tspan>  Engine deserializes &#x2014; triggers loading Core.Subsystem</text>
+    <text x="0" y="58" fill="#3a8aaa" font-size="10"><tspan fill="#6ae88a" font-weight="700">3</tspan>  Core.Subsystem fully deserialized, Engine finishes</text>
+    <text x="0" y="76" fill="#3a8aaa" font-size="10"><tspan fill="#5ac8f8" font-weight="700">4</tspan>  Control returns to GameEngine &#x2014; properties finish deserializing</text>
+  </g>
+
+  <!-- Bottom note -->
+  <text x="360" y="384" text-anchor="middle" fill="#1a4a5a" font-size="8" font-style="italic" letter-spacing="0.5">Data written to disk in exact dependency read order, resulting in interleaved layout</text>
+
+  <!-- Vignette overlay for CRT effect -->
+  <rect x="6" y="6" width="708" height="428" rx="12" fill="url(#vignette)" pointer-events="none"/>
+
+  <!-- Subtle screen reflection -->
+  <ellipse cx="280" cy="100" rx="250" ry="80" fill="rgba(74,194,232,0.012)"/>
+</svg>

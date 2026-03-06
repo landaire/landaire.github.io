@@ -1,2 +1,9 @@
 {% set image = resize_image(path=path, width=width, height=height, op=op) %}
-<a href="{{ path }}"><img src="{{ image.url }}" /></a>
+{% set original_url = get_url(path=path) %}
+<a href="{{ original_url }}" data-lightbox>
+    <img
+        src="{{ image.url }}"
+        alt=""
+        class="lightbox-img rounded-lg shadow-sm mx-auto block"
+    />
+</a>

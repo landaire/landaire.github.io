@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block main %}
+<main>
+  {%- if taxonomy %}
+  <div class="mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+      Filtering for "{{ taxonomy.term.name }}"
+    </h3>
+    <a href="{{ get_url(path="@/_index.md") }}" class="text-sm text-accent-600 dark:text-accent-400 hover:underline">
+      Remove filter
+    </a>
+  </div>
+  {%- endif %}
+
+  <ul class="space-y-1">
+    {% for page in section.pages %}
+    {% if not page.extra.hidden %}
+    <li>
+      <a href="{{ page.permalink }}" class="post-item flex items-baseline gap-4">
+        <time datetime="{{ page.date | date(format='%+') }}" class="text-sm text-gray-400 dark:text-gray-500 tabular-nums shrink-0">
+          {{ page.date | date(format=config.extra.date_format) }}
+        </time>
+        <span class="text-gray-800 dark:text-gray-200">{{ page.title }}</span>
+      </a>
+    </li>
+    {% endif %}
+    {% else %}
+    <li class="text-gray-500">No posts yet</li>
+    {% endfor %}
+  </ul>
+</main>
+{% endblock %}

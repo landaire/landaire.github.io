@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} | {{ super() }}{% endblock %}
+
+{% block main %}
+<article>
+  {%- if not page.extra.menu %}
+
+  {%- if page.extra.image %}
+  {% set image = resize_image(path=page.extra.image, width=page.extra.image_width, height=page.extra.image_height, op="fit") %}
+  {% set banner_url = get_url(path=page.extra.image) %}
+  <div class="banner-hero mb-8">
+    <a href="{{ banner_url }}" data-lightbox>
+      <img src="{{ image.url }}" alt="{{ page.title }}">
+    </a>
+  </div>
+  {%- endif %}
+
+  <header class="mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{{ page.title }}</h1>
+    {% if page.description %}
+    <p class="text-lg text-gray-500 dark:text-gray-400 mb-3">{{ page.description }}</p>
+    {% endif %}
+    {%- if page.date %}
+    <time datetime="{{ page.date | date(format='%+') }}" class="text-sm text-gray-400 dark:text-gray-500">
+      {{ page.date | date(format=config.extra.date_format) }}
+    </time>
+    {%- endif %}
+  </header>
+
+  {%- endif %}
+
+  <hr class="border-gray-200 dark:border-gray-800 mb-8">
+
+  <main class="prose prose-lg dark:prose-invert prose-content max-w-none
+               prose-headings:text-gray-900 dark:prose-headings:text-gray-100
+               prose-a:text-accent-600 dark:prose-a:text-accent-400
+               prose-code:text-gray-800 dark:prose-code:text-gray-200
+               prose-pre:bg-transparent
+               prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700
+               prose-hr:border-gray-200 dark:prose-hr:border-gray-800
+               prose-img:rounded-lg prose-img:shadow-sm">
+    {% if page.extra.pretext %}
+    {{ page.extra.pretext | markdown | safe }}
+    {% endif %}
+    {{ page.content | safe }}
+  </main>
+</article>
+{% endblock %}

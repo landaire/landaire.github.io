@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Not Found | {{ super() }}{% endblock %}
+
+{% block main %}
+<main class="text-center py-20">
+  <h1 class="text-6xl font-bold text-gray-300 dark:text-gray-700 mb-4">404</h1>
+  <p class="text-lg text-gray-500 dark:text-gray-400 mb-8">Page not found.</p>
+  <a href="{{ config.base_url }}" class="text-accent-600 dark:text-accent-400 hover:underline">
+    Back to home
+  </a>
+</main>
+{% endblock %}

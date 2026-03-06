@@ -4,6 +4,9 @@ date = "2016-04-22T15:01:55-07:00"
 draft = false
 title = "Apple ImageIO Denial of Service"
 
+[taxonomies]
+tags = ["security"]
+
 [extra]
 image = "/img/pngbleed.jpg"
 image_width = 250
@@ -14,7 +17,6 @@ inline_image = true
 
 Last Updated: April 5, 2017 to address some incompleteness and errors. You can view the revision history [here](https://github.com/landaire/landaire.net).
 
-
 Application Services is a framework in iOS and OS X which provides what's known as the Image I/O framework. ImageIO itself is a collection of utilities and data types for parsing various image formats. It's used in many OS X and iOS applications including:
 
 - Tweetbot
@@ -23,7 +25,7 @@ Application Services is a framework in iOS and OS X which provides what's known 
 - Mail
 - Preview
 
-Some popular applications that *do not* use ImageIO include:
+Some popular applications that _do not_ use ImageIO include:
 
 - Chrome
 - Firefox
@@ -123,11 +125,10 @@ This bug can be triggered any time a PNG file is being processed. So really, any
 
 The only devices I had available at the time were an iPad on iOS 7.1, my iPhone on iOS 9.0.2, and my Mac on OS X 10.11.2. All of these devices were vulnerable. It's reasonable to assume that this bug goes back quite far.
 
-||iOS|OS X|
-|----------------------|---|-------|
-|Minimum tested version|7.1|10.11.1|
-|Fixed version         |9.3.2|10.11.5|
-
+|                        | iOS   | OS X    |
+| ---------------------- | ----- | ------- |
+| Minimum tested version | 7.1   | 10.11.1 |
+| Fixed version          | 9.3.2 | 10.11.5 |
 
 # Other findings
 
@@ -138,9 +139,8 @@ invalid CRCs.
 After fixing the chunk both hosts accepted the image just fine. imgur (and likely most other hosts) do not bother to strip unknown chunks so uploading the image to imgur puts those users at risk. Twitter and Facebook on the other hand will re-encode any image as
 a JPEG which will obviously remove the malicious chunk.
 
-I think that this is interesting and really important for privacy-concerned people. Before investigating this bug I had not considered additional chunks *not* being stripped when uploading an image to services. It makes sense, but it seems like this
+I think that this is interesting and really important for privacy-concerned people. Before investigating this bug I had not considered additional chunks _not_ being stripped when uploading an image to services. It makes sense, but it seems like this
 would be an easy way for vendors to hide additional info about the device which took the image outside of the EXIF-related chunks and have them survive re-encoding.
-
 
 # Timeline
 

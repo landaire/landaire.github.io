@@ -1,10 +1,12 @@
-
 +++
 title = "One Weird Trick to Improve Bug Finding With ASAN"
 description = "A light exploration into how abstractions harm ASAN's effectiveness"
 summary = "A light exploration into how abstractions harm ASAN's effectiveness"
 template = "toc_page.html"
 toc = true
+
+[taxonomies]
+tags = ["security", "fuzzing"]
 
 [extra]
 image = "/img/asan/asan_header2.png"
@@ -17,11 +19,11 @@ pretext = """
 
 ## ASAN Primer
 
-*If you're already an ASAN expert, feel free to skip to the next section.*
+_If you're already an ASAN expert, feel free to skip to the next section._
 
 [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) (ASAN) is an extremely useful tool in software testing, debugging, and security testing for finding memory safety issues in native applications. It's extremely straightforward to use on most platforms -- all you need to do is pass `-fsanitize=address` to clang/gcc and run the application.
 
-As your application runs it builds metadata about its memory state into what's called a *shadow memory*. The shadow memory is essentiallly a compressed representation of the application's address space and is used to look up memory ranges that are considered addressable. Memory ranges that are not addressable will be referred to as "poisoned memory".
+As your application runs it builds metadata about its memory state into what's called a _shadow memory_. The shadow memory is essentiallly a compressed representation of the application's address space and is used to look up memory ranges that are considered addressable. Memory ranges that are not addressable will be referred to as "poisoned memory".
 
 When ASAN detects a memory safety issue it will print a report to the console and stop the application. The first bit of the report is as follows:
 
@@ -47,13 +49,13 @@ allocated by thread T0 here:
     #9 0x7fecaaf9a082 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x24082) (BuildId: 1878e6b475720c7c51969e69ab2d276fae6d1dee)
 ```
 
-It tells us there's a *container-overflow*, what address the container overflow occurred at, the call stack of where the overflow occurred, and finally where the memory we're faulting on was originally allocated.
+It tells us there's a _container-overflow_, what address the container overflow occurred at, the call stack of where the overflow occurred, and finally where the memory we're faulting on was originally allocated.
 
 The next bit of the report is the shadow memory that was mentioned above:
 
 {{ resize_image(path="/img/asan/asan_error_with_arrow.png", width=500, height=800, op="fit") }}
 
-The big arrow here is pointing into the shadow memory at `[06]`, which according to the legend at the bottom of the screenshot tells us there are six addressable bytes followed by a *global redzone* (represented by the red 0xf9 in the shadow bytes).
+The big arrow here is pointing into the shadow memory at `[06]`, which according to the legend at the bottom of the screenshot tells us there are six addressable bytes followed by a _global redzone_ (represented by the red 0xf9 in the shadow bytes).
 
 ### Runtime Instrumentation
 
@@ -74,7 +76,7 @@ For checking if memory is addressable, ASAN's runtime provides some simple APIs 
 - ...
 - `__asan_loadN`
 
-*Note: This is certainly not a definitive list of APIs, but are relatively common*.
+_Note: This is certainly not a definitive list of APIs, but are relatively common_.
 
 These all essentially do the same thing under the hood:
 
@@ -94,14 +96,13 @@ They take an address and size, check if memory in that range is poisoned, and re
 
 ### Compiler Instrumentation
 
-The compiler instrumentation is primarily used for poisoning stack memory and inserting calls into the runtime library for "interesting" loads/stores. Of course, not *every* load/store will be instrumented by ASAN as that'd be a bit too heavy weight and a lot of things can be determined to be "safe" statically in the compiler.
+The compiler instrumentation is primarily used for poisoning stack memory and inserting calls into the runtime library for "interesting" loads/stores. Of course, not _every_ load/store will be instrumented by ASAN as that'd be a bit too heavy weight and a lot of things can be determined to be "safe" statically in the compiler.
 
 I'm not a compiler expert and truthfully don't care to dive into the source code at this time to figure out how ASAN determines what an "interesting" load/store is. With that said, when one is encountered ASAN's compiler pass will insert calls to the `__asan_{load,store}{size}` runtime functions to check the operation.
 
 ## You're Probably Missing Out-of-Bounds Accesses
 
 With the crash course on ASAN out of the way, we can dive in to the main point of this blog post: you're probably missing OOBR/W in your applications if you're using C++/Rust/whatever language containers.
-
 
 ### The Problem With Vectors
 
@@ -145,15 +146,15 @@ Program stdout
 size(5), capacity(8)
 ```
 
-*[https://godbolt.org/z/cecf6Pjz8](https://godbolt.org/z/cecf6Pjz8)*
+_[https://godbolt.org/z/cecf6Pjz8](https://godbolt.org/z/cecf6Pjz8)_
 
-No crash! You might notice something interesting in the last line of the output though: the size of the vector is 5, but its capacity is *8*.
+No crash! You might notice something interesting in the last line of the output though: the size of the vector is 5, but its capacity is _8_.
 
-Some readers probably know that when you `push_back()` or insert data into a `vector` that's at its capacity, it reallocates the buffer to be *double* its current size, copies the data to the new buffer, and frees the old one (or just does a `realloc()`). As a vector starts to grow from 0 elements up to N, its growth looks like the following:
+Some readers probably know that when you `push_back()` or insert data into a `vector` that's at its capacity, it reallocates the buffer to be _double_ its current size, copies the data to the new buffer, and frees the old one (or just does a `realloc()`). As a vector starts to grow from 0 elements up to N, its growth looks like the following:
 
 ![Vector growth strategy](/img/asan/vector_growth.png)
 
-*[Source](https://i.stack.imgur.com/w5VP7.png)*
+_[Source](https://i.stack.imgur.com/w5VP7.png)_
 
 This is very problematic for us. We're not catching an out-of-bounds access because of some implementation detail. All ASAN knows is that the application requested a buffer with 8 bytes -- it doesn't know that in our case 3 of those bytes are unused memory that aren't safe for us to use yet.
 
@@ -194,8 +195,7 @@ Program stdout
 size(4), capacity(15)
 ```
 
-*[https://godbolt.org/z/hdjK1WoKo](https://godbolt.org/z/hdjK1WoKo)*
-
+_[https://godbolt.org/z/hdjK1WoKo](https://godbolt.org/z/hdjK1WoKo)_
 
 So the four-character string actually has a total capacity of 15, i.e. the `std::string` has over-allocated memory. If you tried initializing an `std::vector` with an explicit initializer list it would allocate only the exact number of elements needed... why are strings different?
 
@@ -279,7 +279,7 @@ Let's take a look at LLVM's libc++ `string` code (simplified version will follow
 
 [GitHub link.](https://github.com/landaire/llvm-project/blob/f860d2e78cca40e2b8697a22a92efebfea409256/libcxx/include/string#L731-L803)
 
-*Yuck*. This is not simple to understand, but we can see that there's some interesting inline buffer stuff going on with the `__short` struct at least. I've rewritten this code to be *definitely not* the same layout as an `std::string` but shows what's going on easier to understand:
+_Yuck_. This is not simple to understand, but we can see that there's some interesting inline buffer stuff going on with the `__short` struct at least. I've rewritten this code to be _definitely not_ the same layout as an `std::string` but shows what's going on easier to understand:
 
 ```cpp
 class string {
@@ -329,6 +329,7 @@ When the `_LIBCPP_HAS_NO_ASAN` preprocessor macro is not defined it has some log
 #      define _LIBCPP_HAS_NO_ASAN
 #    endif
 ```
+
 [GitHub Link](https://github.com/llvm/llvm-project/blob/7ca3444fba7344b375f147b77252adbf71f464e0/libcxx/include/__config#LL479-L481C11).
 
 So why the hell aren't we getting this enlightenment? We never defined it ourselves.
@@ -345,7 +346,7 @@ READ of size 8 at 0x602000000075 thread T0
     #3 0x56409174935d in _start (/app/output.s+0x2135d)
 ```
 
-*[https://godbolt.org/z/ao64GcT7f](https://godbolt.org/z/ao64GcT7f).*
+_[https://godbolt.org/z/ao64GcT7f](https://godbolt.org/z/ao64GcT7f)._
 
 There are some downsides to this:
 
@@ -373,7 +374,6 @@ ASAN_POISON_MEMORY_REGION(extra_start, extra_len);
 
 Or if for some reason you don't want to pull in the ASAN interface you could just copy data to a vector with the appropriate pre-allocated size:
 
-
 ```cpp
 std::vector<uint8_t> copied;
 copied.reserve(fuzzed.size());
@@ -385,7 +385,7 @@ std::copy(
 assert_eq(copied.capacity(), copied.size())
 ```
 
-Copying data sucks, but do what works for you. *Note:* avoid using `std::vector::shrink_to_fit()`. Per [cppreference](https://en.cppreference.com/w/cpp/container/vector/shrink_to_fit), "It depends on the implementation whether the request is fulfilled."
+Copying data sucks, but do what works for you. _Note:_ avoid using `std::vector::shrink_to_fit()`. Per [cppreference](https://en.cppreference.com/w/cpp/container/vector/shrink_to_fit), "It depends on the implementation whether the request is fulfilled."
 
 ## Other Tricks
 
@@ -415,7 +415,7 @@ class span<T> {
 
 Whenever you repro a bug with ASAN, try to remember to compile with `-fsanitize-recover=address`. This will essentially allow the application to recover and continue running when ASAN triggers a violation.
 
-It may seem like a strange choice, but let's say you have a small out-of-bounds read that looks relatively boring. That bug may be hiding something much juicier that's triggered *only* when the OOBR occurs! `-fsanitize-recover=address` will allow the application to run until either a hard fault occurs or the application exits, but will still print any ASAN violation that occurs along the way.
+It may seem like a strange choice, but let's say you have a small out-of-bounds read that looks relatively boring. That bug may be hiding something much juicier that's triggered _only_ when the OOBR occurs! `-fsanitize-recover=address` will allow the application to run until either a hard fault occurs or the application exits, but will still print any ASAN violation that occurs along the way.
 
 ## Closing Thoughts
 

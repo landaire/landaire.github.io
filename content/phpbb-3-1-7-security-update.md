@@ -4,6 +4,9 @@ description = "Finding a CSRF vulnerability in phpBB"
 keywords = ["phpBB", "csrf", "bbcode"]
 title = "Finding a CSRF vulnerability in phpBB"
 draft = false
+
+[taxonomies]
+tags = ["security"]
 +++
 
 The phpBB team released phpBB version [3.1.7-PL1](https://www.phpbb.com/support/documents.php?mode=changelog#v317)
@@ -43,7 +46,7 @@ Mostly all of the request variables used in this controller are defined a the to
 of the file, some of which are taken from this weird `request_var()` function
 which IntelliJ tells me is deprecated. This function is basically a wrapper for
 `\phpbb\request\request_interface::variable()`. Looking at `\phpbb\request\request::variable()`
-it can be seen that this method returns the  requested var from some associative array.
+it can be seen that this method returns the requested var from some associative array.
 The array is the concatenation of the `$_POST` and `$_GET` global variables. For those of you
 not familiar with PHP these are globals which contain the POST request
 and query vars (respectively). All of these variables are also `trim()`'d and
@@ -63,7 +66,7 @@ if ($submit && check_form_key('posting'))
 
 Looking into the `check_form_key()` function it's clear that this is the function
 to check the CSRF token (using `===` mind you)... but it's done manually. And
-further *down* the file:
+further _down_ the file:
 
 ```php
 add_form_key('posting');
@@ -72,7 +75,7 @@ add_form_key('posting');
 So adding and checking the CSRF token is done manually. This smells like something
 that can lead to errors!
 
-## Finding CSRF bugs! 
+## Finding CSRF bugs!
 
 Let's search the project for `add_form_key()` and `check_form_key()`. What we're
 looking for is files that show up in the result for `add_form_key()` but not for
@@ -122,10 +125,10 @@ admin SID from `document.location` then perform the exploit.
 
 # Timeline
 
-- July 11, 2015: Reported vulnerability 
+- July 11, 2015: Reported vulnerability
 - August 4, 2015: Received response from two different project members requesting
-more information
+  more information
 - December 23, 2015: Followed-up with project members (never received notification
-of response and I sort of forgot about this bug)
+  of response and I sort of forgot about this bug)
 - December 23, 2015: Vendor confirmed bug
 - January 11, 2016: Fix released

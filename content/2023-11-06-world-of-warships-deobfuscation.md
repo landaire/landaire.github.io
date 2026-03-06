@@ -6,6 +6,9 @@ template = "toc_page.html"
 toc = true
 date = "2023-11-08"
 
+[taxonomies]
+tags = ["re"]
+
 [extra]
 image = "/img/wows-obfuscation/header.png"
 image_width =  250
@@ -15,7 +18,6 @@ pretext = """
 An in-depth analysis of how World of Warships obfuscates its game scripts and how to mostly deobfuscate them. The `wowsdeob` project can be found on GitHub: [https://github.com/landaire/wowsdeob](https://github.com/landaire/wowsdeob)
 """
 +++
-
 
 ## Background
 
@@ -31,15 +33,15 @@ Two years ago I open-sourced a tool I called [`unfuck`](https://github.com/landa
 
 And:
 
->Ooof, really bad name. Makes me think the project or maintainer are immature...
+> Ooof, really bad name. Makes me think the project or maintainer are immature...
 
 And someone respecting my licensing choices:
 
->Interesting dual licensing
+> Interesting dual licensing
 
->> This project is dual-licensed under MIT and the ABSE ("Anyone But Stefan Esser") license. Note that an additional exception to the license is added, forbidding use/redistribution of said content to his trainees as well, but only when in a 5 mile radius from "Stefan Esser" or while holding any sort of (video)conference/chat with him.
+> > This project is dual-licensed under MIT and the ABSE ("Anyone But Stefan Esser") license. Note that an additional exception to the license is added, forbidding use/redistribution of said content to his trainees as well, but only when in a 5 mile radius from "Stefan Esser" or while holding any sort of (video)conference/chat with him.
 >
->> Note that this license will only be used as long as what would capstone decode / that one other arm64 ida plugin thing by i0n1c ("Stefan Esser") are not under the MIT license. afterwards, all exceptions are cleared and basically MIT license applies
+> > Note that this license will only be used as long as what would capstone decode / that one other arm64 ida plugin thing by i0n1c ("Stefan Esser") are not under the MIT license. afterwards, all exceptions are cleared and basically MIT license applies
 
 ## What is World of Warships?
 
@@ -63,7 +65,7 @@ In [a Reddit post](https://www.reddit.com/user/ThiSpawn) by the same username th
 
 Although TehRick seems to have disappeared soon after these posts, their code was still being referenced 4 years later!
 
-*If you are TehRick / ThiSpawn feel free to reach out to me -- I would love to talk about your deobfuscator!*
+_If you are TehRick / ThiSpawn feel free to reach out to me -- I would love to talk about your deobfuscator!_
 
 ## Python VM Primer
 
@@ -130,23 +132,23 @@ code
 	end
 	instructions
 		<255> 65532
-		UNARY_INVERT 
+		UNARY_INVERT
 		SETUP_EXCEPT 15
 		LOAD_CONST 1 # Wargaming.net | Lesta Studio
 		LOAD_NAME 0 # locals
 		CALL_FUNCTION 0
-		DUP_TOP 
+		DUP_TOP
 		EXEC_STMT
-		POP_BLOCK 
+		POP_BLOCK
 		JUMP_FORWARD 12
 		3 * POP_TOP
 		LOAD_CONST 2 # an error occurred while loading module
-		PRINT_ITEM 
-		PRINT_NEWLINE 
+		PRINT_ITEM
+		PRINT_NEWLINE
 		JUMP_FORWARD 1
-		END_FINALLY 
+		END_FINALLY
 		LOAD_CONST 0 # None
-		RETURN_VALUE 
+		RETURN_VALUE
 		DELETE_NAME 23519
 		UNARY_NOT
 		DELETE_NAME 23438
@@ -220,7 +222,7 @@ Consider the following pseudocode:
 
 ```
 
-In the middle of defining a function we've inserted a check to see if two sets overlap, and if so  we store the function in variable slot #6 (`STORE_FAST 6`). If the sets do not overlap, we go down the bogus code path that screws up stack state.
+In the middle of defining a function we've inserted a check to see if two sets overlap, and if so we store the function in variable slot #6 (`STORE_FAST 6`). If the sets do not overlap, we go down the bogus code path that screws up stack state.
 
 ### 4: Variable Renaming
 
@@ -299,7 +301,6 @@ This probably doesn't make much sense, so let me show a real example of the cont
 
 {{ resize_image(path="/img/wows-obfuscation/unnecessary_jump.png", width=500, height=500, op="fit") }}
 
-
 Do you notice the `JUMP_FORWARD 0` in the left-center node? It's completely unnecessary! The layout of these instructions when serialized is: `POP_TOP`, `POP_TOP`, `POP_TOP`, `JUMP_FORWARD 0`, `LOAD_FAST 2`. The execution sequence of these instructions is exactly the same as well. You could remove the `JUMP_FORWARD 0` and nothing of value would be lost. So why is it there?
 
 It's just a side effect of how the Python compiler does codegen:
@@ -341,7 +342,6 @@ And what about nesting exceptions inside of loops with const predicates?
 After encountering such a scenario I was starting to feel like this:
 
 ![Meme of Charlie's conspiracy theory board from It's Always Sunny in Philadelphia](/img/wows-obfuscation/charlie.jpg)
-
 
 ## Deobfuscation
 
@@ -455,7 +455,7 @@ def fix_varnames(varnames):
             unknowns += 1
         else:
             newvars.append(var)
-    
+
     return tuple(newvars)
 ```
 
@@ -639,6 +639,7 @@ def f111():
 f111()
 del f111
 ```
+
 There are some checks to ensure that certain state is set up, but in general this will:
 
 1. Load the `co_code` from the original stage 1 file
@@ -702,7 +703,7 @@ To:
 ```python
 # uncompyle6 version 3.8.0
 # Python bytecode 2.7 (62211)
-# Decompiled from: Python 2.7.18 (default, Sep 28 2022, 20:52:16) 
+# Decompiled from: Python 2.7.18 (default, Sep 28 2022, 20:52:16)
 # [GCC Apple LLVM 14.0.0 (clang-1400.0.29.102)]
 # Warning: this version of Python has problems handling the Python 3 byte type in constants properly.
 
@@ -832,7 +833,7 @@ def getTorpedoingArea--- This code section failed: ---
                 9  LOAD_GLOBAL           2  'math'
                12  LOAD_ATTR             3  'pi'
                15  LOAD_CONST               2
-               18  BINARY_DIVIDE    
+               18  BINARY_DIVIDE
                19  BINARY_ADD
                20  CALL_FUNCTION_1       1  None
                23  STORE_FAST            6  'unknown_14'
@@ -841,7 +842,7 @@ def getTorpedoingArea--- This code section failed: ---
                32  MAKE_FUNCTION_0       0  None
                35  LOAD_FAST             4  'formation'
                38  LOAD_ATTR             5  'positions'
-               41  GET_ITER         
+               41  GET_ITER
                42  CALL_FUNCTION_1       1  None
                45  CALL_FUNCTION_1       1  None
                48  STORE_FAST            7  'unknown_15'
@@ -850,40 +851,40 @@ def getTorpedoingArea--- This code section failed: ---
                57  MAKE_FUNCTION_0       0  None
                60  LOAD_FAST             4  'formation'
                63  LOAD_ATTR             5  'positions'
-               66  GET_ITER         
+               66  GET_ITER
                67  CALL_FUNCTION_1       1  None
                70  CALL_FUNCTION_1       1  None
                73  STORE_FAST            8  'unknown_16'
                76  LOAD_FAST             8  'unknown_16'
                79  LOAD_FAST             7  'unknown_15'
-               82  BINARY_SUBTRACT  
+               82  BINARY_SUBTRACT
                83  STORE_FAST            9  'unknown_17'
                86  LOAD_FAST             9  'unknown_17'
                89  LOAD_FAST             5  'currentPlaneCount'
-               92  BINARY_MULTIPLY  
+               92  BINARY_MULTIPLY
                93  LOAD_FAST             4  'formation'
                96  LOAD_ATTR             7  'npositions'
-               99  BINARY_DIVIDE    
+               99  BINARY_DIVIDE
               100  STORE_FAST           10  'unknown_18'
               103  LOAD_FAST             0  'attackPoint'
               106  LOAD_FAST            10  'unknown_18'
               109  LOAD_CONST               2
-              112  BINARY_DIVIDE    
+              112  BINARY_DIVIDE
               113  LOAD_GLOBAL           8  'PLANE_TORPEDO_CONE_HALF_WIDTH'
-              116  BINARY_SUBTRACT  
+              116  BINARY_SUBTRACT
               117  LOAD_FAST             6  'unknown_14'
-              120  BINARY_MULTIPLY  
-              121  BINARY_SUBTRACT  
+              120  BINARY_MULTIPLY
+              121  BINARY_SUBTRACT
               122  STORE_FAST           11  'unknown_19'
               125  LOAD_FAST             0  'attackPoint'
               128  LOAD_FAST            10  'unknown_18'
               131  LOAD_CONST               2
-              134  BINARY_DIVIDE    
+              134  BINARY_DIVIDE
               135  LOAD_GLOBAL           8  'PLANE_TORPEDO_CONE_HALF_WIDTH'
-              138  BINARY_ADD       
+              138  BINARY_ADD
               139  LOAD_FAST             6  'unknown_14'
-              142  BINARY_MULTIPLY  
-              143  BINARY_ADD       
+              142  BINARY_MULTIPLY
+              143  BINARY_ADD
               144  STORE_FAST           12  'unknown_20'
               147  LOAD_FAST            11  'unknown_19'
               150  LOAD_FAST            12  'unknown_20'
@@ -892,8 +893,8 @@ def getTorpedoingArea--- This code section failed: ---
               159  LOAD_FAST            12  'unknown_20'
               162  LOAD_FAST             6  'unknown_14'
               165  LOAD_CONST               0.001
-              168  BINARY_MULTIPLY  
-              169  INPLACE_ADD      
+              168  BINARY_MULTIPLY
+              169  INPLACE_ADD
               170  STORE_FAST           12  'unknown_20'
               173  JUMP_FORWARD          0  'to 176'
             176_0  COME_FROM           173  '173'
@@ -901,32 +902,32 @@ def getTorpedoingArea--- This code section failed: ---
               179  LOAD_FAST             1  'attackDir'
               182  LOAD_FAST             2  'planeParams'
               185  LOAD_ATTR             9  'torpedoAimDist'
-              188  BINARY_MULTIPLY  
-              189  BINARY_ADD       
+              188  BINARY_MULTIPLY
+              189  BINARY_ADD
               190  STORE_FAST           13  'unknown_21'
               193  LOAD_FAST            13  'unknown_21'
               196  LOAD_FAST             6  'unknown_14'
               199  LOAD_FAST             3  'spreading'
-              202  BINARY_MULTIPLY  
+              202  BINARY_MULTIPLY
               203  LOAD_CONST               0.5
-              206  BINARY_MULTIPLY  
-              207  BINARY_SUBTRACT  
+              206  BINARY_MULTIPLY
+              207  BINARY_SUBTRACT
               208  STORE_FAST           14  'unknown_22'
               211  LOAD_FAST            13  'unknown_21'
               214  LOAD_FAST             6  'unknown_14'
               217  LOAD_FAST             3  'spreading'
-              220  BINARY_MULTIPLY  
+              220  BINARY_MULTIPLY
               221  LOAD_CONST               0.5
-              224  BINARY_MULTIPLY  
-              225  BINARY_ADD       
+              224  BINARY_MULTIPLY
+              225  BINARY_ADD
               226  STORE_FAST           15  'unknown_23'
               229  LOAD_FAST            11  'unknown_19'
               232  LOAD_FAST            12  'unknown_20'
               235  LOAD_FAST            14  'unknown_22'
               238  LOAD_FAST            15  'unknown_23'
-              241  BUILD_TUPLE_4         4 
-              244  RETURN_VALUE     
-               -1  RETURN_LAST      
+              241  BUILD_TUPLE_4         4
+              244  RETURN_VALUE
+               -1  RETURN_LAST
 
 Parse error at or near `None' instruction at offset -1
 
@@ -951,7 +952,6 @@ Clearly some functions still fail to decompile, but it may be enough to just rea
 And code objects that go from this:
 
 {{ resize_svg(path="/img/wows-obfuscation/simple_obfuscation_example.svg", width=500, height=500) }}
-
 
 To this:
 

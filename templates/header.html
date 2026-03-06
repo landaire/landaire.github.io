@@ -1,0 +1,10 @@
+<header class="py-6 mb-8 border-b border-gray-200 dark:border-gray-800">
+  <div class="flex items-center justify-between">
+    <a href="{{ config.base_url }}" class="text-xl font-bold text-gray-900 dark:text-gray-100 hover:text-accent-600 dark:hover:text-accent-400 transition-colors duration-200">
+      {{ config.title }}
+    </a>
+    <nav class="flex items-center gap-4 text-sm">
+      {% include "nav.html" %}
+    </nav>
+  </div>
+</header>

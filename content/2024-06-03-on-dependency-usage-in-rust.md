@@ -6,6 +6,9 @@ template = "toc_page.html"
 toc = true
 date = "2024-06-03"
 
+[taxonomies]
+tags = ["rust"]
+
 [extra]
 #image = "/img/wows-obfuscation/header.png"
 #image_width =  250
@@ -59,15 +62,15 @@ On #3, sure. This is reasonable, but there are costs to writing that code that I
 
 I'm going to quote a few of John's paragraphs for full context and then dissect some of them one-by-one:
 
->Rust makes it easy to pull in outside dependencies, and much like in the JavaScript ecosystem, it seems to have encouraged lots of tiny dependencies. That makes it a lot harder to monitor and manage the problem.
+> Rust makes it easy to pull in outside dependencies, and much like in the JavaScript ecosystem, it seems to have encouraged lots of tiny dependencies. That makes it a lot harder to monitor and manage the problem.
 >
->But Rust’s situation is even worse than in most languages, in that core Rust libraries (major libraries officially maintained by the Rust project) make heavy use of third party dependencies. The project needs to take ownership and provide oversight for their libraries.
+> But Rust’s situation is even worse than in most languages, in that core Rust libraries (major libraries officially maintained by the Rust project) make heavy use of third party dependencies. The project needs to take ownership and provide oversight for their libraries.
 >
->To me, this has long been one of the biggest risks in software. I can write C code that is reasonably defensive, but I have a hard time trusting any single dependency I use, never mind scaling that out.
+> To me, this has long been one of the biggest risks in software. I can write C code that is reasonably defensive, but I have a hard time trusting any single dependency I use, never mind scaling that out.
 >
->Properly securing your dependency supply chain is a much harder problem than writing safe C code. Personally, I only pull in dependencies beyond standard libraries if the work I’d have to do in order to credibly replace the functionality is so great that, if I didn’t bring in a dependency, I would choose not to do the work.
+> Properly securing your dependency supply chain is a much harder problem than writing safe C code. Personally, I only pull in dependencies beyond standard libraries if the work I’d have to do in order to credibly replace the functionality is so great that, if I didn’t bring in a dependency, I would choose not to do the work.
 >
->C is a lot better than Rust in this regard, but it’s not particularly great. Partially, that’s because the C standard libraries (which I am always willing to use; the core language implementation and runtime is a given) are not at all extensive. People who write a lot of C end up building things themselves once and keeping them around and adapting them for decades, including basic data structures like hash tables.
+> C is a lot better than Rust in this regard, but it’s not particularly great. Partially, that’s because the C standard libraries (which I am always willing to use; the core language implementation and runtime is a given) are not at all extensive. People who write a lot of C end up building things themselves once and keeping them around and adapting them for decades, including basic data structures like hash tables.
 
 First of all, I strongly disagree with the sentiment that securing your dependency supply chain is harder than writing safe C/C++ code.
 
@@ -75,7 +78,7 @@ You have to be at least a moderately advanced user in C++/core memory safety ide
 
 You don't need to be an advanced programmer to do a short sniff test to see if a dependency you're bringing in to your application looks fairly widely used and trusted by a community. Sure, the XZ backdoor is an extreme example of even experts who were _members of the project_ missed something snuck in over time, but this is not what we're talking about here.
 
->Rust makes it easy to pull in outside dependencies
+> Rust makes it easy to pull in outside dependencies
 
 Honestly? _Thank god_.
 
@@ -89,7 +92,7 @@ Don't forget all of the dependencies you need to install just to install the dep
 
 The developer experience surrounding dependencies in C/C++ is so awful that you just default to not using any at all. Or you bring in a "header-only library" that makes integration easy because bringing in multiple external source/header files makes people want to turn off their computer and consider another career.
 
->[Easy dependency usage] seems to have encouraged lots of tiny dependencies. That makes it a lot harder to monitor and manage the problem.
+> [Easy dependency usage] seems to have encouraged lots of tiny dependencies. That makes it a lot harder to monitor and manage the problem.
 
 I disagree that the dependency story becomes harder to manage. There are multiple tools to monitor and manage your dependency usage in Rust:
 
@@ -100,7 +103,7 @@ I disagree that the dependency story becomes harder to manage. There are multipl
 
 These are all possible because Rust's tooling ecosystem is so good. These are not things that are run by default so the argument is a bit weaker, but the fact that they exist means you have the option of using them if you want to. For example, I've seen many CI pipelines that use `cargo-audit` to ensure vulnerable crates aren't being used.
 
->People who write a lot of C end up building things themselves once and keeping them around and adapting them for decades, including basic data structures like hash tables.
+> People who write a lot of C end up building things themselves once and keeping them around and adapting them for decades, including basic data structures like hash tables.
 
 I see this as a bad thing. You're probably going to write bugs and it's going to be hard to fix affected applications. No proper version tracking or update mechanism means that depending on how you use and manage this ad-hoc dependency, tracking where it's used and patching affected programs might be difficult.
 
@@ -110,21 +113,21 @@ So why are we shooting ourselves in the foot by making it difficult to track and
 
 [@Lucretiel summarized this same sentiment fairly well on Twitter](https://x.com/Lucretiel/status/1772865033757679892):
 
->Quick reminder that I C doesn't have a culture of minimal dependencies because of some kind of ingrained strong principles in its community, C has a culture of minimal dependencies because adding a dependency in C is a pain in the fucking ass.
+> Quick reminder that I C doesn't have a culture of minimal dependencies because of some kind of ingrained strong principles in its community, C has a culture of minimal dependencies because adding a dependency in C is a pain in the fucking ass.
 >
->Rust and Node.js have smaller projects and deeper dependency trees than C++ or Python for literally no other reason than the fact that the former languages make it very easy to create, publish, distribute, and declare dependencies.
+> Rust and Node.js have smaller projects and deeper dependency trees than C++ or Python for literally no other reason than the fact that the former languages make it very easy to create, publish, distribute, and declare dependencies.
 >
->This is systemic incentives 101.
+> This is systemic incentives 101.
 
 ## Rust isn't as "batteries included" as other languages
 
 One point John makes is:
 
->Languages like Go and Python that have extensive standard libraries that the language maintainers take responsibility for are actually the best case scenario in my opinion. Yes, more people touch the code, but the DIY economics are often the wrong choice, and having organizations willing to both be accountable, and provide an environment where people can focus on minimizing dependencies if they feel its important, is a good thing.
+> Languages like Go and Python that have extensive standard libraries that the language maintainers take responsibility for are actually the best case scenario in my opinion. Yes, more people touch the code, but the DIY economics are often the wrong choice, and having organizations willing to both be accountable, and provide an environment where people can focus on minimizing dependencies if they feel its important, is a good thing.
 >
->...
+> ...
 >
->Generally, I think Rust (and pretty much any programming language) would be served well to take ownership of their standard libraries. Pull in all the dependencies, and be willing to take ownership.
+> Generally, I think Rust (and pretty much any programming language) would be served well to take ownership of their standard libraries. Pull in all the dependencies, and be willing to take ownership.
 
 I agree with John that having batteries included simplifies things for both new and established users, but I don't think we should be so quick to add more batteries to the collection without sufficient testing.
 
@@ -140,13 +143,13 @@ Rust itself is still a growing and changing language as well, and it may not mak
 
 ## Package management in other languages also suck
 
->Yes, Python has become so popular, that plenty of people use outside dependencies, and there are several popular package managers. However, it’s still in a vastly better place from a supply chain perspective than JavaScript, which has become famous among developers for hidden dependencies on trivially small packages.
+> Yes, Python has become so popular, that plenty of people use outside dependencies, and there are several popular package managers. However, it’s still in a vastly better place from a supply chain perspective than JavaScript, which has become famous among developers for hidden dependencies on trivially small packages.
 
 There's no way to really sugarcoat this, but Python and Go package management really fucking sucked (Python still sucks, but some semi-recent tools are making it suck less).
 
 So Python has monolithic dependencies... but why? Because the tooling and [uploading dependencies](https://packaging.python.org/en/latest/tutorials/packaging-projects/) is high-friction<sup><sup>(I've never uploaded -- maybe it's easier than I think)</sup></sup>. And we're supposed to praise this? In what world is Python + pip "in a vastly better place from a supply chain perspective than JavaScript" because of this fact either?
 
-- pip dependencies are by default global which causes conflicts with other Python applications, forcing you to use virtual environments. *Note: [/u/encyclopedist on Reddit](https://www.reddit.com/r/rust/comments/1d86c62/on_dependency_usage_in_rust/l76qj85/) pointed out that this has recently changed with [PEP 668](https://peps.python.org/pep-0668/).*
+- pip dependencies are by default global which causes conflicts with other Python applications, forcing you to use virtual environments. _Note: [/u/encyclopedist on Reddit](https://www.reddit.com/r/rust/comments/1d86c62/on_dependency_usage_in_rust/l76qj85/) pointed out that this has recently changed with [PEP 668](https://peps.python.org/pep-0668/)._
 - If pip hits a version conflict within your own project's package graph you're in for a headache
 - Packages with native dependencies are a mystery to basically everyone except the package author. Or is this just me?
 - There's no strong lockfile containing metadata sufficient for guaranteeing the bits someone installing a project's dependencies for the first time match the bits when the lockfile was generated (i.e. package hashes).
@@ -274,7 +277,7 @@ The crate passes all of my standard checks! I feel comfortable pulling the crate
 
 Something John mentions multiple times is weighing "economic factors" when considering what language or dependencies to use.
 
->Avoid unnecessary dependencies. I will leave ‘unnecessary’ vaguely defined here; you need to be educated and judge all the economic factors. But note that, there are often other benefits to fewer dependencies, from shorter build times to less surface to test, to less risk from API changes or bugs from downstream dependencies.
+> Avoid unnecessary dependencies. I will leave ‘unnecessary’ vaguely defined here; you need to be educated and judge all the economic factors. But note that, there are often other benefits to fewer dependencies, from shorter build times to less surface to test, to less risk from API changes or bugs from downstream dependencies.
 
 Are all of these 10 crates I used above strictly necessarily? No. I could get away with writing my own hex converter, human-readable size converter, command-line argument parser, drop mmap support, drop support for chrono date/time, and rewrite to use standard `Result<T, E>` instead of using `anyhow`. This is what such a `Cargo.toml` would look like:
 
@@ -310,13 +313,13 @@ I will say that there have been times where I've compiled something and thought,
 
 [@Lucretiel said something else recently on Twitter](https://x.com/Lucretiel/status/1791916569951375591) said something that loosely fits into this topic:
 
->It’s a good thing we’re keeping our dependency count low, I think to myself, as I read about how my UI framework also provides threads, networking utilities, data structures, floating point math, D-Bus, cryptographic utilities, geographic utilities, and a Bluetooth implementation
+> It’s a good thing we’re keeping our dependency count low, I think to myself, as I read about how my UI framework also provides threads, networking utilities, data structures, floating point math, D-Bus, cryptographic utilities, geographic utilities, and a Bluetooth implementation
 
 Bloat is everywhere. You just need to know how to look for it.
 
 ### Circle of trust
 
->Anyway, the more dependencies you have, the larger your circle of implicit trust is, the larger your attack surface is, and the more supply chain risk you’re taking.
+> Anyway, the more dependencies you have, the larger your circle of implicit trust is, the larger your attack surface is, and the more supply chain risk you’re taking.
 
 I'd rather assume an author of a crate that looks like it provides what I need has non-malicious intent than the other way around. Maybe that perspective will change if I ever get burned and my laptop gets ransomwared because I missed a `build.rs` file or a proc macro that does sketchy things.
 
@@ -342,11 +345,11 @@ I would like to thank John for sharing his thoughts and perspective. I do outrig
 
 But I disagree with some of the foundational arguments like:
 
->C’s advantage in terms of lack of dependencies (which can come with a lower attack surface in general) is large, but still doesn’t make it the right economic choice in the first place. It might still be wiser to choose Rust when all economic factors are considered, but the security argument is just not one I find compelling enough.
+> C’s advantage in terms of lack of dependencies (which can come with a lower attack surface in general) is large, but still doesn’t make it the right economic choice in the first place. It might still be wiser to choose Rust when all economic factors are considered, but the security argument is just not one I find compelling enough.
 
 The security risk of dependency use is simply not one I find compelling enough to select C over Rust, and certainly is not scarier than a buffer overflow. C lacking first-class support for dependencies should be considered a strong disadvantage since you can't even get good support for 1st-party dependencies.
 
-The benefits Rust provides _as a language_ are already enough for a lot of people to select it over C -- myself included. A stellar default package manager and build tool makes it all the better to use. In my opinion  "dependency usage" should be a minor footnote (and John explicitly says to weigh these kinds of factors yourself).
+The benefits Rust provides _as a language_ are already enough for a lot of people to select it over C -- myself included. A stellar default package manager and build tool makes it all the better to use. In my opinion "dependency usage" should be a minor footnote (and John explicitly says to weigh these kinds of factors yourself).
 
 Additionally, I'd argue that a critical mem safety issue is statistically way more likely to happen and can have critical impact even with modern mitigations. Some of the memory safety bugs that we're finding are old enough to drink in the US, showing that they can be very difficult to find. The `xz` backdoor required around 3 years worth of effort to attempt to sneak into the application and was discovered in less than a week after it went live.
 

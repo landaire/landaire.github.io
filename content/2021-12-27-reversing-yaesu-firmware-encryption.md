@@ -4,6 +4,9 @@ summary = ""
 template = "toc_page.html"
 toc = true
 
+[taxonomies]
+tags = ["re", "hardware"]
+
 [extra]
 image = "/img/yaesu/ft70d.jpg"
 image_width = 500
@@ -15,7 +18,6 @@ pretext = """
 *Click on any of the images to view at its original resolution.*
 """
 +++
-
 
 ## Background
 
@@ -69,10 +71,9 @@ In our disassembler we can find references to the `RES_UPDATE_INFO` string and l
 
 {{ resize_image(path="/img/yaesu/update_info_xrefs.png", width=800, height=800, op="fit") }}
 
-We find a match in a function which happens to find/load *all* of these custom resources under type `23`.
+We find a match in a function which happens to find/load _all_ of these custom resources under type `23`.
 
 {{ resize_image(path="/img/yaesu/load_resource_decompiler_output.png", width=800, height=800, op="fit") }}
-
 
 We know where the data is loaded by the application, so now we need to see how it's used. Doing static analysis from this point may be more work than it's worth if the data isn't operated on immediately. To speed things up I'm going to use a debugger's assistance. I used WinDbg's [Time Travel Debugging](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/time-travel-debugging-overview) to record an execution trace of the updater while it updates my radio. TTD is an invaluable tool and I'd highly recommend using it when possible. [rr](https://rr-project.org/) is an alternative for non-Windows platforms.
 
@@ -530,7 +531,6 @@ This function is the perfect example of decompilers emitting less than ideal cod
     }
 ```
 
-
 2. Build a 32-byte buffer containing data from an 0x800-byte static table, with indexes into this table originating from indices built from the buffer in step #1. Combine this 32-byte buffer with the 48-byte buffer in step #1.
 
 ```c,linenos
@@ -557,7 +557,7 @@ This function is the perfect example of decompilers emitting less than ideal cod
     // 64 because is misleading because dword_424e80 is declared as an int array -- not a char array.
 ```
 
-3. Iterate over the next 8 bytes of the output buffer. For each byte index of the output buffer, index into yet *another* static 32-byte buffer and use that as the index into the table from step #2. XOR this value with the value at the current index of the output buffer.
+3. Iterate over the next 8 bytes of the output buffer. For each byte index of the output buffer, index into yet _another_ static 32-byte buffer and use that as the index into the table from step #2. XOR this value with the value at the current index of the output buffer.
 
 ```c,linenos
 // Not really sure why this calculation works like this. It ends up just being `unk_425681`'s address
@@ -656,16 +656,15 @@ for _ in 0..8 {
 }
 ```
 
-
 ### Key Setup
 
-We now need to figure out how our key is set up for usage in the `decrypt_data` function above. My approach here is to set a breakpoint at the first instruction to use the key data in `decrypt_data`, which happens to be `xor bl, [ecx + esi + 4]` at `0x4079d3`. I know this is where we should break because in the decompiler output the left-hand side of the XOR operation, the key material, will be the *second* operand in the `xor` instruction. As a reminder, the decompiler shows the XOR as:
+We now need to figure out how our key is set up for usage in the `decrypt_data` function above. My approach here is to set a breakpoint at the first instruction to use the key data in `decrypt_data`, which happens to be `xor bl, [ecx + esi + 4]` at `0x4079d3`. I know this is where we should break because in the decompiler output the left-hand side of the XOR operation, the key material, will be the _second_ operand in the `xor` instruction. As a reminder, the decompiler shows the XOR as:
 
 ```c
 v8 = *(_BYTE *)(i + 48 * v7 + v3 + 4) ^ a2[(unsigned __int8)byte_424E50[i] + 31];
 ```
 
-The breakpoint is hit and the address we're loading from is `0x19f5c4`. We can now lean on TTD to help us figure out where this data was last written. Set a 1-byte memory write breakpoint at this address using `ba w1 0x19f5c4` and press the `Go Back` button. If you've never used TTD before, this operates exactly as `Go` would except *backwards* in the program's trace. In this case it will execute backward until either a breakpoint is hit, interrupt is generated, or we reach the start of the program.
+The breakpoint is hit and the address we're loading from is `0x19f5c4`. We can now lean on TTD to help us figure out where this data was last written. Set a 1-byte memory write breakpoint at this address using `ba w1 0x19f5c4` and press the `Go Back` button. If you've never used TTD before, this operates exactly as `Go` would except _backwards_ in the program's trace. In this case it will execute backward until either a breakpoint is hit, interrupt is generated, or we reach the start of the program.
 
 Our memory write breakpoint gets triggered at `0x4078fb` -- a function we haven't seen before. The callstack shows that it's called not terribly far from the `decrypt_update_info` routine!
 
@@ -677,7 +676,7 @@ What's `sub_4082c0`?
 
 {{ resize_image(path="/img/yaesu/timestamp_inflation.png", width=800, height=800, op="fit") }}
 
-Not a lot to see here except the same function called 4 times, initially with the timestamp string as an argument in position 0, a 64-byte buffer, and bunch of function calls using the return value of the last as its input. The function our debugger just broke into takes only 1 argument, which is the 64-byte buffer used across *all* of these function calls. So what's going on in `sub_407e80`?
+Not a lot to see here except the same function called 4 times, initially with the timestamp string as an argument in position 0, a 64-byte buffer, and bunch of function calls using the return value of the last as its input. The function our debugger just broke into takes only 1 argument, which is the 64-byte buffer used across _all_ of these function calls. So what's going on in `sub_407e80`?
 
 {{ resize_image(path="/img/yaesu/inflate_timestamp.png", width=800, height=800, op="fit") }}
 
@@ -809,7 +808,7 @@ void set_key(void *this, uint8_t *key) {
 3. The timestamp is formatted as a string, has each byte inflated to its bit representation, and decrypted using some static key material as the key. This is repeated 4 times with the output of the previous run used as an input to the next.
 4. The resulting data from step 3 is used as a key for decrypting data.
 5. The remainder of the firmware update image is inflated to its bit representation 8 bytes at a time and uses the dynamic key and 3 other unique static lookup tables to transform the inflated input data.
-6. The result from step 5 is deflated back into its *byte* representation.
+6. The result from step 5 is deflated back into its _byte_ representation.
 
 My decryption utility which completely reimplements this magic in Rust can be found at [https://github.com/landaire/porkchop](https://github.com/landaire/porkchop).
 

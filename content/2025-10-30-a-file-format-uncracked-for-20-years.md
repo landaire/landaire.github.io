@@ -6,6 +6,9 @@ template = "toc_page.html"
 toc = true
 date = "2025-11-06"
 
+[taxonomies]
+tags = ["re"]
+
 [extra]
 image = "/img/splinter-cell/banner.png"
 image_width = 360
@@ -510,37 +513,7 @@ Also imagine that `GameEngine` is the very first object ever parsed -- nothing e
 
 I believe this can result in export data that is interleaved, unfortunately. For the above scenario the data may be on disk like the following diagram. **Note:** for space/simplicity I've omitted `Core.Class`, as well as the potential for the _properties themselves_ to trigger deserializing of other exports.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│                                                             │
-│                        File Table                           │
-│                                                             │
-│                                                             │
-│                                                             │
-├───────────────────────────┬─────────────────────────────────┤
-│Core.u Header              │ Engine.u Header                 │
-│                           │                                 │
-│                           │                                 │
-├────┬────┬─────────────────┴───────┬─────────────────────────┤
-│    │▰▰▰▰│▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰│                         │
-│    │▰▰▰▰│▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰│          │    │         │
-│    │▰▰▰▰│▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰│          │    │         │
-│  ▲ │ ▲ ▰│▰▰ ▲ ▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰│        ▲ │   ▲│      ▲  │
-├──┼─┴─┼──┴───┼─────────────────────┴────────┼─┴───┼┴──────┼──┤
-│  │   │      │                              │     │       │  │
-│  │   │    ┌─┴──────────────────────────┐   │     │       │  │
-│  │   │    │ Core.Subsystem Export Data │   │     │       │  │
-│  │   │    └────────────────────────────┘   │     │       │  │
-│  │ ┌─┴────────────────────────────────┐    │     │       │  │
-│  │ │ Engine (Super Class) Export Data │    │     │       │  │
-│  │ └──────────────────────────────────┘    │     │       │  │
-│  │                               ┌─────────┴─────┴───────┴──┤
-│┌─┴────────────────────────┐      │    GameEngine Object     │
-││ GameEngine Object Start  │      │        Properties        │
-│└──────────────────────────┘      └──────────────────────────┤
-└─────────────────────────────────────────────────────────────┘
-```
+<img src="/img/splinter-cell/interleaved-data-layout.svg" alt="Interleaved data layout diagram showing how GameEngine, Engine, and Core.Subsystem export data is interleaved on disk" class="mx-auto block" />
 
 And now if you imagine that there's a _second_ object which also extends from `Engine` loaded after `GameEngine`, then their common the super class `Engine` has already been parsed and its information is already in-memory. i.e. if you serialize two objects of the same exact type, the first object might have all the data for its parent classes interleaved with _its own_ export data and the second object only contains its own property data.
 

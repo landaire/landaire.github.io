@@ -12,6 +12,9 @@ image_width = 720
 image_height = 480
 hidden = false
 inline_image = true
+
+[taxonomies]
+tags = ["re", "security", "xbox"]
 +++
 
 In the late 2000s and early 2010s my friends and I were living and breathing Xbox hacking. We were heavily interested in game betas, internal tools, and in general exploring everything the console had to offer.
@@ -81,7 +84,7 @@ Emma had just discovered some critical info that **there were other beta dashboa
 
 A year or two before all of this, Emma and I self-discovered what a [man-in-the-middle](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) (MITM) attack was in the most janky way possible. I had learned that you could share your ethernet adapter on your PC with your Xbox to tunnel your Xbox's traffic through the PC and frequently used this technique to analyze the plaintext HTTP API calls the Xbox made to the marketplace services.
 
-I had also learned about what a [`hosts` file](https://en.wikipedia.org/wiki/Hosts_(file)) was, and one day decided to try something wild:
+I had also learned about what a [`hosts` file](<https://en.wikipedia.org/wiki/Hosts_(file)>) was, and one day decided to try something wild:
 
 Redirect the ProdNet (retail) Xbox LIVE marketplace to the PartnerNet (developer) Xbox LIVE marketplace by adding an entry for marketplace.xboxlive.com in my hosts file, pointing at the PartnerNet IP address.
 
@@ -93,7 +96,7 @@ We knew how to reverse engineer PowerPC but knew absolutely nothing about networ
 
 Being the smart but dumb hackers we were, we decided to try using our hosts file/networking sharing trick on something even _crazier_:
 
-We were going to mirror the  `http://epix-preview.xbox.com/epix/en-US/homepage.xml` manifest and all of its dependencies on our local machine, then set up a web server that served the content.
+We were going to mirror the `http://epix-preview.xbox.com/epix/en-US/homepage.xml` manifest and all of its dependencies on our local machine, then set up a web server that served the content.
 
 Ditto with `http://epix.xbox.com/beta/preview_green/epix/en-US/homepage.xml` URLs -- we would essentially rewrite the the manifest URL _we wanted_ to be located on disk where the console _actually_ loaded from. e.g. the `/beta/preview_green/` part of the path was removed and would be located at `http://epix.xbox.com/epix/en-US/homepage.xml` instead and `epix.xbox.com` would resolve to `127.0.0.1`.
 
@@ -116,7 +119,6 @@ A quick note about the dashboard manifest files: although the Xbox 360 had diffe
 Through leaked internal Xbox 360 dev kit recoveries we were able to access alternate Xbox LIVE environments such as "int2", "vint", and a few others:
 
 [![Xbox LIVE environments as seen on the Xbox 360 dev launcher](/img/xbox-dashboard/xbox-live-environments.jpg)](/img/xbox-dashboard/xbox-live-environments.jpg)
-
 
 [![A folder of different Xbox LIVE environment files](/img/xbox-dashboard/live-environments-folder.png)](/img/xbox-dashboard/live-environments-folder.png)
 
@@ -180,7 +182,7 @@ Not shown in the above screenshot, but if staging mode is enabled and the file s
 XamVerifyXSignerSignature: Signature not trusted, but ok since we're in staging mode or on a devkit
 ```
 
-i.e. `XamSetStagingMode()`, and therefore Preview Tool, disables all signature checks of dashboard contents. *Correction: `XamVerifyXSignerSignature` will allow unsigned content if the caller provides a certain flag indicating they want to allow untrusted signatures in devkit/staging mode. Back when we originally discovered Preview Tool, the dashboard provided this flag but does not appear to anymore.*
+i.e. `XamSetStagingMode()`, and therefore Preview Tool, disables all signature checks of dashboard contents. _Correction: `XamVerifyXSignerSignature` will allow unsigned content if the caller provides a certain flag indicating they want to allow untrusted signatures in devkit/staging mode. Back when we originally discovered Preview Tool, the dashboard provided this flag but does not appear to anymore._
 
 This doesn't actually answer the question though of how the alternate dashboard channels were being used.
 

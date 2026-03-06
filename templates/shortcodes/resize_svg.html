@@ -1,1 +1,10 @@
-<a href="{{ path }}"><img src="{{ path }}" width="{{ width }}" height="{{ height }}" /></a>
+{% set svg_url = get_url(path=path) %}
+<a href="{{ svg_url }}" data-lightbox>
+    <img
+        src="{{ svg_url }}"
+        width="{{ width }}"
+        height="{{ height }}"
+        alt=""
+        class="lightbox-img rounded-lg shadow-sm mx-auto block"
+    />
+</a>

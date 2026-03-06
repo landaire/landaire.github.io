@@ -1,31 +1,148 @@
-{% extends "page.html" %}
+{% extends "base.html" %}
 
-{% block before_content %}
-    {% if page.extra.image %}
-        {% set image = resize_image(path=page.extra.image, width=page.extra.image_width, height=page.extra.image_height, op="fit") %}
-        <a href="{{ page.extra.image }}"><img src="{{ image.url }}" /></a>
+{% block title %}{{ page.title }} | {{ super() }}{% endblock %}
+
+{% block main %}
+<article>
+  {%- if not page.extra.menu %}
+
+  {%- if page.extra.image %}
+  {% set image = resize_image(path=page.extra.image, width=page.extra.image_width, height=page.extra.image_height, op="fit") %}
+  {% set banner_url = get_url(path=page.extra.image) %}
+  <div class="banner-hero mb-8">
+    <a href="{{ banner_url }}" data-lightbox>
+      <img src="{{ image.url }}" alt="{{ page.title }}">
+    </a>
+  </div>
+  {%- endif %}
+
+  <header class="mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{{ page.title }}</h1>
+    {% if page.description %}
+    <p class="text-lg text-gray-500 dark:text-gray-400 mb-3">{{ page.description }}</p>
     {% endif %}
+    {%- if page.date %}
+    <time datetime="{{ page.date | date(format='%+') }}" class="text-sm text-gray-400 dark:text-gray-500">
+      {{ page.date | date(format=config.extra.date_format) }}
+    </time>
+    {%- endif %}
+  </header>
 
-    {% if page.extra.pretext %}
-        {{ page.extra.pretext|markdown|safe}}
-    {% endif %}
+  {%- endif %}
 
-    {% if page.toc %}
-        <ul>
+  <hr class="border-gray-200 dark:border-gray-800 mb-8">
+
+  {%- if page.toc %}
+  {# Mobile TOC: visible below xl #}
+  <details class="xl:hidden mb-8 border border-gray-200 dark:border-gray-800 rounded-lg">
+    <summary class="px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+      Table of Contents
+    </summary>
+    <nav class="toc-sidebar px-4 pb-4">
+      <ul>
         {% for h1 in page.toc %}
-            <li>
-                <a href="{{ h1.permalink | safe }}">{{ h1.title }}</a>
-                {% if h1.children %}
-                    <ul>
-                        {% for h2 in h1.children %}
-                            <li>
-                                <a href="{{ h2.permalink | safe }}">{{ h2.title }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </li>
+        <li>
+          <a href="{{ h1.permalink | safe }}">{{ h1.title }}</a>
+          {% if h1.children %}
+          <ul>
+            {% for h2 in h1.children %}
+            <li><a href="{{ h2.permalink | safe }}">{{ h2.title }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </li>
         {% endfor %}
-        </ul>
+      </ul>
+    </nav>
+  </details>
+  {%- endif %}
+
+  <main class="prose prose-lg dark:prose-invert prose-content max-w-none
+               prose-headings:text-gray-900 dark:prose-headings:text-gray-100
+               prose-a:text-accent-600 dark:prose-a:text-accent-400
+               prose-code:text-gray-800 dark:prose-code:text-gray-200
+               prose-pre:bg-transparent
+               prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700
+               prose-hr:border-gray-200 dark:prose-hr:border-gray-800
+               prose-img:rounded-lg prose-img:shadow-sm
+               min-w-0">
+    {% if page.extra.pretext %}
+    {{ page.extra.pretext | markdown | safe }}
     {% endif %}
+    {{ page.content | safe }}
+  </main>
+
+  {%- if page.toc %}
+  {# Desktop TOC: fixed to right of content, hidden below xl #}
+  <aside class="hidden xl:block fixed top-8 w-44" id="toc-nav"
+         style="left: calc(50% + 29rem);">
+    <nav class="toc-sidebar">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3 px-3">
+        On this page
+      </h2>
+      <ul>
+        {% for h1 in page.toc %}
+        <li>
+          <a href="{{ h1.permalink | safe }}">{{ h1.title }}</a>
+          {% if h1.children %}
+          <ul>
+            {% for h2 in h1.children %}
+            <li><a href="{{ h2.permalink | safe }}">{{ h2.title }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </aside>
+  {%- endif %}
+</article>
+{% endblock %}
+
+{% block scripts %}
+{%- if page.toc %}
+<script>
+// Progressive enhancement: scroll-spy for TOC highlighting
+(function() {
+  var aside = document.getElementById('toc-nav');
+  if (!aside) return;
+  var links = aside.querySelectorAll('a');
+  var headings = [];
+  links.forEach(function(link) {
+    var id = link.getAttribute('href');
+    if (id) {
+      var hash = id.indexOf('#');
+      if (hash !== -1) id = id.substring(hash + 1);
+      var el = document.getElementById(id);
+      if (el) headings.push({ el: el, link: link });
+    }
+  });
+  if (!headings.length) return;
+  var current = null;
+  function activate(link) {
+    if (link === current) return;
+    if (current) current.classList.remove('active');
+    link.classList.add('active');
+    current = link;
+  }
+  function updateFromScroll() {
+    var best = null;
+    for (var i = 0; i < headings.length; i++) {
+      var top = headings[i].el.getBoundingClientRect().top;
+      if (top <= 80) best = headings[i].link;
+    }
+    if (best) activate(best);
+  }
+  var ticking = false;
+  document.addEventListener('scroll', function() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(function() { updateFromScroll(); ticking = false; });
+    }
+  }, { passive: true });
+  updateFromScroll();
+})();
+</script>
+{%- endif %}
 {% endblock %}
