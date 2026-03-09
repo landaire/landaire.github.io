@@ -135,7 +135,7 @@ I would consider myself a low-level person who thinks about allocations in my ap
 
 I have no idea how it works.
 
-Before starting this project I had zero knowledge of 3D rendering, model formats, and while I did manually reverse engineer the game's general virtual filesystem format for its packed files, I got about halfway similar virtual filesystem used for 3D model assets. I have no idea how it works beyond what I started.
+Before starting this project I had zero knowledge of 3D rendering, model formats, and while I did manually reverse engineer the game's general virtual filesystem format for its packed files, I got about halfway through reversing the similar virtual filesystem used for 3D model assets. I have no idea how it works beyond what I started.
 
 I read the code as Claude went along, pointing out things that I thought were obvious anti-patterns or incorrect... but I couldn't tell you how the different ship mesh sections are read, then paired to their transformation matrix (which is located in another file).
 
