@@ -121,7 +121,7 @@ While I really don't have much to share about the specific _thing_ being reverse
 // ---------------------------------------------------------------------------
 ```
 
-And most importantly: there were still bugs along the way. Trying to debug some of these things and prompt for fixes without knowing specifics of how the pieces were interconnected was really annoying (e.g. ship turrets were sometimes not facing to the correct default orientation). For things I really care about being done right, I think it's still worthwhile to go through the pains myself _first_ and have AI assistance later if I can.
+And most importantly: there were still bugs along the way. Trying to debug some of these things and prompt for fixes without knowing specifics of how the pieces were interconnected was really annoying (e.g. ship turrets were sometimes not facing to the correct default orientation). For things I really care about being done right, I think it's still worthwhile to go through the pains myself _first_ and have AI assistance later if I can if for not other reason than to save time in correcting its mistakes.
 
 ## Mixed Feelings
 
