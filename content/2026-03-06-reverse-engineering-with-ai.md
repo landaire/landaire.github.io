@@ -109,7 +109,7 @@ If you would like to read its full analysis of the 3D model format, [here is its
 While I really don't have much to share about the specific _thing_ being reverse engineered, I did learn quite a bit about interacting with Claude. I'm sure people who live and breathe LLMs have their own advice, but what I found personally valuable:
 
 - Developing custom CLIs for rapid testing/iteration. I already had a CLI for interacting with game files which Claude was able to easily extend to test its analysis of the binary.
-- The existing tooling beyond just that CLI was critical. Other CLI tools for examining related file formats or deobfuscating data. This wasn't just a "point it at Binja and profit" sort of deal to achieve the polished result.
+- The existing tooling beyond just that single CLI was critical. Other CLI tools for examining related file formats or deobfuscating data were crucial. This wasn't just a "point it at Binja and profit" sort of deal to achieve the polished result.
 - Watching the code as it streams in, or ensuring a mostly comprehensive review for reasons I've already mentioned like the AI trying to take shortcuts, is very important. I interrupted Claude many times when I noticed it was taking a subpar approach.
 - My project is in Rust, and Rust has a strong type system. Having the AI use strong newtypes for things like identifiers helped quite a bit with ensuring bug-free code.
 - My code was originally split into a couple different repos (one for the CLI tool and libraries, one for the UI). Swapping editor windows before all of this was kind of annoying, and it was even more annoying when trying to have the agents to cross-repo changes.
