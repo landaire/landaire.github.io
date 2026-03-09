@@ -84,7 +84,7 @@ And after processing for a bit:
 
 ![Additional AI analysis](/img/ai-reverse-engineering/later_analysis.png)
 
-Eventually I had some 3D models extracting into a format I could load into Blender piece-by-piece:
+After about an hour or two (part of that time was waiting on me to accept some action prompt) I had some 3D models extracting into a format I could load into Blender piece-by-piece:
 
 ![First 3D Models](/img/ai-reverse-engineering/first_3d_models.png)
 
@@ -104,7 +104,7 @@ But honestly, I'm impressed with what Claude was able to do. From this very dumb
 
 It even did some weird things I never thought of, like [cracking hashes](https://github.com/landaire/wows-toolkit/blob/36234afb178453fc262b113cfba1931d896f9fe7/scripts/crack_mfm_hashes.py) from a set of known strings in the binary to figure out items in the tree structure.
 
-I barely wrote a line of code for this and it cost maybe ~$150 in tokens and an hour until I was able to extract bits of models:
+I barely wrote a line of code for this and it cost maybe ~$150 in tokens:
 
 ![Early AI analysis](/img/ai-reverse-engineering/armor_viewer.png)
 
