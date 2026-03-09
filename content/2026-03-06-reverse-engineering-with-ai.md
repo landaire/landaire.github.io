@@ -96,7 +96,7 @@ And as a side note, it did label things/create structs!
 
 ![Binja Labeling](/img/ai-reverse-engineering/labeling.png)
 
-It tried to do some _very_ dumb things along the way. For example, in one of these files there's some XML data at some point. It generated code where after parsing a section header it would scan forward looking for the XML blob's opening tag and do the same from that position to find the closing tag. I had to curse and yell telling it, "You're fucking this up, stop taking shortcuts. Do this the the right way. No heuristics."
+As far as code is concerned, it tried to do some _very_ dumb things along the way. For example, in one of these files there's some XML data at some point. It generated code where after parsing a section header it would scan forward looking for the XML blob's opening tag and do the same from that position to find the closing tag. I had to curse and yell telling it, "You're fucking this up, stop taking shortcuts. Do this the the right way. No heuristics."
 
 Now obviously this binary has checked assertions (which I hope remain in the binary after this blog post :) ) and those make analysis overall easier. So maybe this is an extremely positive case.
 
