@@ -26,6 +26,60 @@
     font-size: inherit !important;
     line-height: inherit !important;
     letter-spacing: 0 !important;
+    counter-reset: line;
+  }
+
+  /* Code toolbar: language label + copy button */
+  .code-toolbar {
+    @apply flex items-center justify-between select-none;
+    padding: 0.35rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin: -0.5rem -0.75rem 0.4rem -0.75rem;
+  }
+
+  .code-lang {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 600;
+  }
+
+  .code-copy {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.3);
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    font-family: inherit;
+    margin-left: auto;
+  }
+
+  .code-copy:hover {
+    color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Line numbers */
+  .code-line {
+    display: block;
+    line-height: inherit;
+    min-height: 1em;
+  }
+
+  .code-ln {
+    display: inline-block;
+    width: 2.5em;
+    text-align: right;
+    padding-right: 1em;
+    color: rgba(255, 255, 255, 0.15);
+    user-select: none;
+    pointer-events: none;
   }
 
   /* Light mode: dark code block with stronger border */
@@ -48,8 +102,11 @@
   }
 
   .zola-anchor {
-    @apply no-underline text-inherit opacity-0 transition-opacity duration-200;
+    @apply no-underline opacity-0 transition-opacity duration-200 absolute;
     background-image: none !important;
+    right: 100%;
+    padding-right: 0.25em;
+    color: rgba(150, 150, 170, 0.5);
   }
 
   h2:hover .zola-anchor,

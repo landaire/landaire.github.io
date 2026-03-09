@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-white text-gray-800 dark:bg-gray-950 dark:text-gray-200 antialiased">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
     {% include "header.html" ignore missing -%}
     {% block main %}{%- endblock -%}
     {% include "footer.html" ignore missing -%}
@@ -47,6 +47,49 @@
         img.src = el.href || el.querySelector('img').src;
         overlay.classList.add('active');
       });
+    });
+  })();
+  </script>
+
+  <script>
+  // Progressive enhancement: code block line numbers, language label, copy button
+  (function() {
+    document.querySelectorAll('pre code[data-lang]').forEach(function(code) {
+      var pre = code.parentElement;
+      var lang = code.getAttribute('data-lang');
+      pre.style.position = 'relative';
+
+      // Language label + copy button toolbar
+      var toolbar = document.createElement('div');
+      toolbar.className = 'code-toolbar';
+      if (lang && lang !== 'plain') {
+        var langEl = document.createElement('span');
+        langEl.className = 'code-lang';
+        langEl.textContent = lang;
+        toolbar.appendChild(langEl);
+      }
+      var copyBtn = document.createElement('button');
+      copyBtn.className = 'code-copy';
+      copyBtn.textContent = 'Copy';
+      copyBtn.setAttribute('aria-label', 'Copy code to clipboard');
+      copyBtn.addEventListener('click', function() {
+        var text = code.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(function() { copyBtn.textContent = 'Copy'; }, 1500);
+        });
+      });
+      toolbar.appendChild(copyBtn);
+      pre.insertBefore(toolbar, code);
+
+      // Line numbers
+      var lines = code.innerHTML.split('\n');
+      // Remove trailing empty line
+      if (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
+      var numbered = lines.map(function(line, i) {
+        return '<span class="code-line"><span class="code-ln">' + (i + 1) + '</span>' + line + '</span>';
+      }).join('');
+      code.innerHTML = numbered;
     });
   })();
   </script>
