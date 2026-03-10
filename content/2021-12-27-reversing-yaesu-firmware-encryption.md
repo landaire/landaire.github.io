@@ -85,7 +85,7 @@ Our breakpoint is hit at `0x4047DC` -- back to the disassembler. In IDA you can 
 
 We broke when dereferencing `v2` and IDA has automatically named the variable it's being assigned to as `Time`. The `Time` variable is passed to another function which formats it as a string with `%Y%m%d%H%M%S`. Let's clean up the variables to reflect what we know:
 
-```c,linenos
+```c
 bool __thiscall sub_4047B0(char *this)
 {
   char *encrypted_data; // esi
@@ -124,7 +124,7 @@ status_t sub_408350(uint8_t *input, size_t input_len, uint8_t *output, output_le
 
 Let's see what it does:
 
-```c,linenos
+```c
 int __stdcall sub_408350(char *a1, int a2, int a3, int a4, _DWORD *a5)
 {
   int v5; // edx
@@ -229,7 +229,7 @@ Just to recap from the last section:
 
 Let's look at the firmware image decryption routine with some renamed variables:
 
-```c,linenos
+```c
 int __thiscall decrypt_data(
         void *this,
         char *encrypted_data,
@@ -329,7 +329,7 @@ This routine does this process over 8 bytes at a time and completely fills the 6
 
 Now let's look at step #4 and see what's going on in `sub_407980`:
 
-```c,linenos
+```c
 _BYTE *__thiscall sub_407980(void *this, _BYTE *a2, int a3)
 {
   // long list of stack vars removed for clarity
@@ -533,7 +533,7 @@ This function is the perfect example of decompilers emitting less than ideal cod
 
 2. Build a 32-byte buffer containing data from an 0x800-byte static table, with indexes into this table originating from indices built from the buffer in step #1. Combine this 32-byte buffer with the 48-byte buffer in step #1.
 
-```c,linenos
+```c
     // dword_424E80 -- some static data
     // (unsigned __int8)v38[0] + 2) -- the original decompiler output has this wrong.
     //     v33 should be a 52-byte buffer which consumes v38, so v38 is actually data set up in
@@ -559,7 +559,7 @@ This function is the perfect example of decompilers emitting less than ideal cod
 
 3. Iterate over the next 8 bytes of the output buffer. For each byte index of the output buffer, index into yet _another_ static 32-byte buffer and use that as the index into the table from step #2. XOR this value with the value at the current index of the output buffer.
 
-```c,linenos
+```c
 // Not really sure why this calculation works like this. It ends up just being `unk_425681`'s address
 // when it's used.
     v19 = (char *)(&unk_425681 - (_UNKNOWN *)a2);
@@ -635,7 +635,7 @@ This function is the perfect example of decompilers emitting less than ideal cod
 
 The inner loop in the `else` branch above I think is kind of nasty, so here it is reimplemented in Rust:
 
-```rust,linenos
+```rust
 for _ in 0..8 {
     // we swap the `first` index with the `second`
     for (first, second) in (0x1c..=0x1f).zip(0..4) {
@@ -682,7 +682,7 @@ Not a lot to see here except the same function called 4 times, initially with th
 
 The bitwise operations that look supsiciously similar to the byte to bit inflation we saw above with the firmware data. After renaming things and performing some loop unrolling, things look like this:
 
-```c,linenos
+```c
 // sub_407850
 int inflate_timestamp(void *this, char *timestamp_str, char *output, uint8_t *key) {
     for (size_t output_idx = 0; output_idx < 8; output_idx++) {
@@ -719,7 +719,7 @@ int set_key_to_timestamp(void *this, char *timestamp_str) {
 
 The only mystery now is the `set_key` routine:
 
-```c,linenos
+```c
 int __thiscall set_key(char *this, const void *a2)
 {
   _DWORD *v2; // ebp
@@ -770,7 +770,7 @@ int __thiscall set_key(char *this, const void *a2)
 
 This function is a bit more straightforward to reimplement:
 
-```c,linenos
+```c
 void set_key(void *this, uint8_t *key) {
     uint8_t scrambled_key[56];
     memcpy(&scrambled_key, key, sizeof(scrambled_key));
