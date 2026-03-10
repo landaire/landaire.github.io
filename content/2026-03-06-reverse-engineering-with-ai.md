@@ -21,7 +21,7 @@ Through these mods and YouTube tutorials I discovered the (long defunct) Xbox-Ta
 
 I remember the struggles in the late 2000s and early 2010s of using ~~cracked~~ expensive copies of IDA Pro to reverse engineer bits of the Xbox 360 to better write modding tools, and begging my friends who were much better than me (like [@carrot_c4k3](https://x.com/carrot_c4k3), [Xenomega](https://github.com/Xenomega), and [@Grimdoomer](https://x.com/Grimdoomer/)) to help me reverse some Xbox 360 OS functions that I could not understand.
 
-I've invested a lot of time and energy to try to get better at these things over the past 18 or so years. It's not what I live and breathe anymore and I'm not insanely cracked at RE, but I feel I've gotten pretty decent at being able to throw a binary into static analysis tool and with disassembly/pseudocode can reasonably understand what's going on in an an application.
+I've invested a lot of time and energy to try to get better at these things over the past 18 or so years. It's not what I live and breathe anymore and I'm not insanely cracked at RE, but I feel I've gotten pretty decent at being able to throw a binary into a static analysis tool and with disassembly/pseudocode can reasonably understand what's going on in an an application.
 
 I've worked professional as a security engineer for the past 10 years and of course, AI "happened" and it's shaken up a lot of things, but I've still felt fairly comfortable about my skills not being terribly threatened. I've seen people try traditional static analysis tools, data flow analysis, etc., and all tooling falls short somehow, so surely this won't be too different in the near-term -- especially for such a niche skill -- right?
 
