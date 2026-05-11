@@ -126,7 +126,7 @@ This approach is just a bit complex and doesn't scale well to other titles. I do
 
 From my [IDA debugger scripts](/a-file-format-uncracked-for-20-years/#logging-load-order-for-static-recompilation) I had file load order, object load order, and some rough I/O operations.
 
-I had a lightbulb moment: **what if I logged all I/O operations when reading one of these files and reverted the linearization**? This would require only logging reads/seeks, and I could basically place object contents back at their original addresses by translating the data at the file offset to the expected virtual address!
+I had a lightbulb moment: **what if I logged all I/O operations when reading one of these files and reverted the linearization**? This would require only logging reads/seeks, and I could basically place object contents back at their original addresses by translating the data at the file offset to the expected virtual address _without_ reimplementing all this stuff from the game engine!
 
 Soooooo easy.
 
