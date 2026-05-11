@@ -284,6 +284,21 @@
     @apply w-full block;
   }
 
+  /* Figure: image or video with optional figcaption */
+  .figure {
+    @apply my-4 mx-auto block;
+    max-width: 720px;
+  }
+
+  .figure > img,
+  .figure > video {
+    @apply block mx-auto w-full;
+  }
+
+  .figure > figcaption {
+    @apply text-center text-sm opacity-70 mt-2;
+  }
+
   /* Inline code */
   .prose-content :not(pre) > code {
     @apply px-1.5 py-0.5 rounded text-sm

@@ -1,0 +1,4 @@
+<figure class="figure"{% if max_width %} style="max-width:{{ max_width }}px"{% endif %}>
+  <img src="{{ src }}" alt="{{ alt | default(value=caption) }}">
+  <figcaption>{{ caption | safe }}</figcaption>
+</figure>
