@@ -515,7 +515,7 @@ I believe this can result in export data that is interleaved, unfortunately. For
 
 <img src="/img/splinter-cell/interleaved-data-layout.svg" alt="Interleaved data layout diagram showing how GameEngine, Engine, and Core.Subsystem export data is interleaved on disk" class="mx-auto block" />
 
-And now if you imagine that there's a _second_ object which also extends from `Engine` loaded after `GameEngine`, then their common the super class `Engine` has already been parsed and its information is already in-memory. i.e. if you serialize two objects of the same exact type, the first object might have all the data for its parent classes interleaved with _its own_ export data and the second object only contains its own property data.
+And now if you imagine that there's a _second_ object which also extends from `Engine` loaded after `GameEngine`, then their common super class `Engine` has already been parsed and its information is already in-memory. i.e. if you serialize two objects of the same exact type, the first object might have all the data for its parent classes interleaved with _its own_ export data and the second object only contains its own property data.
 
 Unfortunately, this means that to read these files statically (even for just static recompilation) you need to have full knowledge of how each C++-implemented type is parsed in order to parse all exports and their properties. Additionally, reading one export may trigger resolving of imports in your own Linker object, which in turn trigger deserialization of exports in another Linker object.
 
