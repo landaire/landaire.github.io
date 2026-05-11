@@ -586,7 +586,7 @@ There were a couple of cases similar to this, but these all mostly boil down to:
 
 1. Correct I/O ops being performed but _semantically_ being used incorrectly. i.e. some fields were re-ordered.
 2. Some prototype objects had subtle differences in deserialization behavior compared to the retail release -- like not checking the version field and unconditionally reading some data.
-3. Not all objects were being loaded. This was because of some implicit engine behaviors I didn't notice on the C++ side of the house such as:
+3. Not all objects were being loaded for maps which did not have instrumentation. This was because of some implicit engine behaviors I didn't notice on the C++ side of the house such as:
 
 - Using the first character of the map name to load additional assets AFTER the `MyLevel`. Turns out the first character of SC map names indicate the geographic region in the game world, and cause loading of particular objects. e.g. map `3_4_3Severonickel`'s first character `3` is matched on and maps to `RU`, then triggers a load of some objects string formatted with that `RU` as an arg.
 - The map scripts can load objects. I ended up having Claude write me a basic bytecode "interpreter" which got the job done.
