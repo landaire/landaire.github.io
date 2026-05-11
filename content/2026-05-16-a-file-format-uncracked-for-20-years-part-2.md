@@ -233,7 +233,7 @@ I never got this approach fully working and I saw it as having too much complexi
 
 ## Static Recompilation
 
-Static recompilation is a method which aims to byte-for-byte emulate the game engine's object load behavior and would only require doing dynamic analysis to dump the order in which objects are loaded.
+Static recompilation is a method which aims to byte-for-byte emulate the game engine's object (de)serialization behavior, serialize the files from _your_ loader, and would only require doing dynamic analysis to dump the order in which objects are loaded.
 
 That object load order looks something like this:
 
